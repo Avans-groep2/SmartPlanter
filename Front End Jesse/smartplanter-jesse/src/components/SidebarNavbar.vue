@@ -1,4 +1,8 @@
 <script setup>
+import { computed } from 'vue'
+
+// Computed property om te checken of de ingelogde gebruiker een beheerder is
+const isBeheerder = computed(() => $auth.user && $auth.user.role === 'beheerder')
 </script>
 
 <template>
@@ -35,8 +39,8 @@
           </router-link>
         </li>
 
-        <!-- ✅ ADMIN PAGE (beheerder) -->
-        <li v-if="$auth.user.role === 'beheerder'">
+        <!-- ✅ ADMIN PAGE (alleen zichtbaar voor beheerders) -->
+        <li v-if="isBeheerder">
           <router-link to="/admin" class="nav-item">
             <i class="fa-solid fa-user-shield"></i>
             <span class="label">Admin</span>
@@ -64,11 +68,11 @@
     <!-- PROFIEL -->
     <div class="profile">
       <div class="profilePicture">
-        <span>{{ $auth.user.firstLetter }}</span>
+        <span>{{ $auth.user?.firstLetter }}</span>
       </div>
       <div class="profileInfo">
-        <span class="username">{{ $auth.user.fullName }}</span>
-        <span class="usermail">{{ $auth.user.email }}</span>
+        <span class="username">{{ $auth.user?.fullName }}</span>
+        <span class="usermail">{{ $auth.user?.email }}</span>
       </div>
     </div>
 

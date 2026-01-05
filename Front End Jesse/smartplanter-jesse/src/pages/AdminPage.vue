@@ -192,6 +192,7 @@ export default {
 <style scoped>
 .Admin {
   margin-left: 5rem;
+  color: var(--text); /* ✅ alle standaard tekst krijgt var(--text) */
 }
 
 .adminContainer {
@@ -200,25 +201,29 @@ export default {
   border-radius: 15px;
   margin: 2rem 0 0 3rem;
   padding: 1rem;
+  color: var(--text); /* tekstkleur in container */
 }
 
 .adminTitle {
   display: flex;
   gap: 0.5rem;
   position: relative;
+  color: var(--text);
 }
 
 input {
   padding: 0.5rem;
   border-radius: 10px;
   border: 1px solid var(--icon);
+  color: var(--text); /* tekstkleur in input */
+  background: var(--light);
 }
 
 button {
   padding: 0.5rem 1rem;
   border-radius: 10px;
   background: var(--primary);
-  color: white;
+  color: white; /* knoppen houden witte tekst */
   border: none;
   cursor: pointer;
 }
@@ -226,6 +231,7 @@ button {
 /* ================= TABLE ================= */
 .table {
   margin-top: 1rem;
+  color: var(--text); /* standaard tekstkleur in tabel */
 }
 
 .row {
@@ -237,11 +243,13 @@ button {
 .header {
   font-weight: bold;
   border-bottom: 1px solid var(--icon);
+  color: var(--text);
 }
 
 /* ================= DROPDOWN ================= */
 .dropdown-btn {
   background: var(--primary);
+  color: white;
 }
 
 .dropdown-menu {
@@ -252,6 +260,7 @@ button {
   border-radius: 10px;
   border: 1px solid var(--icon);
   z-index: 10;
+  color: var(--text); /* tekstkleur dropdown-items */
 }
 
 .dropdown-menu li {
@@ -261,7 +270,7 @@ button {
 
 .dropdown-menu li:hover {
   background: var(--primary);
-  color: white;
+  color: var(--light);
 }
 
 /* ================= TRANSITION ================= */
