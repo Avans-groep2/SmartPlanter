@@ -107,6 +107,7 @@ export default {
   .accountContainer h2 {
     color: var(--text);
     font-size: 1.5rem;
+    margin: 0.5rem;
   }
 
   .accountContainer a {
