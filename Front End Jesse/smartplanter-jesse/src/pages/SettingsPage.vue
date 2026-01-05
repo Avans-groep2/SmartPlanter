@@ -17,7 +17,8 @@
      <div class="accountContainer">
       <h2>Account</h2>
         <div>
-          <a href="https://141.148.237.73:8443/realms/smartplanter/account/">Wijzig Account Informatie</a>
+          <a href="https://141.148.237.73:8443/realms/smartplanter/account/">Wijzig Gebruikersnaam</a>
+          <a href="https://141.148.237.73:8443/realms/smartplanter/login-actions/required-action?execution=UPDATE_PASSWORD&client_id=account-console&tab_id=Y5oKab4nKhc&client_data=eyJydSI6Imh0dHBzOi8vMTQxLjE0OC4yMzcuNzM6ODQ0My9yZWFsbXMvc21hcnRwbGFudGVyL2FjY291bnQvYWNjb3VudC1zZWN1cml0eS9zaWduaW5nLWluIiwicnQiOiJjb2RlIiwicm0iOiJxdWVyeSIsInN0IjoiY2IwYjZhODAtYmQwMC00YWI3LWFkZTEtNjljYTRjYmQzZmQ1In0">Wijzig Wachtwoord</a>
         </div>
      </div> 
 
