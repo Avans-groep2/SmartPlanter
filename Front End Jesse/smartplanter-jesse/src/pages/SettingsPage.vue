@@ -143,7 +143,7 @@ export default {
 
   .AccountLinks a:hover {
     font-weight: bold;
-    transition: all 0.2s ease;
+    transition: all 0.1s ease;
   }
 
 </style>
