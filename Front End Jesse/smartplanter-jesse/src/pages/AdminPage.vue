@@ -197,7 +197,8 @@ export default {
 
 .adminContainer {
   background: var(--light);
-  width: 28rem;
+  width: 90%;
+  height: 20%;
   border-radius: 15px;
   margin: 2rem 0 0 3rem;
   padding: 1rem;
