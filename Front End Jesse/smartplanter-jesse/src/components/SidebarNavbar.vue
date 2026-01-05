@@ -1,8 +1,12 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, getCurrentInstance } from 'vue'
 
-// Computed property om te checken of de ingelogde gebruiker een beheerder is
-const isBeheerder = computed(() => $auth.user && $auth.user.role === 'beheerder')
+// Haal $auth op uit globalProperties
+const { appContext } = getCurrentInstance()
+const $auth = appContext.config.globalProperties.$auth
+
+// Check of ingelogde gebruiker beheerder is
+const isBeheerder = computed(() => $auth.user?.roles.includes('beheerder'))
 </script>
 
 <template>
@@ -39,7 +43,7 @@ const isBeheerder = computed(() => $auth.user && $auth.user.role === 'beheerder'
           </router-link>
         </li>
 
-        <!-- ✅ ADMIN PAGE (alleen zichtbaar voor beheerders) -->
+        <!-- ADMIN PAGE -->
         <li v-if="isBeheerder">
           <router-link to="/admin" class="nav-item">
             <i class="fa-solid fa-user-shield"></i>
@@ -90,11 +94,12 @@ const isBeheerder = computed(() => $auth.user && $auth.user.role === 'beheerder'
   display: flex;
   flex-direction: column;
   background: var(--light);
-  box-shadow: 5px 0 10px rgba(0,0,0,0.3);
+  box-shadow: 5px 0 10px rgba(0, 0, 0, 0.3);
   transition: width 0.3s ease;
   overflow: hidden;
   user-select: none;
   z-index: 1000;
+  color: var(--text);
 }
 
 /* ================= LOGO ================= */
@@ -103,7 +108,6 @@ const isBeheerder = computed(() => $auth.user && $auth.user.role === 'beheerder'
   align-items: center;
   height: 5rem;
   margin-left: 1rem;
-  color: var(--text);
 }
 
 .logo i {
@@ -118,41 +122,10 @@ const isBeheerder = computed(() => $auth.user && $auth.user.role === 'beheerder'
   font-weight: bold;
   opacity: 0;
   transition: opacity 0.3s ease;
+  color: var(--text);
 }
 
 /* ================= NAVIGATIE ================= */
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  font-size: 30px;
-  font-weight: 500;
-  color: var(--text);
-  background: none;
-  border: none;
-  text-decoration: none;
-  transition: all 0.3s ease;
-  cursor: pointer;
-}
-
-.nav-item i {
-  font-size: 30px;
-  flex-shrink: 0;
-  color: var(--icon);
-}
-
-.nav-item .label {
-  font-size: 22px;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.nav-item.router-link-active,
-.nav-item.router-link-active i {
-  color: var(--primary);
-}
-
-/* ================= NAV STRUCTUUR ================= */
 nav {
   display: flex;
   flex-direction: column;
@@ -176,6 +149,37 @@ li {
   position: relative;
 }
 
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 30px;
+  font-weight: 500;
+  background: none;
+  border: none;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: var(--text);
+}
+
+.nav-item i {
+  font-size: 30px;
+  flex-shrink: 0;
+  color: var(--icon);
+}
+
+.nav-item .label {
+  font-size: 22px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.nav-item.router-link-active,
+.nav-item.router-link-active i {
+  color: var(--primary);
+}
+
 /* ================= MELDING-BADGE ================= */
 .notificationCount {
   display: flex;
@@ -189,6 +193,7 @@ li {
   margin-left: 0.5rem;
   opacity: 0;
   transition: opacity 0.3s ease;
+  color: white;
 }
 
 /* ================= PROFIEL ================= */
@@ -203,6 +208,8 @@ li {
 .profile .username,
 .profile .usermail {
   color: var(--text);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .profilePicture {
@@ -226,20 +233,23 @@ li {
   flex-direction: column;
 }
 
-.username,
-.usermail {
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
 /* ================= HOVER EFFECT ================= */
 .sidebar:hover {
   width: 20rem;
 }
 
-.sidebar:hover .logo-text,
-.sidebar:hover .nav-item .label,
-.sidebar:hover .notificationCount,
+.sidebar:hover .logo-text {
+  opacity: 1;
+}
+
+.sidebar:hover .nav-item .label {
+  opacity: 1;
+}
+
+.sidebar:hover .notificationCount {
+  opacity: 1;
+}
+
 .sidebar:hover .username,
 .sidebar:hover .usermail {
   opacity: 1;

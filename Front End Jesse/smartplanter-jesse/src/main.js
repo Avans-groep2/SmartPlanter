@@ -5,12 +5,12 @@ import Keycloak from 'keycloak-js'
 import router, { setKeycloak } from './router'
 import './assets/styles/theme.css'
 
+// --- THEME STUFF ---
 const savedColor = localStorage.getItem('primary-color');
 if (savedColor) {
   document.documentElement.style.setProperty('--primary', savedColor);
 }
 
-// eventueel ook theme herstellen
 const savedTheme = localStorage.getItem('theme');
 if (savedTheme === 'dark') {
   document.documentElement.classList.add('dark');
@@ -25,10 +25,10 @@ const initOptions = {
 
 const keycloak = new Keycloak(initOptions)
 
-// Doorsturen naar router guards
+// router guards
 setKeycloak(keycloak)
 
-// --- HANDIGE FUNCTIONS TOEVOEGEN ---
+// --- BUILD USER OBJECT ---
 function buildUserObject() {
   if (!keycloak.tokenParsed) return null
 
@@ -45,37 +45,30 @@ function buildUserObject() {
       keycloak.tokenParsed.given_name?.charAt(0)?.toUpperCase() ??
       keycloak.tokenParsed.preferred_username?.charAt(0)?.toUpperCase() ??
       '?',
+    roles: keycloak.tokenParsed.realm_access?.roles ?? [] // ✅ Voeg rollen toe
   }
 }
 
-// Globale AUTH helper
+// --- GLOBAL AUTH OBJECT ---
 const auth = {
   keycloak,
 
-  // User info ophalen
   get user() {
     return buildUserObject()
   },
 
-  // Logout functie
   logout() {
-    keycloak.logout({
-      redirectUri: window.location.origin,
-    })
+    keycloak.logout({ redirectUri: window.location.origin })
   },
 
-  // Token vernieuwen
   refresh() {
     return keycloak.updateToken(60)
-  },
+  }
 }
 
 // --- INITIALISEER KEYCLOAK ---
 keycloak
-  .init({
-    onLoad: 'login-required',
-    pkceMethod: 'S256',
-  })
+  .init({ onLoad: 'login-required', pkceMethod: 'S256' })
   .then((authSuccess) => {
     if (!authSuccess) {
       console.warn('⚠️ Keycloak authentication failed or canceled.')
@@ -86,7 +79,7 @@ keycloak
 
     const app = createApp(App)
 
-    // Globale AUTH object beschikbaar in hele app
+    // Globale AUTH beschikbaar in hele app
     app.config.globalProperties.$auth = auth
 
     app.use(router)
@@ -94,11 +87,8 @@ keycloak
 
     // TOKEN AUTO-REFRESH
     setInterval(() => {
-      keycloak
-        .updateToken(70)
-        .then((refreshed) => {
-          if (refreshed) console.log('🔄 Token refreshed')
-        })
+      keycloak.updateToken(70)
+        .then((refreshed) => { if (refreshed) console.log('🔄 Token refreshed') })
         .catch(() => console.error('❌ Failed to refresh token'))
     }, 60000)
   })
