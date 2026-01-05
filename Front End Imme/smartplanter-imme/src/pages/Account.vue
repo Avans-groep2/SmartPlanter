@@ -121,8 +121,7 @@ export default {
 
   display: flex;
 
-  /*background-color: #2d6a4f;*/
-  background-color: #2d336a;
+  background-color: #2d6a4f;
   color: white;
 
   font-weight: 400;
@@ -162,7 +161,7 @@ export default {
 .moestuinKeuzeDropDown {
   position: relative;
   width: 180px;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
 }
 
 .dropdown-selected {
