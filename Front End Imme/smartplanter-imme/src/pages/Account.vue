@@ -98,7 +98,6 @@ export default {
 
 
 <style>
-
 .Account {
   display: flex;
   flex-direction: column;
@@ -110,7 +109,7 @@ export default {
 }
 
 #h1 {
-  font-size: 25px;
+  font-size: 20px;
   font-weight: 200%; 
 }
 
@@ -120,19 +119,17 @@ export default {
   max-width: 350px;
 
   display: flex;
-  align-items: center;
 
   background-color: #2d6a4f;
   color: white;
-
   font-weight: 400;
   font-size: 25px;
+
   padding: 10px 60px;
   border-radius: 25px;
   cursor: pointer;
   transition: 0.2s ease;
-  box-shadow:0 2px 8px rgba(0,0,0,0.25) ;
-
+  box-shadow:0 2px 8px rgba(0,0,0,0.25);
 }
 
 .settingsknop:hover {
@@ -150,7 +147,7 @@ export default {
   padding: 12px;
   max-width: 350px;
 
-  background-color: rgba(255, 255, 244, 0.63);
+  background-color: rgba(169, 255, 115, 0.63);
   border-radius: 8px;
   box-shadow:0 2px 8px rgba(0,0,0,0.25) ;
 }
@@ -158,7 +155,7 @@ export default {
 .moestuinKeuzeDropDown {
   position: relative;
   width: 180px;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
 }
 
 .dropdown-selected {

@@ -1,7 +1,10 @@
 <template>
-<section>
-  <h1>We zouden nu in de Meldingen pagina mogen zitten</h1>
-</section>
+
+  <div class="belangrijke_meldingen"></div>
+    <h1 style="color:red;">Belangrijke meldingen!</h1>
+  <div class="overige_meldingen"></div>
+    <h1>Overige meldingen</h1>
+
 </template>
 
 
@@ -16,7 +19,18 @@ export default {
 
 
 <style>
-h1{
-  color:rgb(0, 0, 0);
+.belangrijke_meldingen {
+  margin-left: 10%;
+  max-width: 80% ;
+  max-height: auto;
+  background-color: rgba(169, 255, 115, 0.63);
 }
+
+.overige_meldingen {
+  margin-left: 10%;
+  max-width: 80% ;
+  max-height: auto;
+  background-color: rgba(169, 255, 115, 0.63);
+}
+
 </style>
