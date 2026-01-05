@@ -49,7 +49,7 @@
           <ul v-if="open" class="dropdown-menu">
             <li
               v-for="device in devices"
-              :key="device.id"
+              :key="device.deviceId"
               @click="selectDevice(device)"
             >
               {{ device.deviceNaam }} ({{ device.deviceId }})
@@ -88,7 +88,6 @@
 </template>
 
 <script>
-import axios from 'axios'
 import WelcomeMessage from '@/components/WelcomeMessage.vue'
 import SidebarNavbar from '@/components/SidebarNavbar.vue'
 
@@ -102,6 +101,7 @@ export default {
       open: false,
       devices: [],
       selectedDevice: null,
+      selectedDeviceId: null,
 
       // input
       newDeviceId: '',
@@ -114,57 +114,76 @@ export default {
   },
 
   mounted() {
-    this.fetchDevices()
-    this.fetchDeviceMeldingen()
-    this.fetchGebruikersDevices()
+    // ================= MOCK DATA =================
+
+    this.devices = [
+      { deviceId: 'DEV-001', deviceNaam: 'Sensor Keuken' },
+      { deviceId: 'DEV-002', deviceNaam: 'Sensor Garage' },
+      { deviceId: 'DEV-003', deviceNaam: 'Sensor Zolder' }
+    ]
+
+    this.deviceMeldingen = [
+      {
+        deviceId: 'DEV-001',
+        datum: '2026-01-05',
+        tijd: '10:32',
+        tekst: 'Temperatuur te hoog'
+      },
+      {
+        deviceId: 'DEV-002',
+        datum: '2026-01-05',
+        tijd: '11:10',
+        tekst: 'Batterij bijna leeg'
+      }
+    ]
+
+    this.gebruikersDevices = [
+      {
+        gebruikersnaam: 'jan',
+        email: 'jan@test.nl',
+        deviceId: 'DEV-001',
+        deviceNaam: 'Sensor Keuken'
+      },
+      {
+        gebruikersnaam: 'piet',
+        email: 'piet@test.nl',
+        deviceId: 'DEV-002',
+        deviceNaam: 'Sensor Garage'
+      }
+    ]
   },
 
   methods: {
-    /* ================= FETCH ================= */
-    async fetchDevices() {
-      const res = await axios.get('/api/devices')
-      this.devices = res.data
-    },
-
-    async fetchDeviceMeldingen() {
-      const res = await axios.get('/api/device-meldingen')
-      this.deviceMeldingen = res.data
-    },
-
-    async fetchGebruikersDevices() {
-      const res = await axios.get('/api/gebruikers-devices')
-      this.gebruikersDevices = res.data
-    },
-
-    /* ================= ACTIONS ================= */
     selectDevice(device) {
       this.selectedDevice = device.deviceNaam
-      this.open = false
       this.selectedDeviceId = device.deviceId
+      this.open = false
     },
 
-    async addDevice() {
+    addDevice() {
       if (!this.newDeviceId) return
 
-      await axios.post('/api/devices', {
-        deviceId: this.newDeviceId
+      this.devices.push({
+        deviceId: this.newDeviceId,
+        deviceNaam: `Nieuw Device (${this.newDeviceId})`
       })
 
       this.newDeviceId = ''
-      this.fetchDevices()
     },
 
-    async koppelDevice() {
+    koppelDevice() {
       if (!this.gebruikersnaam || !this.selectedDeviceId) return
 
-      await axios.post('/api/gebruikers-devices', {
+      this.gebruikersDevices.push({
         gebruikersnaam: this.gebruikersnaam,
-        deviceId: this.selectedDeviceId
+        email: `${this.gebruikersnaam}@test.nl`,
+        deviceId: this.selectedDeviceId,
+        deviceNaam: this.selectedDevice
       })
 
       this.gebruikersnaam = ''
       this.selectedDevice = null
-      this.fetchGebruikersDevices()
+      this.selectedDeviceId = null
     }
   }
 }
