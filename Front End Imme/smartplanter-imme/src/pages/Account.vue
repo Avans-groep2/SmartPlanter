@@ -111,10 +111,11 @@ export default {
 
 
 .settingsknop {
-  margin-top: 20px;
+  margin-left: 5px;
+  margin-top: 30px;
+  display: flex;
   background-color: #2d6a4f;
   color: white;
-  /*font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;*/
   font-weight: 400;
   font-size: 25px;
   padding: 10px 60px;
@@ -122,7 +123,7 @@ export default {
   border-radius: 25px;
   cursor: pointer;
   transition: 0.2s ease;
-  align-self: flex-start;
+  /*align-self: flex-start;*/
 
   align-self: start;
   box-shadow:0 2px 8px rgba(0,0,0,0.25) ;
@@ -137,18 +138,21 @@ export default {
 
 
 .MoestuinKeuze {
-  margin-top: 34rem;    
+  margin-top: 50px;
+  margin-left: 5px;
   text-align: right;
   display: flex;
   flex-direction: column;
   gap: 2px;
   position: relative;
-  align-items: center;
+
+  max-width: 300px;
+  max-height: 250px;
 
   background-color: beige;
   border-radius: 5px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.25) ;
   
-  /*font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;*/
 }
 
 
@@ -162,7 +166,7 @@ export default {
 .moestuinKeuzeDropDown {
   position: relative;
   width: 180px;
-  margin-top: 10px;
+  /*margin-top: 10px;*/
 }
 
 .dropdown-selected {
@@ -207,8 +211,8 @@ export default {
 
 
 .moestuinNaamContainer {
-  margin-bottom: 2rem;
-  margin-left: 2%;        
+  /*margin-bottom: 2rem;
+  margin-left: 2%;*/        
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -240,7 +244,6 @@ export default {
 .moestuinNaamButton {
   background-color: #2d6a4f;
   color: white;
-  /*font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;*/
   font-size: 15px;
   padding: 8px 15px; 
   border: none;
