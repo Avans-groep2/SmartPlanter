@@ -111,6 +111,7 @@ export default {
 #h1 {
   font-size: 20px;
   font-weight: 200%; 
+  color:#2d6a4f;
 }
 
 .settingsknop {

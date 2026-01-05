@@ -18,11 +18,18 @@ export default {
 
 
 
+
 <style>
+
+#h1 {
+  font-size: 20px;
+  font-weight: 200%; 
+}
+
 .belangrijke_meldingen {
   margin-left: 10%;
-  max-width: 80% ;
-  max-height: auto;
+  width: 80% ;
+  height: auto;
   background-color: rgba(169, 255, 115, 0.63);
 }
 
