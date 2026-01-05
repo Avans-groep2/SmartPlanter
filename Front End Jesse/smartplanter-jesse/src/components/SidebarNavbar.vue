@@ -36,7 +36,7 @@
         </li>
 
         <!-- ✅ ADMIN PAGE (beheerder) -->
-        <li v-if="$auth.user && $auth.user.role === 'beheerder'">
+        <li>
           <router-link to="/admin" class="nav-item">
             <i class="fa-solid fa-user-shield"></i>
             <span class="label">Admin</span>
