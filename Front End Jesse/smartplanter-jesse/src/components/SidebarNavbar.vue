@@ -61,7 +61,7 @@ const isBeheerder = computed(() => $auth.user?.roles.includes('beheerder'))
         </li>
 
         <li>
-          <button class="nav-item" @click="$auth.logout()">
+          <button class="nav-item" @click="$auth.logout()" style="padding: 0; margin: 0;">
             <i class="fa-solid fa-right-from-bracket"></i>
             <span class="label">Loguit</span>
           </button>
