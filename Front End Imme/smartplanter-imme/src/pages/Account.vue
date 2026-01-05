@@ -174,18 +174,17 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 0.5rem;
 }
 
 .dropdown-options {
   text-align: left;
   position: absolute;
-  bottom: 105%;   
+  top: 105%;   
   width: 100%;
   border: 1px solid #2d6a4f;
   border-radius: 5px;
   overflow: hidden;
-  /*z-index: 100;*/
-  margin-bottom: 0.5rem;
 }
 
 .dropdown-option {
