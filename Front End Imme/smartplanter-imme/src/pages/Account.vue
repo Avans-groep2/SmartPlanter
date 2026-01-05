@@ -6,7 +6,6 @@
 
   <div class="MoestuinKeuze">
     <h1>U werkt nu in:</h1>
-
     <div class="moestuinKeuzeDropDown" ref="dropdown">
       <div class="dropdown-selected" @click="toggleDropdown">
         {{ gekozenMoestuin || '- -' }}
@@ -122,10 +121,11 @@ export default {
   cursor: pointer;
   transition: 0.2s ease;
   align-self: flex-start;
-  margin-top: 5vh;
-  margin-bottom: auto; 
-  margin: 2%;
+  margin-top: 10vh;
+ /* margin-bottom: auto;  
+  margin: 2%; */
   align-self: start;
+  box-shadow:0 2px 8px rgba(0,0,0,0.25) ;
 
 }
 
@@ -138,18 +138,19 @@ export default {
 /*----------------------DROPDOWN------------------------*/ 
 
 .MoestuinKeuze {
-  margin-right: 3rem;  
+  margin-left: 3rem;  
   margin-top: 34rem;    
   text-align: right;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 2px;
-  top: 1rem;
-  right: 1rem;
+
+  background-color: beige;
+  border-radius: 5px;
   
 
-  color: white;
+  /*color: white;*/
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -160,8 +161,6 @@ export default {
   font-size: 25px;
   font-weight: 200%; 
   margin-right: 1%; 
-  background-color: beige;
-
 }
 
 
