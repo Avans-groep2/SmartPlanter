@@ -24,9 +24,8 @@
         </div>
       </div>
     </div>
-    </div>
 
-  <div class="moestuinNaamContainer">
+    <div class="moestuinNaamContainer">
   <h1>Moestuin naam:</h1>
 
   <div class="inputButtonRow">
@@ -39,6 +38,10 @@
   </div>
 
 </div>
+
+    </div>
+
+  
 
 
 </template>
@@ -119,14 +122,13 @@ export default {
   cursor: pointer;
   transition: 0.2s ease;
   align-self: flex-start;
-  margin-bottom: auto; /* duwt alles eronder naar beneden */
-
-}
-
-.settingsknop {
+  margin-top: 5vh;
+  margin-bottom: auto; 
   margin: 2%;
   align-self: start;
+
 }
+
 
 .settingsknop:hover {
   filter: brightness(0.5);
@@ -158,6 +160,7 @@ export default {
   font-size: 25px;
   font-weight: 200%; 
   margin-right: 1%; 
+  background-color: beige;
 
 }
 
