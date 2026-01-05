@@ -27,17 +27,22 @@ export default {
 }
 
 .belangrijke_meldingen {
-  margin-left: 10%;
-  width: 80% ;
+  padding: 1rem;
+  margin-left: 5%;
+  width: 90%;
   height: auto;
-  background-color: rgba(169, 255, 115, 0.63);
+  background-color: rgba(94, 144, 64, 0.63);
+  border-radius: 8px;
 }
 
 .overige_meldingen {
+  padding: 1rem;
+  margin-top: 40%;
   margin-left: 10%;
   width: 80% ;
   height: auto;
-  background-color: rgba(169, 255, 115, 0.63);
+  background-color: rgba(94, 144, 64, 0.63);
+  border-radius: 8px;
 }
 
 </style>
