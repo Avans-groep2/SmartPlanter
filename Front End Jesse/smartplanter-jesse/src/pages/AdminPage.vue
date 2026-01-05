@@ -1,0 +1,259 @@
+<template>
+  <SidebarNavbar />
+
+  <div class="Admin">
+    <WelcomeMessage />
+
+    <!-- ================= DEVICE MELDINGEN ================= -->
+    <div class="adminContainer">
+      <div class="adminTitle">
+        <input v-model="newDeviceId" placeholder="Device ID" />
+        <button @click="addDevice">Aanmaken</button>
+      </div>
+
+      <div class="table">
+        <div class="row header">
+          <div>Device ID</div>
+          <div>Datum</div>
+          <div>Tijd</div>
+          <div>Melding</div>
+        </div>
+
+        <div
+          v-for="(melding, index) in deviceMeldingen"
+          :key="index"
+          class="row"
+        >
+          <div>{{ melding.deviceId }}</div>
+          <div>{{ melding.datum }}</div>
+          <div>{{ melding.tijd }}</div>
+          <div>{{ melding.tekst }}</div>
+        </div>
+
+        <div v-if="deviceMeldingen.length === 0" class="loading">
+          Geen meldingen gevonden
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= GEBRUIKER ↔ DEVICE ================= -->
+    <div class="adminContainer">
+      <div class="adminTitle dropdown">
+        <input v-model="gebruikersnaam" placeholder="Gebruikersnaam" />
+
+        <button @click="open = !open" class="dropdown-btn">
+          {{ selectedDevice || 'Selecteer Device' }}
+        </button>
+
+        <transition name="fade-slide">
+          <ul v-if="open" class="dropdown-menu">
+            <li
+              v-for="device in devices"
+              :key="device.id"
+              @click="selectDevice(device)"
+            >
+              {{ device.deviceNaam }} ({{ device.deviceId }})
+            </li>
+          </ul>
+        </transition>
+
+        <button @click="koppelDevice">Koppelen</button>
+      </div>
+
+      <div class="table">
+        <div class="row header">
+          <div>Gebruikersnaam</div>
+          <div>Email</div>
+          <div>Device ID</div>
+          <div>Device Naam</div>
+        </div>
+
+        <div
+          v-for="(item, index) in gebruikersDevices"
+          :key="index"
+          class="row"
+        >
+          <div>{{ item.gebruikersnaam }}</div>
+          <div>{{ item.email }}</div>
+          <div>{{ item.deviceId }}</div>
+          <div>{{ item.deviceNaam }}</div>
+        </div>
+
+        <div v-if="gebruikersDevices.length === 0" class="loading">
+          Geen koppelingen gevonden
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import axios from 'axios'
+import WelcomeMessage from '@/components/WelcomeMessage.vue'
+import SidebarNavbar from '@/components/SidebarNavbar.vue'
+
+export default {
+  name: 'AdminPage',
+  components: { SidebarNavbar, WelcomeMessage },
+
+  data() {
+    return {
+      // dropdown
+      open: false,
+      devices: [],
+      selectedDevice: null,
+
+      // input
+      newDeviceId: '',
+      gebruikersnaam: '',
+
+      // data
+      deviceMeldingen: [],
+      gebruikersDevices: []
+    }
+  },
+
+  mounted() {
+    this.fetchDevices()
+    this.fetchDeviceMeldingen()
+    this.fetchGebruikersDevices()
+  },
+
+  methods: {
+    /* ================= FETCH ================= */
+    async fetchDevices() {
+      const res = await axios.get('/api/devices')
+      this.devices = res.data
+    },
+
+    async fetchDeviceMeldingen() {
+      const res = await axios.get('/api/device-meldingen')
+      this.deviceMeldingen = res.data
+    },
+
+    async fetchGebruikersDevices() {
+      const res = await axios.get('/api/gebruikers-devices')
+      this.gebruikersDevices = res.data
+    },
+
+    /* ================= ACTIONS ================= */
+    selectDevice(device) {
+      this.selectedDevice = device.deviceNaam
+      this.open = false
+      this.selectedDeviceId = device.deviceId
+    },
+
+    async addDevice() {
+      if (!this.newDeviceId) return
+
+      await axios.post('/api/devices', {
+        deviceId: this.newDeviceId
+      })
+
+      this.newDeviceId = ''
+      this.fetchDevices()
+    },
+
+    async koppelDevice() {
+      if (!this.gebruikersnaam || !this.selectedDeviceId) return
+
+      await axios.post('/api/gebruikers-devices', {
+        gebruikersnaam: this.gebruikersnaam,
+        deviceId: this.selectedDeviceId
+      })
+
+      this.gebruikersnaam = ''
+      this.selectedDevice = null
+      this.fetchGebruikersDevices()
+    }
+  }
+}
+</script>
+
+<style scoped>
+.Admin {
+  margin-left: 5rem;
+}
+
+.adminContainer {
+  background: var(--light);
+  width: 28rem;
+  border-radius: 15px;
+  margin: 2rem 0 0 3rem;
+  padding: 1rem;
+}
+
+.adminTitle {
+  display: flex;
+  gap: 0.5rem;
+  position: relative;
+}
+
+input {
+  padding: 0.5rem;
+  border-radius: 10px;
+  border: 1px solid var(--icon);
+}
+
+button {
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+/* ================= TABLE ================= */
+.table {
+  margin-top: 1rem;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 0.4rem 0;
+}
+
+.header {
+  font-weight: bold;
+  border-bottom: 1px solid var(--icon);
+}
+
+/* ================= DROPDOWN ================= */
+.dropdown-btn {
+  background: var(--primary);
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 3rem;
+  background: var(--light);
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid var(--icon);
+  z-index: 10;
+}
+
+.dropdown-menu li {
+  padding: 0.5rem;
+  cursor: pointer;
+}
+
+.dropdown-menu li:hover {
+  background: var(--primary);
+  color: white;
+}
+
+/* ================= TRANSITION ================= */
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: all 0.2s ease;
+}
+
+.fade-slide-enter-from,
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+</style>
