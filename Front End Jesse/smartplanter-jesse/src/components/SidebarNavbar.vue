@@ -20,7 +20,7 @@ const isBeheerder = computed(() => $auth.user?.roles.includes('beheerder'))
     
     <!-- NAVIGATIE -->
     <nav>
-      <ul class="nav-list top">
+      <ul>
         <li>
           <router-link to="/" class="nav-item">
             <i class="fa-solid fa-border-all"></i>
@@ -52,7 +52,7 @@ const isBeheerder = computed(() => $auth.user?.roles.includes('beheerder'))
         </li>
       </ul>
 
-      <ul class="nav-list bottom">
+      <ul>
         <li>
           <router-link to="/settings" class="nav-item">
             <i class="fa-solid fa-gear"></i>
@@ -100,7 +100,6 @@ const isBeheerder = computed(() => $auth.user?.roles.includes('beheerder'))
   user-select: none;
   z-index: 1000;
   color: var(--text);
-  padding-left: 16px; /* ✅ 16px vanaf linkerzijde */
 }
 
 /* ================= LOGO ================= */
@@ -108,6 +107,7 @@ const isBeheerder = computed(() => $auth.user?.roles.includes('beheerder'))
   display: flex;
   align-items: center;
   height: 5rem;
+  margin-left: 1rem;
 }
 
 .logo i {
@@ -134,16 +134,12 @@ nav {
   padding-top: 0.5rem;
 }
 
-.nav-list {
+ul {
   list-style: none;
   display: flex;
   flex-direction: column;
   padding: 0;
-  margin: 0; /* geen margin-left meer */
-}
-
-.nav-list.bottom {
-  margin-top: auto; /* push naar beneden */
+  margin-left: 16px;
 }
 
 li {
@@ -165,8 +161,6 @@ li {
   cursor: pointer;
   transition: all 0.3s ease;
   color: var(--text);
-  width: 100%; /* button en link gelijk */
-  padding: 0.25rem 0;
 }
 
 .nav-item i {
