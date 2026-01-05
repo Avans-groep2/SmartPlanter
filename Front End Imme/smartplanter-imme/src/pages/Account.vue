@@ -113,8 +113,8 @@ export default {
 .settingsknop {
   margin-left: 8px;
   margin-top: 30px;
-  max-width: 50px;
-  
+  max-width: 350px;
+
   display: flex;
 
   background-color: #2d6a4f;
@@ -133,12 +133,10 @@ export default {
 
 }
 
-
 .settingsknop:hover {
   filter: brightness(0.5);
   background-color: #2d6a4f;
 }
-
 
 .MoestuinKeuze {
   margin-top: 50px;
@@ -147,13 +145,12 @@ export default {
   flex-direction: column;
   gap: 2px;
   position: relative;
-  padding: 7px;
+  padding: 10px;
 
-  /*max-width: 500px;
-  max-height: 450px;*/
+  max-width: 400px;
 
   background-color: rgba(245, 245, 220, 0.63);
-  border-radius: 5px;
+  border-radius: 7px;
   box-shadow:0 2px 8px rgba(0,0,0,0.25) ;
   
 }
