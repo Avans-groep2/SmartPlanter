@@ -1,7 +1,7 @@
 <template class="Account">
 
   <div class="accountknop">
-    <button class="settingsknop">Account setting</button>
+    <a href="https://141.148.237.73:8443/realms/smartplanter/account/" class="settingsknop">Account setting</a>
   </div>
 
   <div class="MoestuinKeuze">
