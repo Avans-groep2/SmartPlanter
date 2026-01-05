@@ -120,6 +120,7 @@ export default {
   max-width: 350px;
 
   display: flex;
+  align-items: center;
 
   background-color: #2d6a4f;
   color: white;
@@ -127,12 +128,9 @@ export default {
   font-weight: 400;
   font-size: 25px;
   padding: 10px 60px;
-  /*border: none;*/
   border-radius: 25px;
   cursor: pointer;
   transition: 0.2s ease;
-  /*align-self: flex-start;
-  align-self: start;*/
   box-shadow:0 2px 8px rgba(0,0,0,0.25) ;
 
 }
