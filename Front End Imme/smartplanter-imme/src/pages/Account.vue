@@ -117,7 +117,7 @@ export default {
 .settingsknop {
   margin-left: 14px;
   margin-top: 30px;
-  max-width: 325px;
+  max-width: 350px;
 
   display: flex;
 
@@ -127,12 +127,12 @@ export default {
   font-weight: 400;
   font-size: 25px;
   padding: 10px 60px;
-  border: none;
+  /*border: none;*/
   border-radius: 25px;
   cursor: pointer;
   transition: 0.2s ease;
-  align-self: flex-start;
-  align-self: start;
+  /*align-self: flex-start;
+  align-self: start;*/
   box-shadow:0 2px 8px rgba(0,0,0,0.25) ;
 
 }
@@ -153,14 +153,14 @@ export default {
   max-width: 350px;
 
   background-color: rgba(255, 255, 244, 0.63);
-  border-radius: 7px;
+  border-radius: 8px;
   box-shadow:0 2px 8px rgba(0,0,0,0.25) ;
 }
 
 .moestuinKeuzeDropDown {
   position: relative;
   width: 180px;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
 }
 
 .dropdown-selected {
