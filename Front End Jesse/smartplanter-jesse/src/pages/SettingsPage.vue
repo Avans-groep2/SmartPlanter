@@ -111,7 +111,7 @@ export default {
   .accountContainer a {
     text-decoration: none;
     cursor: pointer;
-    color: var(--text);
+    color: var(--primary);
   }
 
   .themeContainer .btnTheme {
