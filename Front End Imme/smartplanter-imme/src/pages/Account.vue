@@ -111,7 +111,7 @@ export default {
 
 
 .settingsknop {
-  margin-left: 5px;
+  margin-left: 8px;
   margin-top: 30px;
   display: flex;
   background-color: #2d6a4f;
@@ -123,7 +123,7 @@ export default {
   border-radius: 25px;
   cursor: pointer;
   transition: 0.2s ease;
-  /*align-self: flex-start;*/
+  align-self: flex-start;
 
   align-self: start;
   box-shadow:0 2px 8px rgba(0,0,0,0.25) ;
@@ -139,17 +139,17 @@ export default {
 
 .MoestuinKeuze {
   margin-top: 50px;
-  margin-left: 5px;
-  text-align: right;
+  margin-left: 8px;
   display: flex;
   flex-direction: column;
   gap: 2px;
   position: relative;
+  padding: 3px;
 
-  max-width: 300px;
-  max-height: 250px;
+  max-width: 500px;
+  max-height: 450px;
 
-  background-color: beige;
+  background-color: rgba(245, 245, 220, 0.63);
   border-radius: 5px;
   box-shadow:0 2px 8px rgba(0,0,0,0.25) ;
   
@@ -159,14 +159,12 @@ export default {
 .MoestuinKeuze h1 {
   font-size: 25px;
   font-weight: 200%; 
-  margin-right: 1%; 
 }
 
 
 .moestuinKeuzeDropDown {
   position: relative;
   width: 180px;
-  /*margin-top: 10px;*/
 }
 
 .dropdown-selected {
@@ -210,14 +208,11 @@ export default {
 }
 
 
-.moestuinNaamContainer {
-  /*margin-bottom: 2rem;
-  margin-left: 2%;*/        
+.moestuinNaamContainer {       
   display: flex;
   flex-direction: column;
   gap: 6px;
   color: #2d6a4f;
-
 }
 
 .moestuinNaamContainer input {
