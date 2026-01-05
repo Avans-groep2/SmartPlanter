@@ -139,6 +139,7 @@ export default {
   .AccountLinks {
     display: flex;
     flex-direction: column;
+    transition: all 0.3s ease;
   }
 
   .AccountLinks a:hover {
