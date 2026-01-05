@@ -13,6 +13,15 @@
       <h2>Accent Kleur</h2>
       <input type="color" id="colorPicker" v-model="primaryColor" @input="updatePrimaryColor">
      </div> 
+
+     <div class="accountContainer">
+      <h2>Account</h2>
+        <div>
+          <a href="https://141.148.237.73:8443/realms/smartplanter/account/">Wijzig Account Informatie</a>
+        </div>
+     </div> 
+
+     
      
 
 
@@ -83,7 +92,8 @@ export default {
     overflow-x: hidden;
   }
 
-  .themeContainer {
+  .themeContainer,
+  .accountContainer {
     background: var(--light);
     width: 20rem;
     height: auto;
@@ -92,9 +102,16 @@ export default {
     padding: 0.5rem;
   }
 
-  .themeContainer h2 {
+  .themeContainer h2,
+  .accountContainer h2 {
     color: var(--text);
     font-size: 1.5rem;
+  }
+
+  .accountContainer a {
+    text-decoration: none;
+    cursor: pointer;
+    color: var(--text);
   }
 
   .themeContainer .btnTheme {
