@@ -1,5 +1,4 @@
 <script setup>
-
 </script>
 
 <template>
@@ -35,6 +34,14 @@
             <span class="label">Data</span>
           </router-link>
         </li>
+
+        <!-- ✅ ADMIN PAGE (beheerder) -->
+        <li v-if="$auth.user && $auth.user.role === 'beheerder'">
+          <router-link to="/admin" class="nav-item">
+            <i class="fa-solid fa-user-shield"></i>
+            <span class="label">Admin</span>
+          </router-link>
+        </li>
       </ul>
 
       <ul>
@@ -57,7 +64,7 @@
     <!-- PROFIEL -->
     <div class="profile">
       <div class="profilePicture">
-        <span>{{ $auth.user.firstLetter}}</span>
+        <span>{{ $auth.user.firstLetter }}</span>
       </div>
       <div class="profileInfo">
         <span class="username">{{ $auth.user.fullName }}</span>
@@ -75,7 +82,7 @@
   top: 0;
   left: 0;
   min-height: 100%;
-  width: 4.5rem; /* start klein */
+  width: 4.5rem;
   display: flex;
   flex-direction: column;
   background: var(--light);
@@ -120,7 +127,6 @@
   background: none;
   border: none;
   text-decoration: none;
-  /*margin-left: 1rem;*/
   transition: all 0.3s ease;
   cursor: pointer;
 }
@@ -203,7 +209,6 @@ li {
   border: 2px solid;
   flex-shrink: 0;
   background: var(--primary);
-
   display: flex;
   justify-content: center;
   align-items: center;
@@ -217,14 +222,15 @@ li {
   flex-direction: column;
 }
 
-.username, .usermail {
+.username,
+.usermail {
   opacity: 0;
   transition: opacity 0.3s ease;
 }
 
 /* ================= HOVER EFFECT ================= */
 .sidebar:hover {
-  width: 20rem; /* volledige breedte */
+  width: 20rem;
 }
 
 .sidebar:hover .logo-text,
