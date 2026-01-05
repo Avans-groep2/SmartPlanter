@@ -106,13 +106,15 @@ export default {
   padding: 1rem;
   box-sizing: border-box;
   position: relative;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; 
 }
 
 
 .settingsknop {
+  margin-top: 20px;
   background-color: #2d6a4f;
   color: white;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  /*font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;*/
   font-weight: 400;
   font-size: 25px;
   padding: 10px 60px;
@@ -121,9 +123,7 @@ export default {
   cursor: pointer;
   transition: 0.2s ease;
   align-self: flex-start;
-  margin-top: 10vh;
- /* margin-bottom: auto;  
-  margin: 2%; */
+
   align-self: start;
   box-shadow:0 2px 8px rgba(0,0,0,0.25) ;
 
@@ -135,26 +135,21 @@ export default {
   background-color: #2d6a4f;
 }
 
-/*----------------------DROPDOWN------------------------*/ 
 
 .MoestuinKeuze {
-  margin-left: 3rem;  
   margin-top: 34rem;    
   text-align: right;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
   gap: 2px;
+  position: relative;
+  align-items: center;
 
   background-color: beige;
   border-radius: 5px;
   
-
-  /*color: white;*/
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  /*font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;*/
 }
-
-  
 
 
 .MoestuinKeuze h1 {
@@ -210,7 +205,7 @@ export default {
   color: white;
 }
 
-/*-----------------TEXTFIELD---------------*/
+
 .moestuinNaamContainer {
   margin-bottom: 2rem;
   margin-left: 2%;        
@@ -218,11 +213,8 @@ export default {
   flex-direction: column;
   gap: 6px;
   color: #2d6a4f;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  
+
 }
-
-
 
 .moestuinNaamContainer input {
   width: 220px;
@@ -248,7 +240,7 @@ export default {
 .moestuinNaamButton {
   background-color: #2d6a4f;
   color: white;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  /*font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;*/
   font-size: 15px;
   padding: 8px 15px; 
   border: none;
@@ -257,6 +249,7 @@ export default {
   transition: 0.2s ease;
   width: auto; 
   height: 3rem;
+  box-shadow:0 2px 8px rgba(0,0,0,0.25)  ;
 }
 
 .moestuinNaamButton:hover{
