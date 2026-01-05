@@ -150,7 +150,6 @@ export default {
   gap: 2px;
   position: relative;
   padding: 12px;
-
   max-width: 350px;
 
   background-color: rgba(255, 255, 244, 0.63);
@@ -161,7 +160,7 @@ export default {
 .moestuinKeuzeDropDown {
   position: relative;
   width: 180px;
-  margin-bottom: 1rem;
+  margin-bottom: 10px;
 }
 
 .dropdown-selected {
