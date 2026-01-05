@@ -155,6 +155,8 @@ ul {
   list-style: none;
   display: flex;
   flex-direction: column;
+  padding: 0;
+  margin-left: 16px;
 }
 
 li {
