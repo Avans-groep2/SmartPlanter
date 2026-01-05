@@ -99,7 +99,9 @@ const isBeheerder = computed(() => $auth.user?.roles.includes('beheerder'))
   overflow: hidden;
   user-select: none;
   z-index: 1000;
-  color: var(--text);
+  color: var(--text);  
+  padding: 0; 
+  margin: 0;
 }
 
 /* ================= LOGO ================= */
