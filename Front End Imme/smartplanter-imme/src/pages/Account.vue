@@ -113,9 +113,13 @@ export default {
 .settingsknop {
   margin-left: 8px;
   margin-top: 30px;
+  max-width: 50px;
+  
   display: flex;
+
   background-color: #2d6a4f;
   color: white;
+
   font-weight: 400;
   font-size: 25px;
   padding: 10px 60px;
@@ -124,7 +128,6 @@ export default {
   cursor: pointer;
   transition: 0.2s ease;
   align-self: flex-start;
-
   align-self: start;
   box-shadow:0 2px 8px rgba(0,0,0,0.25) ;
 
@@ -144,10 +147,10 @@ export default {
   flex-direction: column;
   gap: 2px;
   position: relative;
-  padding: 3px;
+  padding: 7px;
 
-  max-width: 500px;
-  max-height: 450px;
+  /*max-width: 500px;
+  max-height: 450px;*/
 
   background-color: rgba(245, 245, 220, 0.63);
   border-radius: 5px;
