@@ -20,7 +20,7 @@ const isBeheerder = computed(() => $auth.user?.roles.includes('beheerder'))
     
     <!-- NAVIGATIE -->
     <nav>
-      <ul class="nav-list">
+      <ul class="nav-list top">
         <li>
           <router-link to="/" class="nav-item">
             <i class="fa-solid fa-border-all"></i>
@@ -100,7 +100,7 @@ const isBeheerder = computed(() => $auth.user?.roles.includes('beheerder'))
   user-select: none;
   z-index: 1000;
   color: var(--text);
-  padding-left: 0.5rem; /* consistente padding in sidebar */
+  padding-left: 16px; /* ✅ 16px vanaf linkerzijde */
 }
 
 /* ================= LOGO ================= */
@@ -139,7 +139,7 @@ nav {
   display: flex;
   flex-direction: column;
   padding: 0;
-  margin: 0; /* ❌ geen margin-left meer */
+  margin: 0; /* geen margin-left meer */
 }
 
 .nav-list.bottom {
@@ -165,8 +165,8 @@ li {
   cursor: pointer;
   transition: all 0.3s ease;
   color: var(--text);
-  width: 100%; /* zodat button en router-link gelijk zijn */
-  padding: 0.25rem 0; /* kleine verticale padding */
+  width: 100%; /* button en link gelijk */
+  padding: 0.25rem 0;
 }
 
 .nav-item i {
