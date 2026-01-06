@@ -48,4 +48,29 @@ export default {
 
 }
 
+.inspiratieKnop {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #2d6a4f;
+    border: 3px solid #2d6a4f;
+    color: white;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    position: fixed;
+    right: 20px;
+    bottom: 80px; /* ruimte boven footer */
+    z-index: 1000;
+    transition: background-color 0.2s;
+}
+
+.inspiratieKnop:hover {
+  background-color: #3c803c;
+}
+
 </style>
