@@ -5,6 +5,12 @@
   </div>
 
   <div class="account-container">
+
+    <div class="accountknop">
+      <a href="https://141.148.237.73:8443/realms/smartplanter/account/" class="settingsknop">Account instellingen</a>
+      <a href="https://141.148.237.73:8443/realms/smartplanter/protocol/openid-connect/auth?client_id=account-console&redirect_uri=https%3A%2F%2F141.148.237.73%3A8443%2Frealms%2Fsmartplanter%2Faccount%2Faccount-security%2Fsigning-in&state=8c3aac17-1241-4bd4-9de2-d11824f4ed4a&response_mode=query&response_type=code&scope=openid&nonce=898ca48e-a8a8-4ddc-8bf2-39a537423d6e&kc_action=UPDATE_PASSWORD&code_challenge=LnzxFopox0ypY48supME6ceKSjZy8OUotdIRR13--Io&code_challenge_method=S256" class="settingsknop">Wachtwoord bewerken</a>
+    </div>
+
   <div class="MoestuinKeuze">
     <h1>U werkt nu in:</h1>
     <div class="moestuinKeuzeDropDown" ref="dropdown">
@@ -108,9 +114,8 @@ export default {
 }
 
 #h1 {
-  font-size: 20px;
-  font-weight: 200; 
-  color:#2d6a4f;
+  font-size: 15px;
+  font-weight: 150; 
 }
 
 .account-container {
@@ -278,7 +283,6 @@ export default {
     color: white;
     font-size: 1.2rem;
     font-weight: bold;
-    text-decoration: none;
     cursor: pointer;
     display: flex;
     justify-content: center;
@@ -293,6 +297,10 @@ export default {
 
 .inspiratieKnop:hover {
   background-color: #3c803c;
+}
+
+.inspiraiteWebsite {
+  text-decoration: none;
 }
 
 </style> 

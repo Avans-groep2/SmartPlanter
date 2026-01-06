@@ -146,7 +146,7 @@ export default {
 }
 
 .moestuinbuis {
-  background-color: #bcbbbb; 
+  background-color: #c1c0c0; 
   width: 100%; 
   height: 100px; /* Vaste hoogte voor de buis */
   margin-top: 30px;

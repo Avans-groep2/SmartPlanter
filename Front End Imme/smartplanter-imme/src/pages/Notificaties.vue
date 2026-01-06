@@ -26,8 +26,8 @@ export default {
 <style>
 
 #h1 {
-  font-size: 17px;
-  font-weight: 200; 
+  font-size: 15px;
+  font-weight: 150; 
   color: #2d6a4f;
 }
 
@@ -40,7 +40,6 @@ export default {
   height: 35vh;
   background-color: #bcbbbb; 
   border-radius: 8px;
-  border: 3px solid #2d6a4f;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25); 
 }
 
@@ -50,7 +49,7 @@ export default {
   margin-bottom: 2%;
   width: 90%;
   min-height: 35vh;
-  background-color: #9a9a9a; 
+  background-color: #bcbbbb;  
   border-radius: 8px;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25); 
 }
