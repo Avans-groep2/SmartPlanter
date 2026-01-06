@@ -121,7 +121,7 @@ export default {
 
 /* Stijl voor de moestuinbuizen */
 .moestuinbuis {
-  background-color: #8f8f8f; /* Donkergrijs, zoals in je originele code */
+  background-color: #c4c4c4; 
   width: 100%; 
   height: 100px; /* Vaste hoogte voor de buis */
   margin-top: 30px;
@@ -147,8 +147,8 @@ export default {
 .plant-slot-button {
     width: 60px;
     height: 60px;
-    border-radius: 50%; /* Maak het rond */
-    background-color: #90ee90; /* Lichtgroen voor een plant-slot */
+    border-radius: 50%; 
+    background-color: #90ee90; 
     border: 3px solid #3c803c;
     color: #333;
     font-size: 1.2rem;
@@ -164,11 +164,11 @@ export default {
     background-color: #a7f7a7;
 }
 
-/* Stijl voor de dropdown box */
+
 .dropdown-menu {
     background-color: white;
     position: absolute;
-    top: 70px; /* Plaats de dropdown net onder de knop */
+    top: 70px; 
     left: 50%;
     transform: translateX(-50%); 
     width: 250px;
@@ -182,7 +182,7 @@ export default {
     cursor: pointer;
 }
 
-/* Stijl voor het zoekveld */
+
 .search-input {
     width: 100%;
     padding: 8px;
@@ -192,7 +192,6 @@ export default {
     border-radius: 4px;
 }
 
-/* Stijl voor de individuele plant items in de lijst */
 .plant-item {
     padding: 8px 10px;
     cursor: pointer;

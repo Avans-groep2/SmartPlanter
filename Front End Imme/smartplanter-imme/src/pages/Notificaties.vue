@@ -29,21 +29,21 @@ export default {
 .belangrijke_meldingen {
   padding: 1rem;
   margin-left: 5%;
-  margin-top: 2%;
-  margin-bottom: 2%;
+  margin-top: 1,5%;
+  margin-bottom: 1,5%;
   width: 90%;
-  height: 30vh;
-  background-color: rgb(93, 144, 64);
+  height: 35vh;
+  background-color: #62be62be;
   border-radius: 8px;
 }
 
 .overige_meldingen {
   padding: 1rem;
   margin-left: 5%;
-  margin-bottom: 2%;
+  margin-bottom: 1,5%;
   width: 90%;
-  min-height: 30vh;
-  background-color: #5aa85ab5;
+  min-height: 35vh;
+  background-color: #62be62be;
   border-radius: 8px;
 }
 
