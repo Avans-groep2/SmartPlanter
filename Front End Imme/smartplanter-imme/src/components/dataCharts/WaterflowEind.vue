@@ -50,19 +50,19 @@ new Chart(canvasEl.value, {
 <style>
 
 .linechart {
-    background-color: #ffffff;
+    background-color: #6bc26b;
     border-radius: 22px;
     width: 22rem;
     height: 15rem;
     padding: 1rem;
-    overflow: hidden; /* Belangrijk zodat de canvas rond blijft */
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25); /* Mooie zachte shadow */
+    overflow: hidden; 
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25); 
 }
 
 .chart-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 2rem; /* afstand tussen kaarten */
+    gap: 2rem; 
 }
 
 .datawaarde-uitleg{

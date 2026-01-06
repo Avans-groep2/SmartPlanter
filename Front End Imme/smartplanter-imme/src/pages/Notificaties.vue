@@ -35,6 +35,7 @@ export default {
   height: 35vh;
   background-color: #62be629e;
   border-radius: 8px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25); 
 }
 
 .overige_meldingen {
@@ -45,6 +46,7 @@ export default {
   min-height: 35vh;
   background-color: #62be629e;
   border-radius: 8px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25); 
 }
 
 </style>

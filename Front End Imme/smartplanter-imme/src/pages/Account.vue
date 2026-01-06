@@ -124,6 +124,7 @@ export default {
   position: relative;
   padding: 12px;
   max-width: 350px;
+  min-height: 300px;
 
   background-color: #ffffff;
   border-radius: 8px;
@@ -138,7 +139,7 @@ export default {
   font-size: 25px;
 
   padding: 10px 50px;
-  border-radius: 25px;
+  border-radius: 8px;
   cursor: pointer;
   transition: 0.2s ease;
   box-shadow:0 2px 8px rgba(0,0,0,0.25);
@@ -155,9 +156,9 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  position: relative;
   padding: 12px;
   max-width: 350px;
+  min-height: 300px;
 
   background-color: #ffffff;
   border-radius: 8px;
