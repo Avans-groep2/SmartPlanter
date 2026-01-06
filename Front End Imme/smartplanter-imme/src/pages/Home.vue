@@ -1,4 +1,8 @@
 <template>
+  <div class="inspiratieKnop"> 
+    <a href="https://www.keukenliefde.nl/kook-koelkast-leeg/" class="inspiraiteWebsite">? </a>
+  </div>
+
   <div class="garden-container">
     <div 
       v-for="(buis, buisIndex) in moestuinLayout" 
@@ -225,4 +229,25 @@ export default {
     padding: 10px;
     text-align: center;
 }
+
+.inspiratieKnop {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #3c803c;
+    border: 3px solid #2d6a4f;
+    color: white;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    position: fixed;
+    right: 20px;
+    bottom: 80px; /* ruimte boven footer */
+    z-index: 1000;
+}
+
 </style>

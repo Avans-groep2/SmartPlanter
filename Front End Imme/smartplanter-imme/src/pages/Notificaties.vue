@@ -22,8 +22,8 @@ export default {
 <style>
 
 #h1 {
-  font-size: 20px;
-  font-weight: 200%; 
+  font-size: 17px;
+  font-weight: 200; 
   color: #2d6a4f;
 }
 
