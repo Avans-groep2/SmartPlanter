@@ -121,7 +121,7 @@ export default {
 
 /* Stijl voor de moestuinbuizen */
 .moestuinbuis {
-  background-color: #c4c4c4; 
+  background-color: #bcbbbb; 
   width: 100%; 
   height: 100px; /* Vaste hoogte voor de buis */
   margin-top: 30px;
@@ -131,6 +131,7 @@ export default {
   align-items: center; /* Centreert de slots verticaal in de buis */
   position: relative; /* Belangrijk voor het positioneren van de dropdowns */
   transition: z-index 0s;
+  box-shadow:0 2px 8px rgba(0,0,0,0.25);
 }
 
 .buis-dropdown-open {
@@ -143,7 +144,7 @@ export default {
     z-index: 10; /* Zorgt ervoor dat de dropdown over de andere buizen valt */
 }
 
-/* De knop die het slot voorstelt */
+
 .plant-slot-button {
     width: 60px;
     height: 60px;

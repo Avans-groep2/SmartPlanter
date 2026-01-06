@@ -1,7 +1,8 @@
 <template class="Account">
 
   <div class="accountknop">
-    <a href="https://141.148.237.73:8443/realms/smartplanter/account/" class="settingsknop">Account setting</a>
+    <a href="https://141.148.237.73:8443/realms/smartplanter/account/" class="settingsknop">Account aanpassen</a>
+    <a href="https://141.148.237.73:8443/realms/smartplanter/protocol/openid-connect/auth?client_id=account-console&redirect_uri=https%3A%2F%2F141.148.237.73%3A8443%2Frealms%2Fsmartplanter%2Faccount%2Faccount-security%2Fsigning-in&state=8c3aac17-1241-4bd4-9de2-d11824f4ed4a&response_mode=query&response_type=code&scope=openid&nonce=898ca48e-a8a8-4ddc-8bf2-39a537423d6e&kc_action=UPDATE_PASSWORD&code_challenge=LnzxFopox0ypY48supME6ceKSjZy8OUotdIRR13--Io&code_challenge_method=S256" class="settingsknop">Wachtwoord aanpassen</a>
   </div>
 
   <div class="MoestuinKeuze">
@@ -114,19 +115,29 @@ export default {
   color:#2d6a4f;
 }
 
-.settingsknop {
+.accountknop{
+  margin-top: 2%;
   margin-left: 14px;
-  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  position: relative;
+  padding: 12px;
   max-width: 350px;
 
-  display: flex;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.25);
+}
 
+
+.settingsknop {
   background-color: #2d6a4f;
   color: white;
-  font-weight: 400;
+  font-weight: 300;
   font-size: 25px;
 
-  padding: 10px 60px;
+  padding: 10px 50px;
   border-radius: 25px;
   cursor: pointer;
   transition: 0.2s ease;
@@ -139,8 +150,8 @@ export default {
 }
 
 .MoestuinKeuze {
-  margin-top: 50px;
-  margin-left: 14px;
+  margin-top: 2%;
+  margin-left: 60%;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -150,7 +161,7 @@ export default {
 
   background-color: #ffffff;
   border-radius: 8px;
-  box-shadow:0 2px 8px rgba(0,0,0,0.25) ;
+  box-shadow:0 2px 8px rgba(0,0,0,0.25);
 }
 
 .moestuinKeuzeDropDown {
@@ -200,7 +211,6 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  color: #2d6a4f;
 }
 
 .moestuinNaamContainer input {

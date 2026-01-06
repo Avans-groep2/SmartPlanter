@@ -27,23 +27,23 @@ export default {
 }
 
 .belangrijke_meldingen {
-  padding: 1rem;
+  padding: 0.5rem;
   margin-left: 5%;
-  margin-top: 1,5%;
-  margin-bottom: 1,5%;
+  margin-top: 2%;
+  margin-bottom: 2%;
   width: 90%;
   height: 35vh;
-  background-color: #62be62be;
+  background-color: #62be629e;
   border-radius: 8px;
 }
 
 .overige_meldingen {
-  padding: 1rem;
+  padding: 0.5rem;
   margin-left: 5%;
-  margin-bottom: 1,5%;
+  margin-bottom: 2%;
   width: 90%;
   min-height: 35vh;
-  background-color: #62be62be;
+  background-color: #62be629e;
   border-radius: 8px;
 }
 
