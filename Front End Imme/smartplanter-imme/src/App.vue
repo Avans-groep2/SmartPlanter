@@ -78,7 +78,7 @@ NavBar {
 }
 
 body {
-  background-color: #e3e1d6;
+  background-color: #e7e6dc;
 }
 
 /*#e7e3d3;*/

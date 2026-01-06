@@ -25,7 +25,7 @@
       </div>
     </div>
 
-    <div class="moestuinNaamContainer">
+  <div class="moestuinNaamContainer">
   <h1>Moestuin naam:</h1>
 
   <div class="inputButtonRow">
@@ -77,7 +77,6 @@ export default {
     },
 
      handleClickOutside(event) {
-      // Klik buiten de dropdown?
       if (this.$refs.dropdown && !this.$refs.dropdown.contains(event.target)) {
         this.open = false;
       }
@@ -110,7 +109,7 @@ export default {
 
 #h1 {
   font-size: 20px;
-  font-weight: 200%; 
+  font-weight: 200; 
   color:#2d6a4f;
 }
 
@@ -120,6 +119,8 @@ export default {
   margin-top: 2%;
   margin-left: 14px;
   align-items: flex-start;
+  position: relative;
+  z-index:auto;
 }
 
 .accountknop{
