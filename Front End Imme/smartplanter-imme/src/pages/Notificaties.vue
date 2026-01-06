@@ -29,8 +29,10 @@ export default {
 .belangrijke_meldingen {
   padding: 1rem;
   margin-left: 5%;
+  margin-top: 2%;
+  margin-bottom: 2%;
   width: 90%;
-  height: 40vh;
+  height: 30vh;
   background-color: rgb(93, 144, 64);
   border-radius: 8px;
 }
@@ -38,9 +40,10 @@ export default {
 .overige_meldingen {
   padding: 1rem;
   margin-left: 5%;
+  margin-bottom: 2%;
   width: 90%;
-  min-height: 40vh;
-  background-color: #90ee90;
+  min-height: 30vh;
+  background-color: #5aa85ab5;
   border-radius: 8px;
 }
 
