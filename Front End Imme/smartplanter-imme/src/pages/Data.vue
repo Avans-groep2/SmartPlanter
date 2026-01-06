@@ -49,9 +49,6 @@ export default {
   max-width: 90%;
   grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
   gap: 2rem;
-  background-color: bisque;
-  border: 3px #2d6a4f;
-
 }
 
 .inspiratieKnop {

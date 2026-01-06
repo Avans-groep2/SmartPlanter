@@ -38,7 +38,7 @@ export default {
   margin-bottom: 2%;
   width: 90%;
   height: 35vh;
-  background-color: #ffffff5f;
+  background-color: #bcbbbb; 
   border-radius: 8px;
   border: 3px solid #2d6a4f;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25); 
@@ -50,9 +50,8 @@ export default {
   margin-bottom: 2%;
   width: 90%;
   min-height: 35vh;
-  background-color: #ffffff5f;
+  background-color: #bcbbbb; 
   border-radius: 8px;
-  border: 3px solid #2d6a4f;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25); 
 }
 
