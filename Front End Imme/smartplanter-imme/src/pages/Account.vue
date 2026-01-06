@@ -111,7 +111,7 @@ export default {
 #h1 {
   font-size: 20px;
   font-weight: 200%; 
-  color:#2d6a4f;
+  font-style:#2d6a4f;
 }
 
 .settingsknop {
@@ -148,7 +148,7 @@ export default {
   padding: 12px;
   max-width: 350px;
 
-  background-color: rgba(169, 255, 115, 0.63);
+  background-color: #90ee90;
   border-radius: 8px;
   box-shadow:0 2px 8px rgba(0,0,0,0.25) ;
 }

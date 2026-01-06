@@ -49,7 +49,7 @@ new Chart(canvasEl.value, {
 <style>
 
 .linechart {
-    background-color:  rgba(94, 144, 64, 0.63);
+    background-color:  #90ee90;
     border-radius: 15%;
     width: 22rem;
     height: 15rem; 

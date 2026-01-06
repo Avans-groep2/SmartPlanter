@@ -30,17 +30,17 @@ export default {
   padding: 1rem;
   margin-left: 5%;
   width: 90%;
-  height: 20vh;
+  height: 40vh;
   background-color: rgb(93, 144, 64);
   border-radius: 8px;
 }
 
 .overige_meldingen {
   padding: 1rem;
-  margin-left: 10%;
+  margin-left: 5%;
   width: 90%;
-  min-height: 20vh;
-  background-color: rgba(94, 144, 64, 0.63);
+  min-height: 40vh;
+  background-color: #90ee90;
   border-radius: 8px;
 }
 
