@@ -1,4 +1,9 @@
 <template>
+
+  <div class="accountknop">
+      <a href="https://141.148.237.73:8443/realms/smartplanter/account/" class="settingsknop">Account instellingen</a>
+      <a href="https://141.148.237.73:8443/realms/smartplanter/protocol/openid-connect/auth?client_id=account-console&redirect_uri=https%3A%2F%2F141.148.237.73%3A8443%2Frealms%2Fsmartplanter%2Faccount%2Faccount-security%2Fsigning-in&state=8c3aac17-1241-4bd4-9de2-d11824f4ed4a&response_mode=query&response_type=code&scope=openid&nonce=898ca48e-a8a8-4ddc-8bf2-39a537423d6e&kc_action=UPDATE_PASSWORD&code_challenge=LnzxFopox0ypY48supME6ceKSjZy8OUotdIRR13--Io&code_challenge_method=S256" class="settingsknop">Wachtwoord bewerken</a>
+    </div>
   <div class="inspiratieKnop"> 
     <a href="https://www.keukenliefde.nl/kook-koelkast-leeg/" class="inspiraiteWebsite" style="color:white";>? </a>
   </div>
@@ -10,40 +15,56 @@
       class="moestuinbuis"
       :class="{ 'buis-dropdown-open': buisHeeftDropdownOpen(buis) }"
     >
-      <div v-for="(slot, slotIndex) in buis.slots" :key="slotIndex" class="slot-wrapper">
-        <button @click="toggleDropdown(buisIndex, slotIndex)" class="plant-slot-button">
+      <div
+        v-for="(slot, slotIndex) in buis.slots"
+        :key="slotIndex"
+        class="slot-wrapper"
+      >
+        <button
+          class="plant-slot-button"
+          @click.stop="toggleDropdown(buisIndex, slotIndex)"
+        >
           {{ slot.plant ? slot.plant : '+' }}
         </button>
 
-        <div v-if="slot.showDropdown" class="dropdown-menu">
-          <input 
-            type="text" 
-            v-model="searchQuery" 
-            placeholder="Zoek groente/fruit..." 
+        <div
+          v-if="slot.showDropdown"
+          class="dropdown-menu"
+          @click.stop
+        >
+          <input
+            type="text"
+            v-model="searchQuery"
+            placeholder="Zoek groente/fruit..."
             class="search-input"
           />
+
           <div class="plant-list">
-            <div 
-              v-for="plant in filteredPlants" 
-              :key="plant" 
-              @click="selectPlant(buisIndex, slotIndex, plant)"
+            <div
+              v-for="plant in filteredPlants"
+              :key="plant"
               class="plant-item"
+              @click="selectPlant(buisIndex, slotIndex, plant)"
             >
               {{ plant }}
             </div>
+
             <div v-if="filteredPlants.length === 0" class="no-results">
-                Geen resultaten gevonden.
+              Geen resultaten gevonden.
             </div>
           </div>
         </div>
+
       </div>
     </div>
   </div>
+
 </template>
 
 <script>
 export default {
   name: 'HomePagina',
+
   data() {
     const createBuis = () => ({
       slots: Array(4).fill(null).map(() => ({ plant: null, showDropdown: false }))
@@ -65,7 +86,6 @@ export default {
     };
   },
   computed: {
-    // Berekent welke planten getoond moeten worden op basis van de zoekterm
     filteredPlants() {
       if (!this.searchQuery) {
         return this.allePlanten;
@@ -77,24 +97,21 @@ export default {
     }
   },
   methods: {
-    // NIEUWE METHODE: Controleert of een buis een open dropdown heeft
     buisHeeftDropdownOpen(buis) {
       return buis.slots.some(slot => slot.showDropdown);
     },
 
-    // Schakelt de dropdown in of uit voor een specifiek slot
     toggleDropdown(buisIndex, slotIndex) {
       this.closeAllDropdowns();
-      
-      this.moestuinLayout[buisIndex].slots[slotIndex].showDropdown = 
-        !this.moestuinLayout[buisIndex].slots[slotIndex].showDropdown;
 
-      if (this.moestuinLayout[buisIndex].slots[slotIndex].showDropdown) {
-          this.searchQuery = '';
+      const slot = this.moestuinLayout[buisIndex].slots[slotIndex];
+      slot.showDropdown = !slot.showDropdown;
+
+      if (slot.showDropdown) {
+        this.searchQuery = '';
       }
     },
 
-    // Sluit alle dropdowns (FIXED: geen this.$set meer nodig)
     closeAllDropdowns() {
       this.moestuinLayout.forEach(buis => {
         buis.slots.forEach(slot => {
@@ -103,31 +120,24 @@ export default {
       });
     },
 
-    // Slaat de gekozen plant op en sluit de dropdown
     selectPlant(buisIndex, slotIndex, plantNaam) {
-  // GEFIXTE REGEL: Direct de eigenschap van het slot wijzigen (Vue 3 stijl)
-  this.moestuinLayout[buisIndex].slots[slotIndex].plant = plantNaam;
-  
-  // Sluit de dropdown
-  this.moestuinLayout[buisIndex].slots[slotIndex].showDropdown = false;
-},
-
-  handleClickOutside(event) {
-      // Klik buiten de dropdown?
-      if (this.$refs.dropdown && !this.$refs.dropdown.contains(event.target)) {
-        this.open = false;
-      }
+      const slot = this.moestuinLayout[buisIndex].slots[slotIndex];
+      slot.plant = plantNaam;
+      slot.showDropdown = false;
     },
+
+  handleClickOutside() {
+      this.closeAllDropdowns();
+    }
   },
 
   mounted() {
-    document.addEventListener("click", this.handleClickOutside);
+    document.addEventListener('click', this.handleClickOutside);
   },
 
   beforeUnmount() {
-    document.removeEventListener("click", this.handleClickOutside);
-  },
-
+    document.removeEventListener('click', this.handleClickOutside);
+  }
 };
 </script>
 

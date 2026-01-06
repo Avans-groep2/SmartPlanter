@@ -130,7 +130,7 @@ export default {
   gap: 2px;
   padding: 12px;
   max-width: 350px;
-  min-height: 300px;
+  min-height: 250px;
 
   background-color: #ffffff;
   border-radius: 8px;
