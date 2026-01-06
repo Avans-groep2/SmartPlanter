@@ -106,8 +106,24 @@ export default {
   
   // Sluit de dropdown
   this.moestuinLayout[buisIndex].slots[slotIndex].showDropdown = false;
-}
-  }
+},
+
+  handleClickOutside(event) {
+      // Klik buiten de dropdown?
+      if (this.$refs.dropdown && !this.$refs.dropdown.contains(event.target)) {
+        this.open = false;
+      }
+    },
+  },
+
+  mounted() {
+    document.addEventListener("click", this.handleClickOutside);
+  },
+
+  beforeUnmount() {
+    document.removeEventListener("click", this.handleClickOutside);
+  },
+
 };
 </script>
 

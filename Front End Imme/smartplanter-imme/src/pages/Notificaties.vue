@@ -24,6 +24,7 @@ export default {
 #h1 {
   font-size: 20px;
   font-weight: 200%; 
+  color: #2d6a4f;
 }
 
 .belangrijke_meldingen {
@@ -33,8 +34,9 @@ export default {
   margin-bottom: 2%;
   width: 90%;
   height: 35vh;
-  background-color: #62be629e;
+  background-color: #ffffff9e;
   border-radius: 8px;
+  border-color:#2d6a4f ;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25); 
 }
 
@@ -44,8 +46,9 @@ export default {
   margin-bottom: 2%;
   width: 90%;
   min-height: 35vh;
-  background-color: #62be629e;
+  background-color: #ffffff9e;
   border-radius: 8px;
+  border-color:#2d6a4f ;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25); 
 }
 
