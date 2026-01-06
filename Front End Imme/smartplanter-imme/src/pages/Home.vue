@@ -1,6 +1,6 @@
 <template>
   <div class="inspiratieKnop"> 
-    <a href="https://www.keukenliefde.nl/kook-koelkast-leeg/" class="inspiraiteWebsite">? </a>
+    <a href="https://www.keukenliefde.nl/kook-koelkast-leeg/" class="inspiraiteWebsite" style="color:white";>? </a>
   </div>
 
   <div class="garden-container">
@@ -234,7 +234,7 @@ export default {
     width: 60px;
     height: 60px;
     border-radius: 50%;
-    background-color: #3c803c;
+    background-color: #2d6a4f;
     border: 3px solid #2d6a4f;
     color: white;
     font-size: 1.2rem;
@@ -248,6 +248,11 @@ export default {
     right: 20px;
     bottom: 80px; /* ruimte boven footer */
     z-index: 1000;
+    transition: background-color 0.2s;
+}
+
+.inspiratieKnop:hover {
+  background-color: #3c803c;
 }
 
 </style>

@@ -1,8 +1,10 @@
 <template class="Account">
 
-  <div class="accountknop">
-    <a href="https://141.148.237.73:8443/realms/smartplanter/account/" class="settingsknop">Account aanpassen</a>
-    <a href="https://141.148.237.73:8443/realms/smartplanter/protocol/openid-connect/auth?client_id=account-console&redirect_uri=https%3A%2F%2F141.148.237.73%3A8443%2Frealms%2Fsmartplanter%2Faccount%2Faccount-security%2Fsigning-in&state=8c3aac17-1241-4bd4-9de2-d11824f4ed4a&response_mode=query&response_type=code&scope=openid&nonce=898ca48e-a8a8-4ddc-8bf2-39a537423d6e&kc_action=UPDATE_PASSWORD&code_challenge=LnzxFopox0ypY48supME6ceKSjZy8OUotdIRR13--Io&code_challenge_method=S256" class="settingsknop">Wachtwoord bewerken</a>
+  <div class="accont-container">
+    <div class="accountknop">
+      <a href="https://141.148.237.73:8443/realms/smartplanter/account/" class="settingsknop">Account instellingen</a>
+      <a href="https://141.148.237.73:8443/realms/smartplanter/protocol/openid-connect/auth?client_id=account-console&redirect_uri=https%3A%2F%2F141.148.237.73%3A8443%2Frealms%2Fsmartplanter%2Faccount%2Faccount-security%2Fsigning-in&state=8c3aac17-1241-4bd4-9de2-d11824f4ed4a&response_mode=query&response_type=code&scope=openid&nonce=898ca48e-a8a8-4ddc-8bf2-39a537423d6e&kc_action=UPDATE_PASSWORD&code_challenge=LnzxFopox0ypY48supME6ceKSjZy8OUotdIRR13--Io&code_challenge_method=S256" class="settingsknop">Wachtwoord bewerken</a>
+    </div>
   </div>
 
   <div class="MoestuinKeuze">
@@ -113,9 +115,15 @@ export default {
   color:#2d6a4f;
 }
 
-.accountknop{
+.account-container {
+  display: flex;
+  gap: 30px;
   margin-top: 2%;
   margin-left: 14px;
+  align-items: flex-start;
+}
+
+.accountknop{
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -148,18 +156,33 @@ export default {
 }
 
 .MoestuinKeuze {
-  margin-top: 2%;
-  margin-left: 60%;
   display: flex;
-  /*flex-direction: column;*/
-  gap: 2px;
+  flex-direction: column;
+  gap: 4px;
   padding: 12px;
   max-width: 350px;
-  max-height: 250px;
 
   background-color: #ffffff;
   border-radius: 8px;
   box-shadow:0 2px 8px rgba(0,0,0,0.25);
+}
+
+@media (max-width: 768px) {
+  .account-container {
+    flex-direction: column;
+    margin-left: 0;
+    padding: 0 16px;
+  }
+
+  .accountknop,
+  .MoestuinKeuze {
+    max-width: 100%;
+  }
+
+  .settingsknop {
+    font-size: 20px;
+    padding: 10px 20px;
+  }
 }
 
 .moestuinKeuzeDropDown {
