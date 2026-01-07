@@ -26,8 +26,8 @@ export default {
 <style>
 
 .notificatiesH1 {
-  font-size: 18px;
-  font-weight: 200; 
+  font-size: 25px;
+  font-weight: 400; 
 }
 
 .belangrijke_meldingen {

@@ -114,8 +114,8 @@ export default {
 }
 
 .accountH1 {
-  font-size: 20px;
-  font-weight: 300; 
+  font-size: 25px;
+  font-weight: 400; 
 }
 
 .account-container {

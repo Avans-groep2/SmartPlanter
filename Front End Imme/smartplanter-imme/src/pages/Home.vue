@@ -65,7 +65,7 @@
 
 function createBuis(options = {}) {
   return {
-    openUpwards: options.openUpwards ?? false,
+    openUpwards: options.openUpwards ?? true,
     plant: null
   };
 }
@@ -162,8 +162,8 @@ export default {
 
 .homeH1{
   color:black;
-  font-size: 25px;
-  font-weight: 400;
+  font-size: 30px;
+  font-weight: 600;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
