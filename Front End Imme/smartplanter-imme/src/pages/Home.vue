@@ -178,7 +178,7 @@ export default {
 
 .slot-wrapper {
     position: relative;
-    z-index: 10; /
+    z-index: 10; 
 }
 
 
