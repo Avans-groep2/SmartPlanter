@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import { computes, getCurrentInstance} from 'vue'
+import { computed, getCurrentInstance} from 'vue'
 
 export default {
   name: "FooterBar",
@@ -40,20 +40,6 @@ export default {
     }
 
     return { fullName, email, doLogout }
-  },
-
-  methods: {
-    doLogout() {
-      this.$keycloak.logout()
-    },
-    updateUserData() {
-      const kc = this.$keycloak
-      if (kc && kc.tokenParsed) {
-        this.firstName = kc.tokenParsed.given_name || ""
-        this.lastName = kc.tokenParsed.family_name || ""
-        this.email = kc.tokenParsed.email || ""
-      }
-    }
   }
   };
 </script>
