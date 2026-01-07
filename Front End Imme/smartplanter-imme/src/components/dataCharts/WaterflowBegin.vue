@@ -35,7 +35,7 @@ new Chart(canvasEl.value, {
             size: 32,
             weight: 300,
         },
-        color: '#2d6a4f'
+        color: '##123425'
       },
       legend: {
         display: false

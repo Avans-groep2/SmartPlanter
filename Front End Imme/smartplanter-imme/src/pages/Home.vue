@@ -4,8 +4,8 @@
     <a href="https://www.keukenliefde.nl/kook-koelkast-leeg/" class="inspiraiteWebsite" style="color:white";>? </a>
   </div>
 
-  <div class="homeH1">
-    <h1>U werk nu in, <span> moestuin 1</span></h1>
+  <div class="moestuinWerk">
+    <h1 class="homeH1">U werk nu in, <span> moestuin 1</span></h1>
   </div>
 
   <div class="garden-container">
@@ -142,6 +142,11 @@ export default {
 </script>
 
 <style>
+
+.moestuinWerk{
+  margin-left: 14px;
+  margin-top: 2%;
+}
 
 .homeH1{
   color:black;
