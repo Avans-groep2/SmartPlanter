@@ -25,13 +25,7 @@ export default {
   setup() {
     const internal = getCurrentInstance()
     const keycloak = internal.appContext.config.globalProperties.$keycloak
-
-    const userProfile = reactive({
-      firstName: "",
-      lastName: "",
-      email: ""
-    })
-
+    const userProfile = internal.appContext.config.globalProperties.$userProfile
 
     const fullName = computed(() => {
         return (userProfile.firstName || userProfile.lastName)
@@ -55,7 +49,7 @@ export default {
         userProfile.lastName = profile.lastName || ""
         userProfile.email = profile.email || ""
       } catch (err) {
-        console.error("Kon user profile niet laden:", err)
+        console.error("User profiel niet geladen", err)
       }
     }
 
