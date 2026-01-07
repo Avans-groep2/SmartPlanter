@@ -30,6 +30,7 @@
         <div
           v-if="slot.showDropdown"
           class="dropdown-menu"
+          :class="{'open-up': buis.openUpwards}"
           @click.stop
         >
           <input
@@ -63,10 +64,13 @@
 
 <script>
 
-function createBuis(options = {}) {
+function createBuis({ openUpwards = false } = {}) {
   return {
-    openUpwards: options.openUpwards ?? true,
-    plant: null
+    openUpwards,
+    slots: Array(4).fill(null).map(() => ({
+      plant: null,
+      showDropdown: false
+    }))
   };
 }
 
@@ -75,10 +79,6 @@ export default {
   name: 'HomePagina',
 
   data() {
-    const createBuis = () => ({
-      slots: Array(4).fill(null).map(() => ({ plant: null, showDropdown: false }))
-    });
-
     return {
       searchQuery: '',
       allePlanten: [
@@ -162,8 +162,8 @@ export default {
 
 .homeH1{
   color:black;
-  font-size: 30px;
-  font-weight: 600;
+  font-size: 40px;
+  font-weight: 700;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -235,6 +235,7 @@ export default {
     max-height: 300px;
     overflow-y: auto;
     cursor: pointer;
+    z-index: 1000;
 }
 
 

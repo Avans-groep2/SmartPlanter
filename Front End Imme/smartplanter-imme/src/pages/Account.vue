@@ -114,15 +114,14 @@ export default {
 }
 
 .accountH1 {
-  font-size: 25px;
-  font-weight: 400; 
+  font-size: 30px;
+  font-weight: 450; 
 }
 
 .account-container {
   display: flex;
   gap: 30px;
   margin-top: 2%;
-  min-height: 255px;
   margin-left: 14px;
   align-items: flex-start;
   position: relative;
@@ -167,6 +166,8 @@ export default {
   gap: 4px;
   padding: 12px;
   max-width: 350px;
+  min-height: 255px;
+
 
   background-color: #ffffff;
   border-radius: 8px;

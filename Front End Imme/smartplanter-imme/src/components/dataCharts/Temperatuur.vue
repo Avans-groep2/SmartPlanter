@@ -22,7 +22,7 @@ new Chart(canvasEl.value, {
         label: 'Temperatuur',
         data: [10, 20, 15, 30],
         tension: 0.4,
-        backgroundColor: '#2d6a4f'
+        backgroundColor: '#3c803c'
       }
     ]
   },
@@ -58,13 +58,13 @@ new Chart(canvasEl.value, {
 .datawaarde-uitleg{
   margin-top: 0.5rem;
   font-size: 0.9rem;
-  color: #333;
+  color: #2d6a4f;
 }
 
 .data-betekenis{
   margin-top: 0.7rem;
   font-size: 0.9rem;
-  color: #333;
+  color: #3c803c;
 }
 
 </style>
