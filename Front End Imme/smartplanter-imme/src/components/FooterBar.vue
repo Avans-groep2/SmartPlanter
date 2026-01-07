@@ -18,36 +18,28 @@
 </template>
 
 <script>
+import { computes, getCurrentInstance} from 'vue'
+
 export default {
   name: "FooterBar",
-  data() {
-    return {
-      firstName: "",
-      lastName: "",
-      email: "",
-      refreshInterval: null
-    }
-  },
-  computed: {
-    fullName() {
-      if (this.firstName || this.lastName) {
-        return `${this.firstName} ${this.lastName}`.trim()
+  setup() {
+    const internal = getCurrentInstance()
+    const userProfile = internal.appContext.config.globalProperties.$userProfile
+
+    const fullName = computed(() => {
+      if (userProfile.firstName || userProfile.lastName) {
+        return `${userProfile.firstName} ${userProfile.lastName}`.trim()
       }
       return "Onbekend"
-    }
-  },
-  mounted() {
-    this.updateUserData()
+    })
 
-    this.refreshInterval = setInterval(() => {
-      this.updateUserData()
-    }, 600000)
-  },
+    const email = computed(() => userProfile.email)
 
-  beforeUnmount() {
-    if (this.refreshInterval) {
-      clearInterval(this.refreshInterval)
+    const doLogout = () => {
+      internal.appContext.config.globalProperties.$keycloak.logout()
     }
+
+    return { fullName, email, doLogout }
   },
 
   methods: {
@@ -63,7 +55,7 @@ export default {
       }
     }
   }
-}
+  };
 </script>
 
 <style>
