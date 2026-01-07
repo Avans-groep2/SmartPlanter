@@ -2,7 +2,7 @@
 
   <footer class="footer">
     <div class="accountNaam">
-      <span class="username">{{ username }}</span> 
+      <span class="username">{{ fullName }}</span> 
       <span class="email">{{ email }}</span>
     </div>
 
@@ -18,30 +18,52 @@
 </template>
 
 <script>
-
 export default {
   name: "FooterBar",
-  methods : {
-    doLogout(){
-      this.$keycloak.logout()
-    }
-  },
-  data(){
+  data() {
     return {
-      username: "",
-      email: ""
+      firstName: "",
+      lastName: "",
+      email: "",
+      refreshInterval: null
     }
   },
-  mounted () {
-    const kc = this.$keycloak
+  computed: {
+    fullName() {
+      if (this.firstName || this.lastName) {
+        return `${this.firstName} ${this.lastName}`.trim()
+      }
+      return "Onbekend"
+    }
+  },
+  mounted() {
+    this.updateUserData()
 
-    if (kc && kc.tokenParsed) {
-      this.username = kc.tokenParsed.preferred_username || "onbekend"
-      this.email = kc.tokenParsed.email || ""
+    this.refreshInterval = setInterval(() => {
+      this.updateUserData()
+    }, 600000)
+  },
+
+  beforeUnmount() {
+    if (this.refreshInterval) {
+      clearInterval(this.refreshInterval)
+    }
+  },
+
+  methods: {
+    doLogout() {
+      this.$keycloak.logout()
+    },
+    updateUserData() {
+      const kc = this.$keycloak
+      if (kc && kc.tokenParsed) {
+        this.firstName = kc.tokenParsed.given_name || ""
+        this.lastName = kc.tokenParsed.family_name || ""
+        this.email = kc.tokenParsed.email || ""
+      }
     }
   }
-  
-};
+}
 </script>
 
 <style>

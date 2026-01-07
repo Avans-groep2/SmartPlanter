@@ -156,7 +156,7 @@ export default {
 <style>
 
 .moestuinWerk{
-  margin-left: 0.5rem;
+  margin-left: 1rem;
   margin-top: 0.5rem;
 }
 
