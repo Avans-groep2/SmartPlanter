@@ -156,8 +156,8 @@ export default {
 <style>
 
 .moestuinWerk{
-  margin-left: 2%;
-  margin-top: 2%;
+  margin-left: 1,5%;
+  margin-top: 1,5%;
 }
 
 .homeH1{
@@ -175,7 +175,7 @@ export default {
 }
 
 .moestuinbuis {
-  background-color: #c1c0c0; 
+  background-color: #ffffff; 
   width: 100%; 
   height: 100px; 
   margin-top: 30px;
@@ -192,19 +192,17 @@ export default {
   z-index: 100;
 }
 
-
 .slot-wrapper {
     position: relative;
     z-index: 10; 
 }
 
-
 .plant-slot-button {
     width: 60px;
     height: 60px;
     border-radius: 50%; 
-    background-color: #90ee90; 
-    border: 3px solid #3c803c;
+    background-color: #3c803c;
+    border: 3px solid #2d6a4f;
     color: #333;
     font-size: 1.2rem;
     font-weight: bold;
@@ -216,9 +214,8 @@ export default {
 }
 
 .plant-slot-button:hover {
-    background-color: #a7f7a7;
+    background-color: rgb(99, 169, 99);
 }
-
 
 .dropdown-menu {
     background-color: white;
@@ -238,6 +235,10 @@ export default {
     z-index: 1000;
 }
 
+.dropdown-menu.open-up {
+  top: auto;
+  bottom: 70px;
+}
 
 .search-input {
     width: 100%;

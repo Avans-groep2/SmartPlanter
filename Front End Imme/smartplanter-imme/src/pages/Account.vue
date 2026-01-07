@@ -147,6 +147,7 @@ export default {
   color: white;
   font-weight: 300;
   font-size: 25px;
+  text-decoration: none;
   margin-bottom: 2px;
   padding: 10px 50px;
   border-radius: 8px;

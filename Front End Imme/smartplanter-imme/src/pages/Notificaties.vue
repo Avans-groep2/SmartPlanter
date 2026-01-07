@@ -28,6 +28,7 @@ export default {
 .notificatiesH1 {
   font-size: 25px;
   font-weight: 400; 
+  font-style: bold;
 }
 
 .belangrijke_meldingen {
@@ -37,7 +38,7 @@ export default {
   margin-bottom: 2%;
   width: 90%;
   height: 35vh;
-  background-color: #d4d4d4; 
+  background-color: #ffffff; 
   border-radius: 8px;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25); 
 }

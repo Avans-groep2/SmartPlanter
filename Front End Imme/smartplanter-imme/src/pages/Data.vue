@@ -67,7 +67,7 @@ export default {
 
     position: fixed;
     right: 20px;
-    bottom: 80px; /* ruimte boven footer */
+    bottom: 80px; 
     z-index: 1000;
     transition: background-color 0.2s;
 }
