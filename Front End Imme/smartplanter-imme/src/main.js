@@ -44,37 +44,12 @@ keycloak.init({ onLoad: initOptions.onLoad })
 
     console.log("Authenticated")
 
-    await updateUserProfile()
-
     app.use(router)
     app.use(vuetify)
 
     router.isReady().then(() => app.mount('#app'))
 
-    setInterval(async () => {
-      try {
-        const ref = await keycloak.updateToken(70)
-        if (ref) console.log("Token refreshed")
-        await updateUserProfile()
-      } catch (err) {
-        console.error("Failed to refresh token or profile:", err)
-      }
-    }, 60000) 
   })
   .catch(() => console.error("Authentication Failed"))
 
 
-async function updateUserProfile() {
-  try {
-    const profile = await keycloak.loadUserProfile()
-    userProfile.firstName = profile.firstName || ""
-    userProfile.lastName = profile.lastName || ""
-    userProfile.email = profile.email || ""
-  } catch (err) {
-    console.error("Kon user profile niet laden:", err)
-    const token = keycloak.tokenParsed || {}
-    userProfile.firstName = token.given_name || ""
-    userProfile.lastName = token.family_name || ""
-    userProfile.email = token.email || ""
-  }
-}

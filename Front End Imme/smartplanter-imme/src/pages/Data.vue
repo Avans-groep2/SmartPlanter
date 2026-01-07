@@ -42,7 +42,7 @@ export default {
 
 <style>
 .dataCharts{
-  margin-top: 1rem;
+  margin-top: 1,5rem;
   margin-left: 8%;
   margin-bottom: 1rem;
   display: grid;

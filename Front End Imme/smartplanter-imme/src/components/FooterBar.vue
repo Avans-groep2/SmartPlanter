@@ -18,30 +18,57 @@
 </template>
 
 <script>
-import { computed, getCurrentInstance} from 'vue'
+import { reactive, computed, onMounted, onBeforeUnmount, getCurrentInstance} from 'vue'
 
 export default {
   name: "FooterBar",
   setup() {
     const internal = getCurrentInstance()
-    const userProfile = internal.appContext.config.globalProperties.$userProfile
+    const keycloak = internal.appContext.config.globalProperties$keycloak
+
+    const userProfile = reactive({
+      firstName: "",
+      lastName: "",
+      email: ""
+    })
+
 
     const fullName = computed(() => {
-      if (userProfile.firstName || userProfile.lastName) {
-        return `${userProfile.firstName} ${userProfile.lastName}`.trim()
-      }
-      return "Onbekend"
-    })
+        return (userProfile.firstName || userProfile.lastName)
+          ? `${userProfile.firstName} ${userProfile.email}`.trim()
+          : "Onbekend"
+      })
 
     const email = computed(() => userProfile.email)
 
     const doLogout = () => {
-      internal.appContext.config.globalProperties.$keycloak.logout()
+      keycloak.logout()
     }
+
+    const fetchProfile = async () => {
+      if (!keycloak) return
+      try {
+        const profile = await keycloak.loadUserProfile()
+        userProfile.firstName = profile.firstName || ""
+        userProfile.lastName = profile.lastName || ""
+        userProfile.email = profile.email || ""
+      } catch (err) {
+        console.error("Kon user profile niet laden:", err)
+      }
+    }
+
+    onMounted(() => {
+      fetchProfile()
+      intervalId = setInterval(fetchProfile, 30000)
+    })
+
+    onBeforeUnmount(() => {
+      if (intervalId) clearInterval(intervalId)
+    })
 
     return { fullName, email, doLogout }
   }
-  };
+};
 </script>
 
 <style>
