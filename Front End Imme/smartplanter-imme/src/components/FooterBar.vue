@@ -2,8 +2,8 @@
 
   <footer class="footer">
     <div class="accountNaam">
-      <span1>Gebruikersnaam</span1>
-      <span2> Gebruikersnaam@outlook.com</span2>
+      <span class="username">{{ username }}</span> 
+      <span class="email">{{ email }}</span>
     </div>
 
     <div class="links">
@@ -23,9 +23,24 @@ export default {
   name: "FooterBar",
   methods : {
     doLogout(){
-      this.$emit("logout")
+      this.$keycloak.logout()
+    }
+  },
+  data(){
+    return {
+      username: "",
+      email: ""
+    }
+  },
+  mounted () {
+    const kc = this.$keycloak
+
+    if (kc && kc.tokenParsed) {
+      this.username = kc.tokenParsed.preferred_username || "onbekend"
+      this.email = kc.tokenParsed.email || ""
     }
   }
+  
 };
 </script>
 
@@ -81,7 +96,7 @@ export default {
   font-weight: 600;
 }
 
-span1, span2 {
+.username, .email {
   font-weight: 300;
   display: block;
 }

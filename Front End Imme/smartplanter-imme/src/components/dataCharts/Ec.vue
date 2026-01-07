@@ -52,10 +52,19 @@ new Chart(canvasEl.value, {
 
 .linechart {
     background-color: #ffffff; 
-    border-radius: 15%;
+    border-radius: 22px;
     width: 22rem;
     height: 15rem;
-} 
+    padding: 1rem;
+    overflow: hidden; 
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25); 
+}
+
+.chart-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem; 
+}
 
 .datawaarde-uitleg{
   margin-top: 0.5rem;
@@ -64,7 +73,7 @@ new Chart(canvasEl.value, {
 }
 
 .data-betekenis{
-  margin-top: 0.7rem;
+  margin-top: 0.6rem;
   font-size: 0.9rem;
   color: #2d6a4f;
 }

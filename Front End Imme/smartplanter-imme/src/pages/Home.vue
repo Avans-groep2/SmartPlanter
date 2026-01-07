@@ -156,8 +156,8 @@ export default {
 <style>
 
 .moestuinWerk{
-  margin-left: 1,5%;
-  margin-top: 1,5%;
+  margin-left: 0.5rem;
+  margin-top: 0.5rem;
 }
 
 .homeH1{
@@ -203,7 +203,7 @@ export default {
     border-radius: 50%; 
     background-color: #3c803c;
     border: 3px solid #2d6a4f;
-    color: #333;
+    color: #ffffff;
     font-size: 1.2rem;
     font-weight: bold;
     cursor: pointer;
