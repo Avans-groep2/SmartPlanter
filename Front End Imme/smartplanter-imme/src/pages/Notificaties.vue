@@ -1,9 +1,9 @@
 <template>
 
   <div class="belangrijke_meldingen">
-    <h1 style="color:red;">Belangrijke meldingen!</h1></div>
+    <h1 style="color:red;" class="notificatiesH1">Belangrijke meldingen!</h1></div>
   <div class="overige_meldingen">
-    <h1>Overige meldingen</h1></div>
+    <h1 class="notificatiesH1">Overige meldingen</h1></div>
 
     <div class="inspiratieKnop"> 
     <a href="https://www.keukenliefde.nl/kook-koelkast-leeg/" class="inspiraiteWebsite" style="color:white";>? </a>
@@ -25,10 +25,9 @@ export default {
 
 <style>
 
-#h1 {
+.notificatiesH1 {
   font-size: 15px;
   font-weight: 150; 
-  color: #2d6a4f;
 }
 
 .belangrijke_meldingen {
@@ -38,7 +37,7 @@ export default {
   margin-bottom: 2%;
   width: 90%;
   height: 35vh;
-  background-color: #bcbbbb; 
+  background-color: #e0e0e0; 
   border-radius: 8px;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25); 
 }

@@ -12,7 +12,7 @@
     </div>
 
   <div class="MoestuinKeuze">
-    <h1>U werkt nu in:</h1>
+    <h1 class="accountH1">U werkt nu in:</h1>
     <div class="moestuinKeuzeDropDown" ref="dropdown">
       <div class="dropdown-selected" @click="toggleDropdown">
         {{ gekozenMoestuin || '- -' }}
@@ -32,7 +32,7 @@
     </div>
 
   <div class="moestuinNaamContainer">
-  <h1>Moestuin naam:</h1>
+  <h1 class="accountH1">Moestuin naam:</h1>
 
   <div class="inputButtonRow">
     <input
@@ -113,7 +113,7 @@ export default {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; 
 }
 
-#h1 {
+.accountH1 {
   font-size: 15px;
   font-weight: 150; 
 }
@@ -224,7 +224,7 @@ export default {
   font-size: 18px;
   color: #2d6a4f;
   cursor: pointer;
-  background-color: rgba(255, 255, 255, 0.925);
+  background-color: white;
   transition: 0.15s ease;
 }
 

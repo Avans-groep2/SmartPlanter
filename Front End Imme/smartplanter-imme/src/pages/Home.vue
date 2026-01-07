@@ -4,6 +4,10 @@
     <a href="https://www.keukenliefde.nl/kook-koelkast-leeg/" class="inspiraiteWebsite" style="color:white";>? </a>
   </div>
 
+  <div class="homeH1">
+    <h1>U werk nu in, <span> moestuin 1</span></h1>
+  </div>
+
   <div class="garden-container">
     <div 
       v-for="(buis, buisIndex) in moestuinLayout" 
@@ -138,7 +142,15 @@ export default {
 </script>
 
 <style>
-/* Algemene container voor centrering */
+
+.homeH1{
+  color:black;
+  font-size: 20px;
+  font-weight: 200;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+
 .garden-container {
     max-width: 1100px;
     margin: 0 auto;
@@ -148,13 +160,13 @@ export default {
 .moestuinbuis {
   background-color: #c1c0c0; 
   width: 100%; 
-  height: 100px; /* Vaste hoogte voor de buis */
+  height: 100px; 
   margin-top: 30px;
   border-radius: 10px;
-  display: flex; /* Zorgt ervoor dat de slots naast elkaar staan */
-  justify-content: space-around; /* Verdeelt de slots gelijkmatig */
-  align-items: center; /* Centreert de slots verticaal in de buis */
-  position: relative; /* Belangrijk voor het positioneren van de dropdowns */
+  display: flex; 
+  justify-content: space-around; 
+  align-items: center; 
+  position: relative; 
   transition: z-index 0s;
   box-shadow:0 2px 8px rgba(0,0,0,0.25);
 }
@@ -163,10 +175,10 @@ export default {
   z-index: 100;
 }
 
-/* Container voor elke knop/slot en zijn dropdown */
+
 .slot-wrapper {
     position: relative;
-    z-index: 10; /* Zorgt ervoor dat de dropdown over de andere buizen valt */
+    z-index: 10; /
 }
 
 

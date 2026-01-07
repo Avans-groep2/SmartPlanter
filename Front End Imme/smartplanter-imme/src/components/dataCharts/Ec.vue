@@ -37,7 +37,7 @@ new Chart(canvasEl.value, {
             size: 32,
             weight: 300,
         },
-        color: 'black'
+        color: '#2d6a4f'
       },
       legend: {
         display: false
@@ -51,7 +51,7 @@ new Chart(canvasEl.value, {
 <style>
 
 .linechart {
-    background-color: #c1c0c0; 
+    background-color: #ffffff; 
     border-radius: 15%;
     width: 22rem;
     height: 15rem;
