@@ -24,7 +24,7 @@ export default {
   name: "FooterBar",
   setup() {
     const internal = getCurrentInstance()
-    const keycloak = internal.appContext.config.globalProperties$keycloak
+    const keycloak = internal.appContext.config.globalProperties.$keycloak
 
     const userProfile = reactive({
       firstName: "",
@@ -35,7 +35,7 @@ export default {
 
     const fullName = computed(() => {
         return (userProfile.firstName || userProfile.lastName)
-          ? `${userProfile.firstName} ${userProfile.email}`.trim()
+          ? `${userProfile.firstName} ${userProfile.lastName}`.trim()
           : "Onbekend"
       })
 
@@ -44,6 +44,8 @@ export default {
     const doLogout = () => {
       keycloak.logout()
     }
+
+    let intervalId = null
 
     const fetchProfile = async () => {
       if (!keycloak) return
