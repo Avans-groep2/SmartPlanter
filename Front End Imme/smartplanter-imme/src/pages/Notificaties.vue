@@ -37,7 +37,7 @@ export default {
   margin-bottom: 2%;
   width: 90%;
   height: 35vh;
-  background-color: #e0e0e0; 
+  background-color: #d4d4d4; 
   border-radius: 8px;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25); 
 }

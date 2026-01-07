@@ -62,6 +62,15 @@
 </template>
 
 <script>
+
+function createBuis(options = {}) {
+  return {
+    openUpwards: options.openUpwards ?? false,
+    plant: null
+  };
+}
+
+
 export default {
   name: 'HomePagina',
 
@@ -81,9 +90,11 @@ export default {
       moestuinLayout: [
         createBuis(),
         createBuis(),
-        createBuis(),
+        createBuis({openUpwards: true})
       ]
+      
     };
+
   },
   computed: {
     filteredPlants() {
@@ -120,6 +131,7 @@ export default {
       });
     },
 
+
     selectPlant(buisIndex, slotIndex, plantNaam) {
       const slot = this.moestuinLayout[buisIndex].slots[slotIndex];
       slot.plant = plantNaam;
@@ -144,14 +156,14 @@ export default {
 <style>
 
 .moestuinWerk{
-  margin-left: 14px;
+  margin-left: 2%;
   margin-top: 2%;
 }
 
 .homeH1{
   color:black;
-  font-size: 20px;
-  font-weight: 200;
+  font-size: 25px;
+  font-weight: 400;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 

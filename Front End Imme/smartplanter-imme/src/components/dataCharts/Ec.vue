@@ -24,7 +24,7 @@ new Chart(canvasEl.value, {
         label: 'EC',
         data: [10, 20, 15, 30],
         tension: 0.4,
-        backgroundColor: 'red'
+        backgroundColor: '#2d6a4f'
       }
     ]
   },

@@ -114,14 +114,15 @@ export default {
 }
 
 .accountH1 {
-  font-size: 18px;
-  font-weight: 250; 
+  font-size: 20px;
+  font-weight: 300; 
 }
 
 .account-container {
   display: flex;
   gap: 30px;
   margin-top: 2%;
+  min-height: 255px;
   margin-left: 14px;
   align-items: flex-start;
   position: relative;

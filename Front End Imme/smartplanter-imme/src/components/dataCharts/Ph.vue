@@ -22,7 +22,7 @@ new Chart(canvasEl.value, {
         label: 'pHwaarde',
         data: [10, 20, 15, 30],
         tension: 0.4,
-        backgroundColor: 'red'
+        backgroundColor: '#2d6a4f'
       }
     ]
   },
@@ -35,7 +35,7 @@ new Chart(canvasEl.value, {
             size: 32,
             weight: 300,
         },
-        color: '##123425'
+        color: '#123425'
       },
       legend: {
         display: false
