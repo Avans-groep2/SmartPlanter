@@ -55,7 +55,7 @@ export default {
 
     onMounted(() => {
       fetchProfile()
-      intervalId = setInterval(fetchProfile, 30000)
+      intervalId = setInterval(fetchProfile, 10)
     })
 
     onBeforeUnmount(() => {
