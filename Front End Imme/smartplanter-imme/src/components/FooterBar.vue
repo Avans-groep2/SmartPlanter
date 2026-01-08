@@ -18,24 +18,20 @@
 </template>
 
 <script>
-import { getCurrentInstance, onMounted } from 'vue';
 import { useFooterSpan } from '@/stores/footerSpan';
 
 export default {
   name: "FooterBar",
   setup() {
-    const footerSpan = useFooterSpan()
+    const userStore = useFooterSpan()
 
     const doLogout = () => {
-      if (footerSpan.keycloak) footerSpan.keycloak.logout()
-    }
+      if (userStore.keycloak) {
+        userStore.keycloak.logout();
+      }
+    };
     
-
-    onMounted(() => {
-      footerSpan.startAutoFetch(keycloak)
-    })
-
-    return { footerSpan, doLogout}
+    return { userStore, doLogout}
 
   }
 }
