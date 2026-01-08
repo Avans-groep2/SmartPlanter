@@ -38,11 +38,11 @@ export const useMoestuinStore = defineStore('moestuin', {
   actions: {
     setMoestuin(moestuin) {
       this.actieveMoestuin = moestuin;
-    }
-  },
+    },
 
   setPlant(buisIndex, slotIndex, plantNaam) {
     this.moestuinen[this.actieveMoestuin][buisIndex]
         .slots[slotIndex].plant = plantNaam;
   }
+}
 });
