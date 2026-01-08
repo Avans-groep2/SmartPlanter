@@ -2,8 +2,10 @@
 
   <div class="belangrijke_meldingen">
     <h1 style="color:red;" class="notificatiesH1">Belangrijke meldingen!</h1></div>
+    <p class="meldingenLaden">Hier worden meldingen geladen...</p>
   <div class="overige_meldingen">
     <h1 class="notificatiesH1">Overige meldingen</h1></div>
+    <p class="meldingenLaden">Hier worden meldingen geladen...</p>
 
     <div class="inspiratieKnop"> 
     <a href="https://www.keukenliefde.nl/kook-koelkast-leeg/" class="inspiraiteWebsite" style="color:white";>? </a>
@@ -28,6 +30,13 @@ export default {
 .notificatiesH1 {
   font-size: 28px;
   font-weight: 550; 
+  margin-bottom: 5px;
+}
+
+.meldingenLaden {
+  font-weight: 200;
+  font-size: 15px;
+  font-style: italic;
 }
 
 .belangrijke_meldingen {
