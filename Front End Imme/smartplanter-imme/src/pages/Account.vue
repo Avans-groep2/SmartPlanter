@@ -53,12 +53,10 @@
 
 
 <script>
-import { useMoestuinStore } from '@/stores/moestuinScherm';
+import { useFooterSpan } from '@/stores/footerSpan';
 
 export default {
   name: 'AccountPagina',
-  components: { },
-
   data() {
     return {
       gekozenMoestuin: "",
@@ -67,13 +65,14 @@ export default {
       moestuinNaam: ""
     };
   },
-setup(){
-  const moestuinStore = useMoestuinStore();
-  return {moestuinStore};
-},
-
 
   methods: {
+    bevestigNaam(){
+      const footerSpan = useFooterSpan()
+      footerSpan.firstName = this.moestuinNaam
+      this.moestuinNaam = ""
+    }, 
+
     toggleDropdown() {
       this.open = !this.open;
     },
@@ -82,11 +81,6 @@ setup(){
       this.gekozenMoestuin = moestuin;
       this.moestuinStore.setMoestuin(moestuin);
       this.open = false; 
-    },
-
-    bevestigNaam() {
-      console.log(this.moestuinNaam);
-      this.moestuinNaam = "";
     },
 
      handleClickOutside(event) {
@@ -103,8 +97,8 @@ setup(){
   beforeUnmount() {
     document.removeEventListener("click", this.handleClickOutside);
   }
-  
 };
+
 </script>
 
 

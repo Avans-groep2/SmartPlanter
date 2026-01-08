@@ -40,7 +40,8 @@ function renderChart(labels = [], data = []) {
             data: data.length ? data : [10, 20, 15, 30],
             tension: 0.4,
             borderColor: '#3c803c',
-            backgroundColor: '#3c803c33'
+            backgroundColor: '#3c803c33',
+            fill: true
           }
         ]
       },

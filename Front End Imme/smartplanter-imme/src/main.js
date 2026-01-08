@@ -24,15 +24,7 @@ const initOptions = {
 }
 
 const keycloak = new Keycloak(initOptions)
-
-const userProfile = reactive({
-  firstName: "",
-  lastName: "",
-  email: ""
-})
-
 app.config.globalProperties.$keycloak = keycloak
-app.config.globalProperties.$userProfile = userProfile
 
 keycloak.init({ onLoad: initOptions.onLoad })
   .then(async auth => {
@@ -42,11 +34,6 @@ keycloak.init({ onLoad: initOptions.onLoad })
     }
 
     console.log("Authenticated")
-
-    const profile = await keycloak.loadUserProfile()
-    userProfile.firstName = profile.firstName || ""
-    userProfile.lastName = profile.lastName || ""
-    userProfile.email = profile.email || ""
 
     app.use(router)
     app.use(vuetify)

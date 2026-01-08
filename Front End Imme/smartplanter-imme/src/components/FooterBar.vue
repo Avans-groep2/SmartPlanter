@@ -2,8 +2,8 @@
 
   <footer class="footer">
     <div class="accountNaam">
-      <span class="username">{{ fullName }}</span> 
-      <span class="email">{{ email }}</span>
+      <span class="username">{{ userStore.fullName }}</span> 
+      <span class="email">{{ userStore.email }}</span>
     </div>
 
     <div class="links">
@@ -18,53 +18,28 @@
 </template>
 
 <script>
-import { reactive, computed, onMounted, onBeforeUnmount, getCurrentInstance} from 'vue'
+import { getCurrentInstance, onMounted } from 'vue';
+import { useFooterSpan } from '@/stores/footerSpan';
 
 export default {
   name: "FooterBar",
   setup() {
     const internal = getCurrentInstance()
     const keycloak = internal.appContext.config.globalProperties.$keycloak
-    const userProfile = internal.appContext.config.globalProperties.$userProfile
+    const footerSpan = useFooterSpan()
 
-    const fullName = computed(() => {
-        return (userProfile.firstName || userProfile.lastName)
-          ? `${userProfile.firstName} ${userProfile.lastName}`.trim()
-          : "Onbekend"
-      })
-
-    const email = computed(() => userProfile.email)
-
-    const doLogout = () => {
+    const doLogout = () => 
       keycloak.logout()
-    }
-
-    let intervalId = null
-
-    const fetchProfile = async () => {
-      if (!keycloak) return
-      try {
-        const profile = await keycloak.loadUserProfile()
-        userProfile.firstName = profile.firstName || ""
-        userProfile.lastName = profile.lastName || ""
-        userProfile.email = profile.email || ""
-      } catch (err) {
-        console.error("User profiel niet geladen", err)
-      }
-    }
+    
 
     onMounted(() => {
-      fetchProfile()
-      intervalId = setInterval(fetchProfile, 0)
+      footerSpan.startAutoFetch(keycloak)
     })
 
-    onBeforeUnmount(() => {
-      if (intervalId) clearInterval(intervalId)
-    })
+    return { footerSpan, doLogout}
 
-    return { fullName, email, doLogout }
   }
-};
+}
 </script>
 
 <style>
