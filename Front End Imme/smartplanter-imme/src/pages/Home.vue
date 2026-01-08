@@ -177,8 +177,7 @@ export default {
 }
 
 .slot-wrapper {
-    position: relative;
-    z-index: 10; 
+    position: static;
 }
 
 .plant-slot-button {
@@ -187,7 +186,7 @@ export default {
     border-radius: 50%; 
     background-color: #3c803c;
     border: 3px solid #2d6a4f;
-    color: #95c87e;
+    color: #95c380;
     font-size: 1.2rem;
     font-weight: bold;
     cursor: pointer;
@@ -216,7 +215,7 @@ export default {
     max-height: 300px;
     overflow-y: auto;
     cursor: pointer;
-    z-index: 1000;
+    z-index: 2000;
 }
 
 .dropdown-menu.open-up {

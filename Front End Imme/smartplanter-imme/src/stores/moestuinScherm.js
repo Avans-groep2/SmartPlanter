@@ -17,17 +17,26 @@ function createLayout() {
   ];
 }
 
+const STORAGE_KEY = 'moestuin-data';
+
 
 export const useMoestuinStore = defineStore('moestuin', {
-  state: () => ({
-    actieveMoestuin: 'Moestuin 1',
+  state: () =>  {
+    const saved = localStorage.getItem(STORAGE_KEY);
 
-    moestuinen: {
-        'Moestuin 1': createLayout(),
-        'Moestuin 2': createLayout(),
-        'Moestuin 3': createLayout()
+    if (saved) {
+        return JSON.parse(saved);
     }
-  }),
+
+    return {
+        actieveMoestuin: 'Moestuin 1',
+        moestuinen: {
+            'Moestuin 1': createLayout(),
+            'Moestuin 2': createLayout(),
+            'Moestuin 3': createLayout()
+    }
+    };
+  },
 
   getters: {
     huidigeLayout(state) {
@@ -38,11 +47,23 @@ export const useMoestuinStore = defineStore('moestuin', {
   actions: {
     setMoestuin(moestuin) {
       this.actieveMoestuin = moestuin;
+      this.save();
     },
-/*test opslaan*/
+
   setPlant(buisIndex, slotIndex, plantNaam) {
     this.moestuinen[this.actieveMoestuin][buisIndex]
         .slots[slotIndex].plant = plantNaam;
+        this.save();
+  },
+
+  save() {
+    localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({
+            actieveMoestuin: this.actieveMoestuin,
+            moestuinen: this.moestuinen
+        })
+    );
   }
 }
 });
