@@ -5,7 +5,7 @@
   </div>
 
   <div class="moestuinWerk">
-    <h1 class="homeH1">U werk nu in, <span style="color: #9ac486;">{{ moestuinStore.actieveMoestuin }}</span></h1>
+    <h1 class="homeH1">U werk nu in, <span style="color: #2d6a4f;">{{ moestuinStore.actieveMoestuin }}</span></h1>
   </div>
 
   <div class="garden-container">
@@ -179,6 +179,7 @@ export default {
 .slot-wrapper {
     position: relative;
 }
+
 
 .plant-slot-button {
     width: 60px;
