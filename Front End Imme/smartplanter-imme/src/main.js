@@ -1,4 +1,3 @@
-// main.js
 import { createApp, reactive } from 'vue'
 import { createPinia } from 'pinia';
 import App from './App.vue'
@@ -8,6 +7,7 @@ import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import Keycloak from 'keycloak-js'
+import { useFooterSpan } from './stores/footerSpan';
 
 const vuetify = createVuetify({
   components,
@@ -16,32 +16,24 @@ const vuetify = createVuetify({
 
 const app = createApp(App)
 
-const initOptions = {
+app.use(router)
+app.use(vuetify)
+const pinia = createPinia()
+app.use(pinia)
+
+const keycloak = new Keycloak({
   url: 'https://141.148.237.73:8443/',
   realm: 'smartplanter',
   clientId: 'frontend-imme',
   onLoad: 'login-required'
-}
-
-const keycloak = new Keycloak(initOptions)
+})
 app.config.globalProperties.$keycloak = keycloak
 
-keycloak.init({ onLoad: initOptions.onLoad })
-  .then(async auth => {
-    if (!auth) {
-      window.location.reload()
-      return
-    }
-
+keycloak.init({ onLoad: 'login-required' })
+  .then(() => {
     console.log("Authenticated")
-
-    app.use(router)
-    app.use(vuetify)
-    app.use(createPinia());
-
+    const footerSpan = useFooterSpan()
+    footerSpan.setKeycloak(keycloak) // ✅ start automatisch realtime updates
     router.isReady().then(() => app.mount('#app'))
-
   })
-  .catch(() => console.error("Authentication Failed"))
-
-
+  .catch(err => console.error("Authentication Failed", err))

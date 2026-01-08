@@ -1,11 +1,13 @@
 import { defineStore } from 'pinia'
-import Keycloak from 'keycloak-js'
+import keycloak from 'keycloak-js'
 
 export const useFooterSpan = defineStore('footerSpan', {
   state: () => ({
     firstName: '',
     lastName: '',
-    email: ''
+    email: '',
+    keycloak: null,
+    intervalId: null
   }),
   getters: {
     fullName: (state) => {
@@ -15,7 +17,12 @@ export const useFooterSpan = defineStore('footerSpan', {
     }
   },
   actions: {
-    async fetchProfile(keycloak) {
+    setKeycloak(kc) {
+        this.keycloak = kc
+        if (kc) this.startAutoFetch()
+    },
+
+    async fetchProfile() {
       if (!keycloak) return
       try {
         const profile = await keycloak.loadUserProfile()
@@ -26,11 +33,12 @@ export const useFooterSpan = defineStore('footerSpan', {
         console.error('Gebruiker kan niet geladen worden', err)
       }
     },
-    startAutoFetch(keycloak) {
-        this.fetchProfile(keycloak)
-        setInterval(() => {
-            this.fetchProfile(keycloak)
-        }, 2000)
+    startAutoFetch() {
+        this.fetchProfile()
+        if (this.intervalId) clearInterval(this.intervalId)
+        this.intervalId = setInterval(() => {
+            this.fetchProfile()
+    }, 2000)    
     }
   }
 })
