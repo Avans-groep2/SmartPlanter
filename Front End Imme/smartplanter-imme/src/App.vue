@@ -4,7 +4,7 @@
     <main class="content">
       <router-view/>
     </main>
-  <FooterBar @logout="logout"/>
+  <FooterBar/>
 
     </div>
 </template>

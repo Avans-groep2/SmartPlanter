@@ -23,15 +23,15 @@ export const useFooterSpan = defineStore('footerSpan', {
     },
 
     async fetchProfile() {
-      if (!keycloak) return
-      try {
-        const profile = await keycloak.loadUserProfile()
+    if (!this.keycloak) return
+    try {
+        const profile = await this.keycloak.loadUserProfile()
         this.firstName = profile.firstName || ''
         this.lastName = profile.lastName || ''
         this.email = profile.email || ''
-      } catch (err) {
+    } catch (err) {
         console.error('Gebruiker kan niet geladen worden', err)
-      }
+    }
     },
     startAutoFetch() {
         this.fetchProfile()

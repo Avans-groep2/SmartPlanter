@@ -24,12 +24,11 @@ import { useFooterSpan } from '@/stores/footerSpan';
 export default {
   name: "FooterBar",
   setup() {
-    const internal = getCurrentInstance()
-    const keycloak = internal.appContext.config.globalProperties.$keycloak
     const footerSpan = useFooterSpan()
 
-    const doLogout = () => 
-      keycloak.logout()
+    const doLogout = () => {
+      if (footerSpan.keycloak) footerSpan.keycloak.logout()
+    }
     
 
     onMounted(() => {
