@@ -10,11 +10,12 @@
   "dependencies": {
     "chart.js": "^4.5.1",
     "core-js": "^3.8.3",
+    "keycloak-js": "^26.2.1",
+    "pinia": "^3.0.4",
     "vue": "^3.2.13",
     "vue-chartjs": "^5.3.3",
     "vue-router": "^4.2.2",
-    "vuetify": "^3.11.0",
-    "keycloak-js":"^26.2.1"
+    "vuetify": "^3.11.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.16",

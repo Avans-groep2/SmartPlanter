@@ -66,13 +66,12 @@ new Chart(canvasEl.value, {
 }
 
 .datawaarde-uitleg{
-  /*margin-top: 0.5rem;*/
+
   font-size: 0.9rem;
   color: #2d6a4f;
 }
 
 .data-betekenis{
-  /*margin-top: 0.5rem;*/
   font-size: 0.9rem;
   color: #2d6a4f;
 }

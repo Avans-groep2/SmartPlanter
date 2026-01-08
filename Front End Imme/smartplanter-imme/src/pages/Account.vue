@@ -53,6 +53,7 @@
 
 
 <script>
+import { useMoestuinStore } from '@/stores/moestuinScherm';
 
 export default {
   name: 'AccountPagina',
@@ -66,6 +67,11 @@ export default {
       moestuinNaam: ""
     };
   },
+setup(){
+  const moestuinStore = useMoestuinStore();
+  return {moestuinStore};
+},
+
 
   methods: {
     toggleDropdown() {
@@ -74,6 +80,7 @@ export default {
 
     selecteerMoestuin(moestuin) {
       this.gekozenMoestuin = moestuin;
+      this.moestuinStore.setMoestuin(moestuin);
       this.open = false; 
     },
 

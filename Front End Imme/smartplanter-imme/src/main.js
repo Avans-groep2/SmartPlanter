@@ -1,5 +1,6 @@
 // main.js
 import { createApp, reactive } from 'vue'
+import { createPinia } from 'pinia';
 import App from './App.vue'
 import router from './Router'
 import 'vuetify/styles'
@@ -49,6 +50,7 @@ keycloak.init({ onLoad: initOptions.onLoad })
 
     app.use(router)
     app.use(vuetify)
+    app.use(createPinia());
 
     router.isReady().then(() => app.mount('#app'))
 

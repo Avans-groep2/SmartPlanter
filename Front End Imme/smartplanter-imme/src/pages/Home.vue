@@ -5,7 +5,7 @@
   </div>
 
   <div class="moestuinWerk">
-    <h1 class="homeH1">U werk nu in, <span> moestuin 1</span></h1>
+    <h1 class="homeH1">U werk nu in, <span>{{ moestuinStore.actieveMoestuin }}</span></h1>
   </div>
 
   <div class="garden-container">
@@ -63,6 +63,7 @@
 </template>
 
 <script>
+import { useMoestuinStore } from '@/stores/moestuinScherm';
 
 function createBuis({ openUpwards = false } = {}) {
   return {
@@ -74,9 +75,13 @@ function createBuis({ openUpwards = false } = {}) {
   };
 }
 
-
 export default {
   name: 'HomePagina',
+
+  setup() {
+    const moestuinStore = useMoestuinStore();
+    return {moestuinStore};
+  },
 
   data() {
     return {
@@ -203,7 +208,7 @@ export default {
     border-radius: 50%; 
     background-color: #3c803c;
     border: 3px solid #2d6a4f;
-    color: #ffffff;
+    color: #767676;
     font-size: 1.2rem;
     font-weight: bold;
     cursor: pointer;
