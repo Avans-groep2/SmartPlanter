@@ -13,7 +13,6 @@
       v-for="(buis, buisIndex) in moestuinLayout" 
       :key="buisIndex" 
       class="moestuinbuis"
-      :class="{ 'buis-dropdown-open': buisHeeftDropdownOpen(buis) }"
     >
       <div
         v-for="(slot, slotIndex) in buis.slots"
@@ -28,7 +27,7 @@
         </button>
 
         <div
-          v-if="slot.showDropdown"
+          v-if="openDropdown.buisIndex === buisIndex && openDropdown.slotIndex === slotIndex"
           class="dropdown-menu"
           :class="{'open-up': buis.openUpwards}"
           @click.stop
@@ -76,6 +75,10 @@ export default {
   data() {
     return {
       searchQuery: '',
+      openDropdown: {
+        buisIndex: null,
+        slotIndex: null
+      },
       allePlanten: [
         'Tomaat', 'Wortel', 'Broccoli', 'Sla', 'Aardbei', 
         'Komkommer', 'Paprika', 'Aubergine', 'Courgette', 
@@ -88,6 +91,12 @@ export default {
   computed: {
     moestuinLayout(){
       return this.moestuinStore.huidigeLayout;
+    },
+
+    filteredPlants() {
+      return this.allePlanten.filter(plant => 
+        plant.toLowerCase().includes(this.searchQuery.toLowerCase())
+      );
     }
   },
 
@@ -97,27 +106,20 @@ export default {
       this.closeAllDropdowns();
     },
 
-    buisHeeftDropdownOpen(buis) {
-      return buis.slots.some(slot => slot.showDropdown);
-    },
-
     toggleDropdown(buisIndex, slotIndex) {
-      this.closeAllDropdowns();
+      const isSame =
+    this.openDropdown.buisIndex === buisIndex &&
+    this.openDropdown.slotIndex === slotIndex;
 
-      const slot = this.moestuinLayout[buisIndex].slots[slotIndex];
-      slot.showDropdown = !slot.showDropdown;
+    this.openDropdown = isSame
+      ? { buisIndex: null, slotIndex: null }
+      : { buisIndex, slotIndex };
 
-      if (slot.showDropdown) {
-        this.searchQuery = '';
-      }
+    this.searchQuery = '';
     },
 
     closeAllDropdowns() {
-      this.moestuinLayout.forEach(buis => {
-        buis.slots.forEach(slot => {
-          slot.showDropdown = false; 
-        });
-      });
+      this.openDropdown = {buisIndex: null, slotIndex:null};
     },
 
   handleClickOutside() {

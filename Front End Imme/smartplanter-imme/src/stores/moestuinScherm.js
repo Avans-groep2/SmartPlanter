@@ -39,7 +39,7 @@ export const useMoestuinStore = defineStore('moestuin', {
     setMoestuin(moestuin) {
       this.actieveMoestuin = moestuin;
     },
-
+/*test opslaan*/
   setPlant(buisIndex, slotIndex, plantNaam) {
     this.moestuinen[this.actieveMoestuin][buisIndex]
         .slots[slotIndex].plant = plantNaam;
