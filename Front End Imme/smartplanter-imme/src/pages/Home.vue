@@ -65,16 +65,6 @@
 <script>
 import { useMoestuinStore } from '@/stores/moestuinScherm';
 
-function createBuis({ openUpwards = false } = {}) {
-  return {
-    openUpwards,
-    slots: Array(4).fill(null).map(() => ({
-      plant: null,
-      showDropdown: false
-    }))
-  };
-}
-
 export default {
   name: 'HomePagina',
 
@@ -91,28 +81,22 @@ export default {
         'Komkommer', 'Paprika', 'Aubergine', 'Courgette', 
         'Appel', 'Radijs', 'Framboos', 'Ui', 'Knoflook', 
         'Bramen', 'Basilicum'
-      ],
-      moestuinLayout: [
-        createBuis(),
-        createBuis(),
-        createBuis({openUpwards: true})
       ]
-      
     };
-
   },
+
   computed: {
-    filteredPlants() {
-      if (!this.searchQuery) {
-        return this.allePlanten;
-      }
-      const searchLower = this.searchQuery.toLowerCase();
-      return this.allePlanten.filter(plant => 
-        plant.toLowerCase().includes(searchLower)
-      );
+    moestuinLayout(){
+      return this.moestuinStore.huidigeLayout;
     }
   },
+
   methods: {
+    selectPlant(buisIndex, slotIndex, plantNaam) {
+      this.moestuinStore.setPlant(buisIndex, slotIndex, plantNaam);
+      this.closeAllDropdowns();
+    },
+
     buisHeeftDropdownOpen(buis) {
       return buis.slots.some(slot => slot.showDropdown);
     },
@@ -134,13 +118,6 @@ export default {
           slot.showDropdown = false; 
         });
       });
-    },
-
-
-    selectPlant(buisIndex, slotIndex, plantNaam) {
-      const slot = this.moestuinLayout[buisIndex].slots[slotIndex];
-      slot.plant = plantNaam;
-      slot.showDropdown = false;
     },
 
   handleClickOutside() {
@@ -208,7 +185,7 @@ export default {
     border-radius: 50%; 
     background-color: #3c803c;
     border: 3px solid #2d6a4f;
-    color: #767676;
+    color: #95c87e;
     font-size: 1.2rem;
     font-weight: bold;
     cursor: pointer;
