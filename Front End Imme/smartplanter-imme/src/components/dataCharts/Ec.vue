@@ -3,8 +3,8 @@
 
   <div class="linechart">
     <canvas ref="canvasEl"></canvas>
-    <p class="datawaarde-uitleg">EC waarde:</p>
-    <p class="data-betekenis">Deze EC waarde is: {{ latestValue }}</p>
+    <p class="datawaarde-uitleg">EC waarde: {{ latestValue }}</p>
+    <p class="data-betekenis">Deze EC waarde is: </p>
   </div>
 </template>
 
@@ -40,8 +40,7 @@ function renderChart(labels = [], data = []) {
             data: data.length ? data : [10, 20, 15, 30],
             tension: 0.4,
             borderColor: '#3c803c',
-            backgroundColor: '#3c803c33',
-            fill: true
+            backgroundColor: '#3c803c33'
           }
         ]
       },
@@ -50,10 +49,15 @@ function renderChart(labels = [], data = []) {
           title: {
             display: true,
             text: 'EC',
-            font: { size: 32, weight: 300 },
+            font: { 
+              size: 32, 
+              weight: 300 
+            },
             color: 'black'
           },
-          legend: { display: false }
+          legend: { 
+            display: false 
+          }
         },
         responsive: true,
         maintainAspectRatio: false

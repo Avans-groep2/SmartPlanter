@@ -22,7 +22,9 @@ new Chart(canvasEl.value, {
         label: 'Temperatuur',
         data: [10, 20, 15, 30],
         tension: 0.4,
-        backgroundColor: '#3c803c'
+        borderColor: '#3c803c',
+        backgroundColor: '#3c803c33',
+        fill: true
       }
     ]
   },

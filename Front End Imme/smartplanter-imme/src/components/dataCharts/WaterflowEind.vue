@@ -22,7 +22,9 @@ new Chart(canvasEl.value, {
         label: 'WaterFlowEind',
         data: [10, 20, 15, 30],
         tension: 0.4,
-        backgroundColor:'#3c803c'
+        borderColor: '#3c803c',
+        backgroundColor: '#3c803c33',
+        fill: true
       }
     ]
   },
@@ -66,7 +68,6 @@ new Chart(canvasEl.value, {
 }
 
 .datawaarde-uitleg{
-
   font-size: 0.9rem;
   color: #2d6a4f;
 }
