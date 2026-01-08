@@ -4,7 +4,7 @@
   <div class="linechart">
     <canvas ref="canvasEl"></canvas>
     <p class="datawaarde-uitleg">EC waarde:</p>
-    <p class="data-betekenis">Deze EC waarde is:...</p>
+    <p class="data-betekenis">Deze EC waarde is: {{ latestValue }}</p>
   </div>
 </template>
 
@@ -20,15 +20,16 @@ const canvasEl = ref(null)
 // Chart instantie
 let chartInstance = null
 
+// Huidige EC waarde voor weergave
+const latestValue = ref('...')
+
 // Functie om chart te maken of te updaten
 function renderChart(labels = [], data = []) {
   if (chartInstance) {
-    // Update bestaande chart
     chartInstance.data.labels = labels
     chartInstance.data.datasets[0].data = data
     chartInstance.update()
   } else {
-    // Maak nieuwe chart
     chartInstance = new Chart(canvasEl.value, {
       type: 'line',
       data: {
@@ -39,7 +40,7 @@ function renderChart(labels = [], data = []) {
             data: data.length ? data : [10, 20, 15, 30],
             tension: 0.4,
             borderColor: '#3c803c',
-            backgroundColor: '#3c803c33', // iets transparant
+            backgroundColor: '#3c803c33',
             fill: true
           }
         ]
@@ -49,15 +50,10 @@ function renderChart(labels = [], data = []) {
           title: {
             display: true,
             text: 'EC',
-            font: {
-              size: 32,
-              weight: 300
-            },
+            font: { size: 32, weight: 300 },
             color: 'black'
           },
-          legend: {
-            display: false
-          }
+          legend: { display: false }
         },
         responsive: true,
         maintainAspectRatio: false
@@ -71,9 +67,17 @@ async function loadAPI() {
   try {
     const response = await fetch(apiURL)
     const json = await response.json()
+    console.log("API respons:", json) // ✅ debug
 
-    const labels = json.gegevens.map(item => item.categorie)
-    const data = json.gegevens.map(item => item.verkoopbedrag)
+    if (!json.gegevens || !Array.isArray(json.gegevens) || json.gegevens.length === 0) {
+      console.warn("Geen gegevens gevonden in API respons")
+      return
+    }
+
+    const labels = json.gegevens.map(item => item.categorie || 'Onbekend')
+    const data = json.gegevens.map(item => item.verkoopbedrag || 0)
+
+    latestValue.value = data[data.length - 1] || '...'
 
     renderChart(labels, data)
   } catch (err) {
@@ -86,6 +90,7 @@ onMounted(() => {
   renderChart()
 })
 </script>
+
 
 <style>
 .linechart {
