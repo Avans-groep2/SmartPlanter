@@ -33,14 +33,14 @@
           @click.stop
         >
 
-        <button class="oogstenKnop">Oogsten</button>
-
           <input
             type="text"
             v-model="searchQuery"
             placeholder="Zoek groente/fruit..."
             class="search-input"
           />
+
+        <button class="oogstenKnop">Oogsten</button>
 
           <div class="plant-list">
             <div
