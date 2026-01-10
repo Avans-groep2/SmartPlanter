@@ -1,5 +1,5 @@
 <template>
-  <SidebarNavbar />
+  <SidebarNavbar />  
   
   <div class="Notifications">
     <WelcomeMessage/>
