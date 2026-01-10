@@ -32,6 +32,9 @@
           :class="{'open-up': buis.openUpwards}"
           @click.stop
         >
+
+        <button class="oogstenKnop">Oogsten</button>
+
           <input
             type="text"
             v-model="searchQuery"
@@ -156,6 +159,14 @@ export default {
     max-width: 1100px;
     margin: 0 auto;
     padding: 20px;
+}
+
+.oogstenKnop {
+  height: 10px;
+  width: auto;
+  background-color:#2d6a4f;
+  border: none;
+  color: white;
 }
 
 .moestuinbuis {
