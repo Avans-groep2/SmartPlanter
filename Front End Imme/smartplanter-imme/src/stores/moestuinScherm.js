@@ -56,6 +56,15 @@ export const useMoestuinStore = defineStore('moestuin', {
         this.save();
   },
 
+  oogstPlant(buisIndex, slotIndex, score) {
+    this.moestuin[this.actieveMoestuin][buisIndex]
+    .slots[slotIndex].plant = null;
+
+    console.log('Oogstscore:', score);
+
+    this.save();
+  },
+
   save() {
     localStorage.setItem(
         STORAGE_KEY,

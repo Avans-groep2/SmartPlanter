@@ -40,7 +40,10 @@
             class="search-input"
           />
 
-        <button class="oogstenKnop">Oogsten</button>
+        <button 
+          class="oogstenKnop"
+          @click="openOogstModal (buisIndex, slotIndex)">
+          Oogsten</button>
 
           <div class="plant-list">
             <div
@@ -59,6 +62,25 @@
         </div>
 
       </div>
+    </div>
+  </div>
+
+  <div v-if="oogstModalOpen" class="modal-overlay">
+    <div class="oogst-modal">
+      <h2>Hoe was het oogstresultaat?</h2>
+
+      <input
+        type="range"
+        min="1"
+        max="10"
+        v-model="oogstScore"/>
+      <p>Resultaat: {{ oogstScore }}</p>
+
+      <div class="modal-buttons">
+        <button @click="bevestigOogst" class="oogstenknop">Oogsten</button>
+        <button @click="oogstModalOpen = false">Terug</button>
+      </div>
+
     </div>
   </div>
 
@@ -81,6 +103,12 @@ export default {
       openDropdown: {
         buisIndex: null,
         slotIndex: null
+      },
+      oogstModalOpen: false,
+      oogstScore: 5,
+      oogstTarget: {
+        buisIndex:null,
+        slotIndex:null
       },
       allePlanten: [
         'Tomaat', 'Wortel', 'Broccoli', 'Sla', 'Aardbei', 
@@ -108,6 +136,25 @@ export default {
       this.moestuinStore.setPlant(buisIndex, slotIndex, plantNaam);
       this.closeAllDropdowns();
     },
+
+    openOogstModal(buisIndex, slotIndex) {
+      this.oogstTarget = {buisIndex, slotIndex};
+      this.oogstScore = 5;
+      this.oogstModalOpen = true;
+    },
+
+    bevestigOogst() {
+      const {buisIndex, slotIndex} = this.oogstTarget;
+
+      this.moestuinStore.oogstPlant(
+        buisIndex,
+        slotIndex,
+        this.oogstScore
+      );
+
+      this.oogstModalOpen = false;
+      this.closeAllDropdowns();
+    },  
 
     toggleDropdown(buisIndex, slotIndex) {
       const isSame =
@@ -154,7 +201,6 @@ export default {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-
 .garden-container {
     max-width: 1100px;
     margin: 0 auto;
@@ -162,11 +208,37 @@ export default {
 }
 
 .oogstenKnop {
-  height: 10px;
+  height: 25px;
   width: auto;
   background-color:#2d6a4f;
   border: none;
   color: white;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 3000;
+}
+
+.oogst-modal {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 300px;
+  text-align: center;
+}
+
+.modal-buttons {
+  background-color: #2d6a4f;
+  color: white;
+  margin-top: 15px;
+  display: flex;
+  justify-content: space-between;
 }
 
 .moestuinbuis {
@@ -198,7 +270,7 @@ export default {
     border-radius: 50%; 
     background-color: #3c803c;
     border: 3px solid #2d6a4f;
-    color: #9ac486;
+    color: #a9d196;
     font-size: 1.2rem;
     font-weight: bold;
     cursor: pointer;

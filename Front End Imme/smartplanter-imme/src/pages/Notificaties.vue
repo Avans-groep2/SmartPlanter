@@ -31,7 +31,7 @@ export default {
 .notificatiesH1 {
   font-size: 28px;
   font-weight: 550; 
-  margin-bottom: 5px;
+  margin-bottom: 3px;
 }
 
 .meldingenLaden {
