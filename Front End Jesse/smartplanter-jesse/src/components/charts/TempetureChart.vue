@@ -20,10 +20,7 @@ import { ref, onMounted, onBeforeUnmount, watch, defineProps } from 'vue'
 import { Chart } from 'chart.js/auto'
 
 const props = defineProps({
-  deviceId: {
-    type: String,
-    required: true
-  }
+  deviceId: { type: String, required: true }
 })
 
 const canvasEl = ref(null)
@@ -32,18 +29,11 @@ const latestValue = ref(null)
 let chartInstance = null
 let intervalId = null
 
-// kleuren uit CSS
 const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim()
 const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text').trim()
 
 // ────────────── Helpers ──────────────
-function sortByIsoTime(a, b) {
-  return a.time.localeCompare(b.time)
-}
-
-function parseIsoToDate(isoString) {
-  return new Date(isoString.replace(/(\.\d{3})\d+Z$/, '$1Z'))
-}
+const parseIsoToDate = iso => new Date(iso.replace(/(\.\d{3})\d+Z$/, '$1Z'))
 
 // ────────────── API Call ──────────────
 async function fetchTemperatureData(deviceId) {
@@ -59,35 +49,20 @@ async function fetchTemperatureData(deviceId) {
 
   const res = await fetch(url)
   const data = await res.json()
-  console.log('API data for', deviceId, data)
-  return data
+  return data || []
 }
 
 // ────────────── Chart management ──────────────
-function buildChart(labels, data) {
+function buildChart(labels = [], data = []) {
+  if (chartInstance) chartInstance.destroy()
+
   chartInstance = new Chart(canvasEl.value, {
     type: 'line',
-    data: {
-      labels,
-      datasets: [
-        {
-          data,
-          borderColor: primaryColor,
-          backgroundColor: primaryColor,
-          tension: 0.3,
-          pointRadius: 4
-        }
-      ]
-    },
+    data: { labels, datasets: [{ data, borderColor: primaryColor, backgroundColor: primaryColor, tension: 0.3, pointRadius: 4 }] },
     options: {
       responsive: true,
       plugins: {
-        title: {
-          display: true,
-          text: 'Temperatuur °C',
-          font: { size: 32 },
-          color: textColor
-        },
+        title: { display: true, text: 'Temperatuur °C', font: { size: 32 }, color: textColor },
         legend: { display: false }
       },
       scales: {
@@ -106,107 +81,52 @@ function updateChart(labels, data) {
 }
 
 function cleanupChart() {
-  if (intervalId) {
-    clearInterval(intervalId)
-    intervalId = null
+  if (intervalId) { clearInterval(intervalId); intervalId = null }
+  if (chartInstance) { chartInstance.destroy(); chartInstance = null }
+}
+
+// ────────────── Load & Poll Data ──────────────
+async function loadData(deviceId) {
+  const apiData = await fetchTemperatureData(deviceId)
+  const validData = apiData.filter(item => item.data?.temperatuur != null)
+
+  if (!validData.length) {
+    latestValue.value = null
+    buildChart([], [])
+    return
   }
-  if (chartInstance) {
-    chartInstance.destroy()
-    chartInstance = null
+
+  const sorted = validData.sort((a, b) => a.time.localeCompare(b.time)).slice(-5)
+  const labels = sorted.map(item => parseIsoToDate(item.time).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit', second: '2-digit' }))
+  const temps = sorted.map(item => item.data.temperatuur)
+  latestValue.value = temps.at(-1)
+
+  if (!chartInstance) {
+    buildChart(labels, temps)
+  } else {
+    updateChart(labels, temps)
   }
 }
 
 function startPolling(deviceId) {
-  intervalId = setInterval(() => {
-    loadData(deviceId, false)
-  }, 5000)
-}
-
-// ────────────── Load data ──────────────
-async function loadData(deviceId, rebuild = false) {
-  const apiData = await fetchTemperatureData(deviceId)
-
-  // ✅ check of er bruikbare data is
-  const hasData =
-    apiData &&
-    apiData.length > 0 &&
-    apiData.some(item => item.data && item.data.temperatuur != null)
-
-  if (!hasData) {
-    cleanupChart()
-    latestValue.value = null
-
-    // Optioneel: lege chart tonen
-    chartInstance = new Chart(canvasEl.value, {
-      type: 'line',
-      data: {
-        labels: [],
-        datasets: [
-          {
-            data: [],
-            borderColor: primaryColor,
-            backgroundColor: primaryColor
-          }
-        ]
-      },
-      options: {
-        plugins: {
-          title: {
-            display: true,
-            text: 'Temperatuur °C',
-            font: { size: 32 },
-            color: textColor
-          },
-          legend: { display: false }
-        },
-        scales: {
-          x: { ticks: { color: textColor } },
-          y: { ticks: { color: textColor } }
-        }
-      }
-    })
-    return
-  }
-
-  const sortedData = apiData.slice().sort(sortByIsoTime).slice(-5)
-
-  const labels = sortedData.map(item =>
-    parseIsoToDate(item.time).toLocaleTimeString('nl-NL', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit'
-    })
-  )
-
-  const temperatures = sortedData.map(item => item.data.temperatuur)
-  latestValue.value = temperatures.at(-1)
-
-  if (rebuild) {
-    cleanupChart()
-    buildChart(labels, temperatures)
-    startPolling(deviceId)
-  } else {
-    updateChart(labels, temperatures)
-  }
+  if (intervalId) clearInterval(intervalId)
+  intervalId = setInterval(() => loadData(deviceId), 5000)
 }
 
 // ────────────── Lifecycle ──────────────
 onMounted(() => {
-  loadData(props.deviceId, true)
+  loadData(props.deviceId)
+  startPolling(props.deviceId)
 })
 
-watch(
-  () => props.deviceId,
-  newDeviceId => {
-    loadData(newDeviceId, true)
-  }
-)
-
-onBeforeUnmount(() => {
+watch(() => props.deviceId, newId => {
   cleanupChart()
+  loadData(newId)
+  startPolling(newId)
 })
-</script>
 
+onBeforeUnmount(() => cleanupChart())
+</script>
 <style>
 
 .linechart {
