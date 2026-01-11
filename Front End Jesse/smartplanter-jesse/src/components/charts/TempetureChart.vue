@@ -1,17 +1,46 @@
 <template>
-<div class="linechart">
-    <canvas ref="canvasEl"></canvas>
-    <p>Laatste Waarde: <span>30</span></p>
-  <p>Waarde status:<span>OK</span></p>
-</div>
+  <div class="linechart">
+
+    <p>
+      Laatste waarde:
+      <span>{{ latestValue }} °C</span>
+    </p>
+
+    <p>
+      Status:
+      <span>{{ latestValue > 30 ? 'Te warm' : 'OK' }}</span>
+    </p>
+  </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
 import { Chart } from 'chart.js/auto'
+
+// ─────────────────────────────────────────────
+// Props
+// ─────────────────────────────────────────────
+
+const props = defineProps({
+  deviceId: {
+    type: String,
+    required: true
+  }
+})
+
+// ─────────────────────────────────────────────
+// Refs
+// ─────────────────────────────────────────────
 
 const canvasEl = ref(null)
 const latestValue = ref(null)
+
+let chartInstance = null
+let intervalId = null
+
+// ─────────────────────────────────────────────
+// Styles
+// ─────────────────────────────────────────────
 
 const primaryColor = getComputedStyle(document.documentElement)
   .getPropertyValue('--primary')
@@ -25,15 +54,11 @@ const textColor = getComputedStyle(document.documentElement)
 // Helpers
 // ─────────────────────────────────────────────
 
-// Sorteer veilig op ISO-string (werkt ook met nano-seconden)
 function sortByIsoTime(a, b) {
   return a.time.localeCompare(b.time)
 }
 
-// Knip nano-seconden af → JS Date-safe
 function parseIsoToDate(isoString) {
-  // 2025-12-01T09:27:40.435148506Z
-  // → 2025-12-01T09:27:40.435Z
   return new Date(isoString.replace(/(\.\d{3})\d+Z$/, '$1Z'))
 }
 
@@ -41,16 +66,16 @@ function parseIsoToDate(isoString) {
 // API
 // ─────────────────────────────────────────────
 
-async function fetchTemperatureData() {
+async function fetchTemperatureData(deviceId) {
   const url = new URL('https://smartplanters.dedyn.io:1880/mongoadvanced')
 
   url.search = new URLSearchParams({
     collection: 'smartplanters',
     operation: 'find',
     id: 'device_id',
-    value: 'device-1',
-    limit: 10,
-    sortvalue: 1
+    value: deviceId,
+    limit: 5,
+    sortvalue: -1 // nieuwste eerst
   })
 
   const res = await fetch(url)
@@ -58,38 +83,17 @@ async function fetchTemperatureData() {
 }
 
 // ─────────────────────────────────────────────
-// Chart
+// Chart logic
 // ─────────────────────────────────────────────
 
-onMounted(async () => {
-  const apiData = await fetchTemperatureData()
-
-  const sortedData = apiData
-    .slice()
-    .sort(sortByIsoTime)
-
-  const labels = sortedData.map(item =>
-    parseIsoToDate(item.time).toLocaleTimeString('nl-NL', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit'
-    })
-  )
-
-  const temperatures = sortedData.map(
-    item => item.data.temperatuur
-  )
-
-  latestValue.value = temperatures.at(-1)
-
-  new Chart(canvasEl.value, {
+function buildChart(labels, data) {
+  chartInstance = new Chart(canvasEl.value, {
     type: 'line',
     data: {
       labels,
       datasets: [
         {
-          label: 'Temperatuur',
-          data: temperatures,
+          data,
           borderColor: primaryColor,
           backgroundColor: primaryColor,
           tension: 0.3,
@@ -106,22 +110,76 @@ onMounted(async () => {
           font: { size: 32 },
           color: textColor
         },
-        legend: {
-          display: false
-        }
+        legend: { display: false }
       },
       scales: {
-        x: {
-          ticks: { color: textColor }
-        },
-        y: {
-          ticks: { color: textColor }
-        }
+        x: { ticks: { color: textColor } },
+        y: { ticks: { color: textColor } }
       }
     }
   })
+}
+
+function updateChart(labels, data) {
+  chartInstance.data.labels = labels
+  chartInstance.data.datasets[0].data = data
+  chartInstance.update('none')
+}
+
+async function loadData(deviceId, rebuild = false) {
+  const apiData = await fetchTemperatureData(deviceId)
+
+  const sortedData = apiData
+    .slice()
+    .sort(sortByIsoTime)
+    .slice(-5)
+
+  const labels = sortedData.map(item =>
+    parseIsoToDate(item.time).toLocaleTimeString('nl-NL', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    })
+  )
+
+  const temperatures = sortedData.map(
+    item => item.data.temperatuur
+  )
+
+  latestValue.value = temperatures.at(-1)
+
+  if (!chartInstance || rebuild) {
+    if (chartInstance) chartInstance.destroy()
+    buildChart(labels, temperatures)
+  } else {
+    updateChart(labels, temperatures)
+  }
+}
+
+// ─────────────────────────────────────────────
+// Lifecycle
+// ─────────────────────────────────────────────
+
+onMounted(() => {
+  loadData(props.deviceId, true)
+
+  // polling (optioneel)
+  intervalId = setInterval(() => {
+    loadData(props.deviceId)
+  }, 5000)
 })
 
+watch(
+  () => props.deviceId,
+  newDeviceId => {
+    loadData(newDeviceId, true)
+  }
+)
+
+onBeforeUnmount(() => {
+  if (intervalId) clearInterval(intervalId)
+  if (chartInstance) chartInstance.destroy()
+})
 </script>
 
 
