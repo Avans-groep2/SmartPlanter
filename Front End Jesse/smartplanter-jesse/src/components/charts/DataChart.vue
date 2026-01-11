@@ -24,7 +24,8 @@ const props = defineProps({
   dataKey: { type: String, default: '' },
   label: { type: String, default: 'Meetwaarde' },
   unit: { type: String, default: '' },
-  threshold: { type: Number, default: null } // optioneel: bijv. 30 graden
+  decimals: { type: Number, default: 0 },
+  threshold: { type: Number, default: null }
 })
 
 const canvasEl = ref(null)
