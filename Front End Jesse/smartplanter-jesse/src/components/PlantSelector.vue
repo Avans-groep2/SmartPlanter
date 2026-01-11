@@ -1,21 +1,17 @@
 <template>
   <div class="dropdown">
     <button @click="open = !open" class="dropdown-btn">
-      {{ selected || 'Selecteer een optie' }}
+      {{ selected?.label || 'Selecteer een plant' }}
     </button>
 
-    <!-- Smooth transition -->
     <transition name="fade-slide">
-      <ul
-        v-if="open"
-        class="dropdown-menu"
-      >
+      <ul v-if="open" class="dropdown-menu">
         <li
           v-for="option in options"
-          :key="option"
+          :key="option.deviceId"
           @click="select(option)"
         >
-          {{ option }}
+          {{ option.label }}
         </li>
       </ul>
     </transition>
@@ -23,21 +19,63 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, watch, defineEmits } from "vue";
+
+// ─────────────────────────────────────────────
+// Emits
+// ─────────────────────────────────────────────
+
+const emit = defineEmits(["change"]);
+
+// ─────────────────────────────────────────────
+// State
+// ─────────────────────────────────────────────
 
 const open = ref(false);
 const selected = ref(null);
-const options = ["Smartplanter 1", "Smartplanter 2", "Smartplanter 3"];
 
-// 🧠 Onthoud laatste keuze via localStorage
+// ─────────────────────────────────────────────
+// Device options
+// ─────────────────────────────────────────────
+
+const options = [
+  { label: "Smartplanter 1", deviceId: "device-1" },
+  { label: "Smartplanter 2", deviceId: "device-2" },
+  { label: "Smartplanter 3", deviceId: "device-3" }
+];
+
+// ─────────────────────────────────────────────
+// Lifecycle
+// ─────────────────────────────────────────────
+
 onMounted(() => {
-  const saved = localStorage.getItem("chosenOption");
-  if (saved) selected.value = saved;
+  const savedDevice = localStorage.getItem("chosenDevice");
+
+  if (savedDevice) {
+    const option = options.find(o => o.deviceId === savedDevice);
+    if (option) selected.value = option;
+  } else {
+    // default select first device
+    selected.value = options[0];
+  }
+
+  emit("change", selected.value.deviceId);
 });
+
+// ─────────────────────────────────────────────
+// Watchers
+// ─────────────────────────────────────────────
 
 watch(selected, (value) => {
-  if (value) localStorage.setItem("chosenOption", value);
+  if (!value) return;
+
+  localStorage.setItem("chosenDevice", value.deviceId);
+  emit("change", value.deviceId);
 });
+
+// ─────────────────────────────────────────────
+// Methods
+// ─────────────────────────────────────────────
 
 function select(option) {
   selected.value = option;
@@ -49,8 +87,6 @@ function select(option) {
 .dropdown {
   position: relative;
   width: 200px;
-  right: 0;
-  top: 0;
   z-index: 999;
 }
 
@@ -89,7 +125,7 @@ function select(option) {
   color: var(--primary-dark);
 }
 
-/* 💫 Transition (fade + slide) */
+/* 💫 Transition */
 .fade-slide-enter-active,
 .fade-slide-leave-active {
   transition: all 0.2s ease;

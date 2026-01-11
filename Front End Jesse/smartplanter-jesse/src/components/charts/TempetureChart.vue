@@ -16,6 +16,7 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
 import { Chart } from 'chart.js/auto'
+import { defineProps } from 'vue'
 
 // ─────────────────────────────────────────────
 // Props
