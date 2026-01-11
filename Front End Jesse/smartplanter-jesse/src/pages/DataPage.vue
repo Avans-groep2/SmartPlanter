@@ -8,12 +8,56 @@
     </header>
 
     <div class="chartContainer">
-      <TemperatureChart :device-id="selectedDeviceId" />
-      <FlowBeginChart :device-id="selectedDeviceId" />
-      <FlowEndChart :device-id="selectedDeviceId" />
-      <PhChart :device-id="selectedDeviceId" />
-      <ECChart :device-id="selectedDeviceId" />
-      <LuxChart :device-id="selectedDeviceId" />
+      <!-- Temperatuur -->
+    <DataChart 
+      :device-id="selectedDeviceId" 
+      data-key="temperatuur" 
+      label="Temperatuur" 
+      unit="°C" 
+      :threshold="30" 
+    />
+
+    <!-- pH -->
+    <DataChart 
+      :device-id="selectedDeviceId" 
+      data-key="ph" 
+      label="pH" 
+      unit="pH" 
+      :threshold="6.5" 
+    />
+
+    <!-- EC -->
+    <DataChart 
+      :device-id="selectedDeviceId" 
+      data-key="ec" 
+      label="EC" 
+      unit="mS/cm" 
+      :threshold="2.5" 
+    />
+
+    <!-- Flow Begin -->
+    <DataChart 
+      :device-id="selectedDeviceId" 
+      data-key="flow_begin" 
+      label="Flow Begin" 
+      unit="L/min" 
+    />
+
+    <!-- Flow Eind -->
+    <DataChart 
+      :device-id="selectedDeviceId" 
+      data-key="flow_eind" 
+      label="Flow Eind" 
+      unit="L/min" 
+    />
+
+    <!-- Lichtweerstand -->
+    <DataChart 
+      :device-id="selectedDeviceId" 
+      data-key="lichtweerstand" 
+      label="Lichtweerstand" 
+      unit="Ω" 
+    />
     </div>
   </div>
 </template>
@@ -24,13 +68,7 @@ import { ref } from 'vue'
 import SidebarNavbar from '@/components/SidebarNavbar.vue'
 import WelcomeMessage from '@/components/WelcomeMessage.vue'
 import PlantDropdown from '@/components/PlantSelector.vue'
-
-import TemperatureChart from '@/components/charts/TempetureChart.vue'
-import FlowBeginChart from '@/components/charts/FlowBeginChart.vue'
-import FlowEndChart from '@/components/charts/FlowEndChart.vue'
-import PhChart from '@/components/charts/PhChart.vue'
-import ECChart from '@/components/charts/ECChart.vue'
-import LuxChart from '@/components/charts/LuxChart.vue'
+import DataChart from '@/components/charts/DataChart.vue'
 
 // geselecteerd device (default)
 const selectedDeviceId = ref('device-1')
