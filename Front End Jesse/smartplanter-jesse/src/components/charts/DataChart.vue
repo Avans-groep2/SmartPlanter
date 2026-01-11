@@ -24,7 +24,7 @@ const props = defineProps({
   dataKey: { type: String, default: '' },
   label: { type: String, default: 'Meetwaarde' },
   unit: { type: String, default: '' },
-  decimals: { type: Number, default: 0 }, // aantal cijfers achter de komma
+  decimals: { type: Number, default: null }, // aantal cijfers achter de komma
   threshold: { type: Number, default: null } // optioneel
 })
 
