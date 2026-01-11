@@ -1,5 +1,6 @@
 <template>
   <div class="linechart">
+    <canvas ref="canvasEl"></canvas>
 
     <p>
       Laatste waarde:
@@ -14,14 +15,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
+import { ref, onMounted, onBeforeUnmount, watch, defineProps } from 'vue'
 import { Chart } from 'chart.js/auto'
-import { defineProps } from 'vue'
 
 // ─────────────────────────────────────────────
 // Props
 // ─────────────────────────────────────────────
-
 const props = defineProps({
   deviceId: {
     type: String,
@@ -32,21 +31,17 @@ const props = defineProps({
 // ─────────────────────────────────────────────
 // Refs
 // ─────────────────────────────────────────────
-
 const canvasEl = ref(null)
 const latestValue = ref(null)
 
+// Chart en interval
 let chartInstance = null
 let intervalId = null
 
-// ─────────────────────────────────────────────
-// Styles
-// ─────────────────────────────────────────────
-
+// Theme kleuren
 const primaryColor = getComputedStyle(document.documentElement)
   .getPropertyValue('--primary')
   .trim()
-
 const textColor = getComputedStyle(document.documentElement)
   .getPropertyValue('--text')
   .trim()
@@ -54,7 +49,6 @@ const textColor = getComputedStyle(document.documentElement)
 // ─────────────────────────────────────────────
 // Helpers
 // ─────────────────────────────────────────────
-
 function sortByIsoTime(a, b) {
   return a.time.localeCompare(b.time)
 }
@@ -64,9 +58,8 @@ function parseIsoToDate(isoString) {
 }
 
 // ─────────────────────────────────────────────
-// API
+// API call
 // ─────────────────────────────────────────────
-
 async function fetchTemperatureData(deviceId) {
   const url = new URL('https://smartplanters.dedyn.io:1880/mongoadvanced')
 
@@ -84,9 +77,8 @@ async function fetchTemperatureData(deviceId) {
 }
 
 // ─────────────────────────────────────────────
-// Chart logic
+// Chart management
 // ─────────────────────────────────────────────
-
 function buildChart(labels, data) {
   chartInstance = new Chart(canvasEl.value, {
     type: 'line',
@@ -122,11 +114,32 @@ function buildChart(labels, data) {
 }
 
 function updateChart(labels, data) {
+  if (!chartInstance) return
   chartInstance.data.labels = labels
   chartInstance.data.datasets[0].data = data
   chartInstance.update('none')
 }
 
+function cleanupChart() {
+  if (intervalId) {
+    clearInterval(intervalId)
+    intervalId = null
+  }
+  if (chartInstance) {
+    chartInstance.destroy()
+    chartInstance = null
+  }
+}
+
+function startPolling(deviceId) {
+  intervalId = setInterval(() => {
+    loadData(deviceId, false)
+  }, 5000)
+}
+
+// ─────────────────────────────────────────────
+// Data loading
+// ─────────────────────────────────────────────
 async function loadData(deviceId, rebuild = false) {
   const apiData = await fetchTemperatureData(deviceId)
 
@@ -143,15 +156,13 @@ async function loadData(deviceId, rebuild = false) {
     })
   )
 
-  const temperatures = sortedData.map(
-    item => item.data.temperatuur
-  )
-
+  const temperatures = sortedData.map(item => item.data.temperatuur)
   latestValue.value = temperatures.at(-1)
 
-  if (!chartInstance || rebuild) {
-    if (chartInstance) chartInstance.destroy()
+  if (rebuild) {
+    cleanupChart()
     buildChart(labels, temperatures)
+    startPolling(deviceId)
   } else {
     updateChart(labels, temperatures)
   }
@@ -160,14 +171,8 @@ async function loadData(deviceId, rebuild = false) {
 // ─────────────────────────────────────────────
 // Lifecycle
 // ─────────────────────────────────────────────
-
 onMounted(() => {
   loadData(props.deviceId, true)
-
-  // polling (optioneel)
-  intervalId = setInterval(() => {
-    loadData(props.deviceId)
-  }, 5000)
 })
 
 watch(
@@ -178,8 +183,7 @@ watch(
 )
 
 onBeforeUnmount(() => {
-  if (intervalId) clearInterval(intervalId)
-  if (chartInstance) chartInstance.destroy()
+  cleanupChart()
 })
 </script>
 
