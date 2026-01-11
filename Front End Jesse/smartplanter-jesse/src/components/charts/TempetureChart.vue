@@ -143,6 +143,13 @@ function startPolling(deviceId) {
 async function loadData(deviceId, rebuild = false) {
   const apiData = await fetchTemperatureData(deviceId)
 
+  // ❌ Check of er data is
+  if (!apiData || apiData.length === 0) {
+    cleanupChart()
+    latestValue.value = null
+    return
+  }
+
   const sortedData = apiData
     .slice()
     .sort(sortByIsoTime)
