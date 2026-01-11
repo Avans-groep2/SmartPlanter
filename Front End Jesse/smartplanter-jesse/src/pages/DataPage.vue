@@ -24,7 +24,7 @@
       data-key="ph" 
       label="pH" 
       unit="pH" 
-      decimals="1"
+      :decimals="1"
       :threshold="6.5" 
     />
 
@@ -34,7 +34,7 @@
       data-key="ec" 
       label="EC" 
       unit="mS/cm" 
-      decimals="1"
+      :decimals="1"
       :threshold="2.5" 
     />
 
