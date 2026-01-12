@@ -34,19 +34,18 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { Chart } from 'chart.js/auto'
 
 const sensors = ref([
-  { label: 'Temperatuur', dataKey: 'temperature', unit: '°C', latestValue: null, status: '...', chart: null },
-  { label: 'pH-waarde', dataKey: 'ph', unit: '', latestValue: null, status: '...', chart: null },
-  { label: 'EC waarde', dataKey: 'ec', unit: 'µS/cm', latestValue: null, status: '...', chart: null },
-  { label: 'LUX', dataKey: 'lux', unit: 'lx', latestValue: null, status: '...', chart: null },
-  { label: 'Waterflow Begin', dataKey: 'flow_start', unit: 'L/m', latestValue: null, status: '...', chart: null },
-  { label: 'Waterflow Eind', dataKey: 'flow_end', unit: 'L/m', latestValue: null, status: '...', chart: null },
+  { label: 'Temperatuur', dataKey: 'temperature', unit: '°C', latestValue: null, status: '...', chart: null, threshold: '30' },
+  { label: 'pH-waarde', dataKey: 'ph', unit: '', latestValue: null, status: '...', chart: null, threshold: '5.5' },
+  { label: 'EC waarde', dataKey: 'ec', unit: 'µS/cm', latestValue: null, status: '...', chart: null, threshold: '2.5' },
+  { label: 'LUX', dataKey: 'lux', unit: 'lx', latestValue: null, status: '...', chart: null, threshold: '1000' },
+  { label: 'Waterflow Begin', dataKey: 'flow_start', unit: 'L/m', latestValue: null, status: '...', chart: null, threshold: '40' },
+  { label: 'Waterflow Eind', dataKey: 'flow_end', unit: 'L/m', latestValue: null, status: '...', chart: null, threshold: '40' },
 ])
 
 const canvasRefs = ref([])
 const deviceId = 'smartplanter_01' 
 let intervalId = null
 
-// Data ophalen uit de API
 async function loadSensorData(index) {
   const sensor = sensors.value[index]
   try {
@@ -69,7 +68,12 @@ async function loadSensorData(index) {
       const values = sorted.map(d => d.data[sensor.dataKey] || 0)
 
       sensor.latestValue = values[values.length - 1]
-      sensor.status = 'Normaal' // Hier kun je eventueel thresholds toevoegen
+
+      if (sensor.threshold !== null && sensor.latestValue >= sensor.threshold) {
+        sensor.status = 'Te Hoog, Onderneem Actie'
+      } else {
+        sensor.status = 'Goed!' 
+      }
 
       renderChart(index, labels, values)
     }
@@ -139,10 +143,9 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .data-pagina-container {
-    padding: 40px;
+    padding: 35px;
     display: flex;
     justify-content: center;
-    background-color: #e3e8e3; /* Matcht de achtergrond op je foto */
     min-height: 100vh;
 }
 
@@ -150,16 +153,15 @@ onBeforeUnmount(() => {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 2rem; 
-    max-width: 1200px;
+    max-width: 1100px;
 }
 
-/* De witte kaartjes (Jouw aangeleverde style) */
 .linechart {
     background-color: #ffffff; 
     border-radius: 22px;
     width: 22rem;
-    height: 18rem; 
-    padding: 1.5rem;
+    height: 16rem; 
+    padding: 1rem;
     overflow: hidden; 
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15); 
     display: flex;
@@ -172,7 +174,6 @@ onBeforeUnmount(() => {
     min-height: 0;
 }
 
-/* Tekst onder de grafiek (Jouw aangeleverde style) */
 .info-sectie {
     margin-top: 15px;
 }
@@ -183,11 +184,6 @@ onBeforeUnmount(() => {
     margin: 2px 0;
 }
 
-.data-betekenis span {
-    font-weight: bold;
-}
-
-/* Jouw originele inspiratieKnop style */
 .inspiratieKnop {
     width: 60px;
     height: 60px;
@@ -211,5 +207,15 @@ onBeforeUnmount(() => {
 
 .inspiratieKnop:hover {
   background-color: #3c803c;
+}
+
+.data-betekenis span {
+    font-weight: bold;
+    color: #2d6a4f; 
+}
+.linechart .data-betekenis span:has(text:contains("Te Hoog")),
+
+.status-te-hoog {
+    color: #e74c3c !important; 
 }
 </style>
