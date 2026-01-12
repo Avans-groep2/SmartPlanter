@@ -1,7 +1,7 @@
 <template>
   <div class="linechart">
     <canvas ref="canvasEl"></canvas>
-    <p class="datawaarde-uitleg">EC waarde: **{{ latestValue }}**</p>
+    <p class="datawaarde-uitleg">EC waarde: {{ latestValue }}</p>
     <p class="data-betekenis">Deze EC waarde is: </p>
   </div>
 </template>
@@ -17,7 +17,9 @@ let chartInstance = null
 const latestValue = ref('Laden...')
 
 function renderChart(labels = [], data = []) {
-  if (chartInstance) {
+  if (!canvasEl.value) return; 
+
+  if(chartInstance) {
     chartInstance.data.labels = labels
     chartInstance.data.datasets[0].data = data
     chartInstance.update()
@@ -33,9 +35,7 @@ function renderChart(labels = [], data = []) {
             tension: 0.4,
             borderColor: '#3c803c',
             backgroundColor: '#3c803c33',
-            fill: true,
-            pointRadius: 4,
-            pointBackgroundColor: '#3c803c'
+            fill: true
           }
         ]
       },
@@ -88,7 +88,7 @@ async function loadAPI() {
 
 onMounted(() => {
   loadAPI();
-  setInterval(loadAPI, 6000);
+  setInterval(loadAPI, 60000);
 })
 
 </script>
