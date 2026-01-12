@@ -1,23 +1,26 @@
 <template>
   <div class="linechart">
     <canvas ref="canvasEl"></canvas>
-    <p class="datawaarde-uitleg">EC waarde: {{ latestValue }}</p>
+    <p class="datawaarde-uitleg">EC waarde: <span :class="{ 'loading': latestValue === 'Laden...' }">{{ latestValue }}</span></p>    
     <p class="data-betekenis">Deze EC waarde is: </p>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import { Chart } from 'chart.js/auto'
 
 const apiURL = "https://smartplanters.dedyn.io:1880/mongoadvanced"
 
 const canvasEl = ref(null)
 let chartInstance = null
-const latestValue = ref('Laden...')
+const latestValue = ref('...')
 
 function renderChart(labels = [], data = []) {
   if (!canvasEl.value) return; 
+
+  const labels = labels.length > 0 ? labels : ['Geen data'];
+  const data = data.length > 0 ? data : [0];
 
   if(chartInstance) {
     chartInstance.data.labels = labels
@@ -69,25 +72,35 @@ function renderChart(labels = [], data = []) {
 
 async function loadAPI() {
   try {
-    const response = await fetch(apiURL)
-    const json = await response.json()
+    const response = await fetch(apiURL);
+    if (!response.ok) throw new Errror (`Server fout: ${response.status}`);
     
-    if (json.gegevens && Array.isArray(json.gegevens)) {
-      const labels = json.gegevens.map(item => item.categorie || 'Onbekend')
-      const data = json.gegevens.map(item => item.verkoopbedrag || 0)
+    const json = await response.json()
+    console.log("API ontvsngen:", json);
 
-      latestValue.value = data.length > 0 ? data[data.length - 1] : 'Geen data'
+    const dataLijst = Array.isArray(json) ? json:json.gegevens;
+    
+    if (dataLijst && Array.isArray(dataLijst) && dataLijst.length > 0) {
+      // Pas hier de keys aan als 'categorie' of 'verkoopbedrag' anders heten in de EC data!
+      const labels = dataLijst.map(item => item.categorie || item.tijd || '...');
+      const data = dataLijst.map(item => item.verkoopbedrag || item.waarde || 0);
 
-      renderChart(labels, data)
+      latestValue.value = data[data.length - 1];
+      renderChart(labels, data);
+    } else {
+      console.warn("Geen gegevens gevonden in de API respons");
+      latestValue.value = "Geen data";
+      renderChart([], []);
     }
   } catch (err) {
-    console.error("Fout bij ophalen API data:", err)
-    latestValue.value = "Fout bij laden"
+    console.error("Fetch fout:", err);
+    latestValue.value = "Fout bij laden";
   }
 }
 
-onMounted(() => {
-  loadAPI();
+onMounted(async() => {
+  await nextTick();
+  await loadAPI();
   setInterval(loadAPI, 60000);
 })
 
@@ -102,7 +115,6 @@ onMounted(() => {
     padding: 1rem;
     overflow: hidden; 
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25); 
-    margin: 1rem;
 }
 
 .datawaarde-uitleg {
