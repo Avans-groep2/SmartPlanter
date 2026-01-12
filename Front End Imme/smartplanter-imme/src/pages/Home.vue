@@ -41,7 +41,7 @@
           />
 
         <button 
-          class="oogstenKnop"
+          class="resultaatKnop"
           @click="openOogstModal (buisIndex, slotIndex)">
           Oogsten</button>
 
@@ -77,8 +77,8 @@
       <p>Resultaat: {{ oogstScore }}</p>
 
       <div class="modal-buttons">
-        <button @click="bevestigOogst" class="oogstenknop">Oogsten</button>
-        <button @click="oogstModalOpen = false">Terug</button>
+        <button @click="bevestigOogst" class="oogstenKnop">Oogsten</button>
+        <button @click="oogstModalOpen = false" class="terugKnop">Terug</button>
       </div>
 
     </div>
@@ -207,7 +207,7 @@ export default {
     padding: 20px;
 }
 
-.oogstenKnop {
+.resultaatKnop {
   height: 25px;
   width: auto;
   background-color:#2d6a4f;
@@ -234,11 +234,14 @@ export default {
 }
 
 .modal-buttons {
-  background-color: #2d6a4f;
-  color: white;
   margin-top: 15px;
   display: flex;
   justify-content: space-between;
+}
+
+.oogstenKnop, .terugKnop{
+  background-color: #2d6a4f;
+  color: white;
 }
 
 .moestuinbuis {

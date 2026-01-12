@@ -1,9 +1,7 @@
 <template>
-  <button @click="loadAPI">Laad data</button>
-
   <div class="linechart">
     <canvas ref="canvasEl"></canvas>
-    <p class="datawaarde-uitleg">EC waarde: {{ latestValue }}</p>
+    <p class="datawaarde-uitleg">EC waarde: **{{ latestValue }}**</p>
     <p class="data-betekenis">Deze EC waarde is: </p>
   </div>
 </template>
@@ -14,16 +12,10 @@ import { Chart } from 'chart.js/auto'
 
 const apiURL = "https://smartplanters.dedyn.io:1880/mongoadvanced"
 
-// Referentie naar het canvas
 const canvasEl = ref(null)
-
-// Chart instantie
 let chartInstance = null
+const latestValue = ref('Laden...')
 
-// Huidige EC waarde voor weergave
-const latestValue = ref('...')
-
-// Functie om chart te maken of te updaten
 function renderChart(labels = [], data = []) {
   if (chartInstance) {
     chartInstance.data.labels = labels
@@ -33,15 +25,17 @@ function renderChart(labels = [], data = []) {
     chartInstance = new Chart(canvasEl.value, {
       type: 'line',
       data: {
-        labels: labels.length ? labels : ['09u', '10u', '11u', '12u'],
+        labels: labels,
         datasets: [
           {
-            label: 'EC',
-            data: data.length ? data : [10, 20, 15, 30],
+            label: 'EC Waarde',
+            data: data,
             tension: 0.4,
             borderColor: '#3c803c',
             backgroundColor: '#3c803c33',
-            fill: true
+            fill: true,
+            pointRadius: 4,
+            pointBackgroundColor: '#3c803c'
           }
         ]
       },
@@ -61,41 +55,43 @@ function renderChart(labels = [], data = []) {
           }
         },
         responsive: true,
-        maintainAspectRatio: false
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
       }
     })
   }
 }
 
-// Functie om data van API te halen
+
 async function loadAPI() {
   try {
     const response = await fetch(apiURL)
     const json = await response.json()
-    console.log("API respons:", json) // ✅ debug
+    
+    if (json.gegevens && Array.isArray(json.gegevens)) {
+      const labels = json.gegevens.map(item => item.categorie || 'Onbekend')
+      const data = json.gegevens.map(item => item.verkoopbedrag || 0)
 
-    if (!json.gegevens || !Array.isArray(json.gegevens) || json.gegevens.length === 0) {
-      console.warn("Geen gegevens gevonden in API respons")
-      return
+      latestValue.value = data.length > 0 ? data[data.length - 1] : 'Geen data'
+
+      renderChart(labels, data)
     }
-
-    const labels = json.gegevens.map(item => item.categorie || 'Onbekend')
-    const data = json.gegevens.map(item => item.verkoopbedrag || 0)
-
-    latestValue.value = data[data.length - 1] || '...'
-
-    renderChart(labels, data)
   } catch (err) {
     console.error("Fout bij ophalen API data:", err)
+    latestValue.value = "Fout bij laden"
   }
 }
 
-// Chart direct bij mount renderen met default data
 onMounted(() => {
-  renderChart()
+  loadAPI();
+  setInterval(loadAPI, 6000);
 })
-</script>
 
+</script>
 
 <style>
 .linechart {
@@ -106,20 +102,16 @@ onMounted(() => {
     padding: 1rem;
     overflow: hidden; 
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25); 
+    margin: 1rem;
 }
 
-.chart-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 2rem; 
-}
-
-.datawaarde-uitleg{
+.datawaarde-uitleg {
   font-size: 0.9rem;
   color: #2d6a4f;
+  margin-top: 10px;
 }
 
-.data-betekenis{
+.data-betekenis {
   font-size: 0.9rem;
   color: #2d6a4f;
 }
