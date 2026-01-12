@@ -1,56 +1,193 @@
 <template>
-<div class="inspiratieKnop"> 
+  <div class="inspiratieKnop"> 
     <a href="https://www.keukenliefde.nl/kook-koelkast-leeg/" class="inspiraiteWebsite" style="color:white";>? </a>
   </div>
 
-    <div class="dataCharts">
-      <Temperatuur />
-      <Ph />
-      <Ec />
-      <Licht />
-      <WaterflowBegin />
-      <WaterflowEind />
+  <div class="data-pagina-container">
+    <div class="chart-grid">
+      <div v-for="(sensor, index) in sensors" :key="index" class="linechart">
+        <div class="chart-wrapper">
+          <canvas :ref="el => { if (el) canvasRefs[index] = el }"></canvas>
+        </div>
+        
+        <div class="info-sectie">
+          <p class="datawaarde-uitleg">
+            {{ sensor.label }} waarde: 
+            <span v-if="sensor.latestValue !== null">{{ sensor.latestValue.toFixed(1) }} {{ sensor.unit }}</span>
+            <span v-else>...</span>
+          </p>
+          <p class="data-betekenis">
+            Deze {{ sensor.label.toLowerCase() }} is: <span>{{ sensor.status }}</span>
+          </p>
+        </div>
+      </div>
     </div>
-<section>
-</section>
+
+    <div class="inspiratieKnop"> 
+      <a href="https://www.keukenliefde.nl/kook-koelkast-leeg/" class="inspiraiteWebsite" style="color:white">?</a>
+    </div>
+  </div>
 </template>
 
+<script setup>
+import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { Chart } from 'chart.js/auto'
 
+const sensors = ref([
+  { label: 'Temperatuur', dataKey: 'temperature', unit: '°C', latestValue: null, status: '...', chart: null },
+  { label: 'pH-waarde', dataKey: 'ph', unit: '', latestValue: null, status: '...', chart: null },
+  { label: 'EC waarde', dataKey: 'ec', unit: 'µS/cm', latestValue: null, status: '...', chart: null },
+  { label: 'LUX', dataKey: 'lux', unit: 'lx', latestValue: null, status: '...', chart: null },
+  { label: 'Waterflow Begin', dataKey: 'flow_start', unit: 'L/m', latestValue: null, status: '...', chart: null },
+  { label: 'Waterflow Eind', dataKey: 'flow_end', unit: 'L/m', latestValue: null, status: '...', chart: null },
+])
 
-<script>
-import Temperatuur from '../components/dataCharts/Temperatuur.vue'
-import Ph from '../components/dataCharts/Ph.vue'
-import Ec from '../components/dataCharts/Ec.vue'
-import Licht from '../components/dataCharts/Licht.vue'
-import WaterflowBegin from '../components/dataCharts/WaterflowBegin.vue'
-import WaterflowEind from '../components/dataCharts/WaterflowEind.vue'
+const canvasRefs = ref([])
+const deviceId = 'smartplanter_01' 
+let intervalId = null
 
-export default {
-  name: 'DataPagina',
-  components: {
-    Temperatuur,
-    Ph,
-    Ec,
-    Licht,
-    WaterflowBegin,
-    WaterflowEind
+// Data ophalen uit de API
+async function loadSensorData(index) {
+  const sensor = sensors.value[index]
+  try {
+    const url = new URL('https://smartplanters.dedyn.io:1880/mongoadvanced')
+    url.search = new URLSearchParams({
+      collection: 'smartplanters',
+      operation: 'find',
+      id: 'device_id',
+      value: deviceId,
+      limit: 10,
+      sortvalue: -1
+    })
+    
+    const res = await fetch(url)
+    const data = await res.json()
+    
+    if (data && data.length > 0) {
+      const sorted = data.reverse()
+      const labels = sorted.map(d => new Date(d.time).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }))
+      const values = sorted.map(d => d.data[sensor.dataKey] || 0)
+
+      sensor.latestValue = values[values.length - 1]
+      sensor.status = 'Normaal' // Hier kun je eventueel thresholds toevoegen
+
+      renderChart(index, labels, values)
+    }
+  } catch (e) {
+    console.error("Fout bij ophalen:", e)
   }
 }
-</script>
 
 
+// De grafiek tekenen of updaten
+function renderChart(index, labels, values) {
+  const sensor = sensors.value[index]
+  const ctx = canvasRefs.value[index]
 
-<style>
-.dataCharts{
-  margin-top: 2%;
-  margin-left: 8%;
-  margin-bottom: 1rem;
-  display: grid;
-  max-width: 90%;
-  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-  gap: 2rem;
+  if (!sensor.chart) {
+    sensor.chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          data: values,
+          tension: 0.4,
+          borderColor: '#2d6a4f',
+          backgroundColor: '#3c803c33',
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          title: { 
+            display: true, 
+            text: sensor.label, 
+            font: { size: 24, weight: '500' }, 
+            color: '#333',
+            padding: { bottom: 10 }
+          },
+          legend: { display: false }
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: '#999' } },
+          y: { grid: { color: '#f0f0f0' }, ticks: { color: '#999' } }
+        }
+      }
+    })
+  } else {
+    sensor.chart.data.labels = labels
+    sensor.chart.data.datasets[0].data = values
+    sensor.chart.update('none')
+  }
 }
 
+onMounted(() => {
+  sensors.value.forEach((_, i) => loadSensorData(i))
+  intervalId = setInterval(() => {
+    sensors.value.forEach((_, i) => loadSensorData(i))
+  }, 5000)
+})
+
+onBeforeUnmount(() => {
+  clearInterval(intervalId)
+  sensors.value.forEach(s => { if(s.chart) s.chart.destroy() })
+})
+
+</script>
+
+<style scoped>
+.data-pagina-container {
+    padding: 40px;
+    display: flex;
+    justify-content: center;
+    background-color: #e3e8e3; /* Matcht de achtergrond op je foto */
+    min-height: 100vh;
+}
+
+.chart-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem; 
+    max-width: 1200px;
+}
+
+/* De witte kaartjes (Jouw aangeleverde style) */
+.linechart {
+    background-color: #ffffff; 
+    border-radius: 22px;
+    width: 22rem;
+    height: 18rem; 
+    padding: 1.5rem;
+    overflow: hidden; 
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15); 
+    display: flex;
+    flex-direction: column;
+}
+
+.chart-wrapper {
+    flex-grow: 1;
+    position: relative;
+    min-height: 0;
+}
+
+/* Tekst onder de grafiek (Jouw aangeleverde style) */
+.info-sectie {
+    margin-top: 15px;
+}
+
+.datawaarde-uitleg, .data-betekenis {
+    font-size: 0.9rem;
+    color: #2d6a4f;
+    margin: 2px 0;
+}
+
+.data-betekenis span {
+    font-weight: bold;
+}
+
+/* Jouw originele inspiratieKnop style */
 .inspiratieKnop {
     width: 60px;
     height: 60px;
@@ -64,16 +201,15 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
-
     position: fixed;
     right: 20px;
     bottom: 80px; 
     z-index: 1000;
     transition: background-color 0.2s;
+    text-decoration: none;
 }
 
 .inspiratieKnop:hover {
   background-color: #3c803c;
 }
-
 </style>
