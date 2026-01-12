@@ -111,10 +111,11 @@ export default {
         slotIndex:null
       },
       allePlanten: [
-        'Tomaat', 'Wortel', 'Broccoli', 'Sla', 'Aardbei', 
-        'Komkommer', 'Paprika', 'Aubergine', 'Courgette', 
-        'Appel', 'Radijs', 'Framboos', 'Ui', 'Knoflook', 
-        'Bramen', 'Basilicum'
+        'Tomaat', 'Paprika', 'Peppers', 'Sla', 'Paksoi', 
+        'Komkommer', 'Spinazie', 'Aubergine', 'Courgette', 
+        'Vijgen', 'Blauwe Bessen', 'Framboos', 'Boerenkool', 
+        'Snijbiet', 'Koriander', 'Basilicum', 'Munt', 
+        'Peterselie', 'Rozemarijn'
       ]
     };
   },
@@ -202,9 +203,9 @@ export default {
 }
 
 .garden-container {
-    max-width: 1100px;
+    max-width: 1300px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 15px;
 }
 
 .resultaatKnop {

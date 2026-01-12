@@ -143,22 +143,21 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .data-pagina-container {
-    padding: 35px;
+    padding: 30px;
     display: flex;
     justify-content: center;
     min-height: 100vh;
 }
 
 .chart-grid {
-    display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 2rem; 
-    max-width: 1100px;
+    gap: 1rem; 
+    max-width: 1300px;
 }
 
 .linechart {
     background-color: #ffffff; 
-    border-radius: 22px;
+    border-radius: 15px;
     width: 22rem;
     height: 16rem; 
     padding: 1rem;
@@ -213,7 +212,8 @@ onBeforeUnmount(() => {
     font-weight: bold;
     color: #2d6a4f; 
 }
-.linechart .data-betekenis span:has(text:contains("Te Hoog")),
+
+.linechart .data-betekenis span:has(text:contains("Te Hoog, Onderneem Actie")),
 
 .status-te-hoog {
     color: #e74c3c !important; 
