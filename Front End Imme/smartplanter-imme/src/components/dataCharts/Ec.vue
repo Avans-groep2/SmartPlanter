@@ -16,21 +16,21 @@ const canvasEl = ref(null)
 let chartInstance = null
 const latestValue = ref('...')
 
-function renderChart(labels = [], data = []) {
+function renderChart(incomingLabels = [], incomingData = []) {
   if (!canvasEl.value) return; 
 
-  const labels = labels.length > 0 ? labels : ['Geen data'];
-  const data = data.length > 0 ? data : [0];
+  const chartLabels = incomingLabels.length > 0 ? incomingLabels : ['Geen data'];
+  const chartData = incomingData.length > 0 ? incomingData : [0];
 
   if(chartInstance) {
-    chartInstance.data.labels = labels
-    chartInstance.data.datasets[0].data = data
+    chartInstance.data.labels = chartLabels
+    chartInstance.data.datasets[0].data = chartData
     chartInstance.update()
   } else {
     chartInstance = new Chart(canvasEl.value, {
       type: 'line',
       data: {
-        labels: labels,
+        labels: chartLabels,
         datasets: [
           {
             label: 'EC Waarde',
@@ -71,12 +71,12 @@ function renderChart(labels = [], data = []) {
 
 
 async function loadAPI() {
-  try {
+  /*try {
     const response = await fetch(apiURL);
-    if (!response.ok) throw new Errror (`Server fout: ${response.status}`);
+    if (!response.ok) throw new Error (`Server fout: ${response.status}`);
     
     const json = await response.json()
-    console.log("API ontvsngen:", json);
+    console.log("API ontvangen:", json);
 
     const dataLijst = Array.isArray(json) ? json:json.gegevens;
     
@@ -95,7 +95,39 @@ async function loadAPI() {
   } catch (err) {
     console.error("Fetch fout:", err);
     latestValue.value = "Fout bij laden";
+  }*/
+ async function loadAPI() {
+  try {
+    const response = await fetch(apiURL);
+    const json = await response.json();
+    
+    // We kijken of de data direct in 'json' zit of in 'json.gegevens'
+    const dataLijst = Array.isArray(json) ? json : json.gegevens;
+
+    if (dataLijst && dataLijst.length > 0) {
+      
+      // STAP A: DEBUGGING (Dit helpt je de namen te vinden)
+      console.log("--- API INSPECTIE ---");
+      console.table(dataLijst[0]); // Dit laat een tabel zien in je browser console (F12)
+      
+      // STAP B: DATA VERWERKEN ("De rest van de code")
+      // Zodra je in de tabel ziet hoe de velden heten (bijv. 'waarde' of 'ec'), 
+      // vervang je 'item.verkoopbedrag' door de juiste naam.
+      const labels = dataLijst.map(item => item.categorie || item.tijd || '...');
+      const data = dataLijst.map(item => item.verkoopbedrag || item.waarde || 0);
+
+      // STAP C: DE UI UPDATEN
+      latestValue.value = data[data.length - 1]; // Laatste waarde in de tekst zetten
+      renderChart(labels, data);                // De grafiek tekenen met de nieuwe data
+      
+    } else {
+      console.warn("De lijst is leeg of heeft een verkeerde structuur.");
+    }
+  } catch (err) {
+    console.error("Er is iets misgegaan bij het ophalen:", err);
+    latestValue.value = "Fout";
   }
+}
 }
 
 onMounted(async() => {
