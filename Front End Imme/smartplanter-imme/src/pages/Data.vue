@@ -143,9 +143,9 @@ onBeforeUnmount(() => {
 
 <style scoped>
 /*.data-pagina-container {
-  padding: 30px;
+  /*padding: 30px;
   display: flex;
-  justify-content: center;
+  
   min-height: 100vh;
 }*/
 
@@ -154,6 +154,7 @@ onBeforeUnmount(() => {
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem; 
   max-width: 1400px;
+  justify-content: center;
 }
 
 .linechart {
