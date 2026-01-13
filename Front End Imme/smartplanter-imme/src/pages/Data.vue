@@ -17,7 +17,10 @@
             <span v-else>...</span>
           </p>
           <p class="data-betekenis">
-            Deze {{ sensor.label.toLowerCase() }} is: <span>{{ sensor.status }}</span>
+            Deze {{ sensor.label.toLowerCase() }} is:
+            <span :class="{ 'status-te-hoog': sensor.status === 'Te Hoog, Onderneem Actie' }">
+              {{ sensor.status }}
+            </span>
           </p>
         </div>
       </div>
@@ -148,10 +151,10 @@ onBeforeUnmount(() => {
 }
 
 .chart-grid {
-  margin-top: 5px;
+  margin-top: 5%;
   display:grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1rem; 
+  gap: 2rem; 
   max-width: 1400px;
 }
 
@@ -217,6 +220,6 @@ onBeforeUnmount(() => {
 .linechart .data-betekenis span:has(text:contains("Te Hoog, Onderneem Actie")),
 
 .status-te-hoog {
-  color: #e74c3c !important; 
+  color: #e74c3c;
 }
 </style>
