@@ -142,18 +142,18 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-.data-pagina-container {
+/*.data-pagina-container {
   padding: 30px;
   display: flex;
   justify-content: center;
   min-height: 100vh;
-}
+}*/
 
 .chart-grid {
   display:grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem; 
-  max-width: 1300px;
+  max-width: 1400px;
 }
 
 .linechart {
@@ -166,6 +166,7 @@ onBeforeUnmount(() => {
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15); 
   display: flex;
   flex-direction: column;
+    margin-bottom: 5px;
 }
 
 .chart-wrapper {
