@@ -37,12 +37,12 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { Chart } from 'chart.js/auto'
 
 const sensors = ref([
-  { label: 'Temperatuur', dataKey: 'temperature', unit: '°C', latestValue: null, status: '...', chart: null, threshold: '30' },
-  { label: 'pH-waarde', dataKey: 'ph', unit: '', latestValue: null, status: '...', chart: null, threshold: '5.5' },
-  { label: 'EC waarde', dataKey: 'ec', unit: 'µS/cm', latestValue: null, status: '...', chart: null, threshold: '2.5' },
-  { label: 'LUX', dataKey: 'lux', unit: 'lx', latestValue: null, status: '...', chart: null, threshold: '1000' },
-  { label: 'Waterflow Begin', dataKey: 'flow_start', unit: 'L/m', latestValue: null, status: '...', chart: null, threshold: '40' },
-  { label: 'Waterflow Eind', dataKey: 'flow_end', unit: 'L/m', latestValue: null, status: '...', chart: null, threshold: '40' },
+  { label: 'Temperatuur', dataKey: 'temperature', unit: '°C', latestValue: null, status: '...', chart: null, threshold: 30 },
+  { label: 'pH', dataKey: 'ph', unit: '', latestValue: null, status: '...', chart: null, threshold: 5.5 },
+  { label: 'EC', dataKey: 'ec', unit: 'µS/cm', latestValue: null, status: '...', chart: null, threshold: 2.5 },
+  { label: 'LUX', dataKey: 'lux', unit: 'lx', latestValue: null, status: '...', chart: null, threshold: 1000 },
+  { label: 'Waterflow Begin', dataKey: 'flow_start', unit: 'L/m', latestValue: null, status: '...', chart: null, threshold: 40 },
+  { label: 'Waterflow Eind', dataKey: 'flow_end', unit: 'L/m', latestValue: null, status: '...', chart: null, threshold: 40 },
 ])
 
 const canvasRefs = ref([])
@@ -144,14 +144,14 @@ onBeforeUnmount(() => {
 
 </script>
 
-<style scoped>
+<style>
 .data-pagina-container {
   display: flex;
   justify-content: center;
 }
 
 .chart-grid {
-  margin-top: 5%;
+  margin-top: 2%;
   display:grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 2rem; 
@@ -217,9 +217,7 @@ onBeforeUnmount(() => {
   color: #2d6a4f; 
 }
 
-.linechart .data-betekenis span:has(text:contains("Te Hoog, Onderneem Actie")),
-
-.status-te-hoog {
-  color: #e74c3c;
+.data-betekenis span.status-te-hoog {
+  color: #db4434;
 }
 </style>
