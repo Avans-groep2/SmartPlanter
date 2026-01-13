@@ -143,10 +143,8 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .data-pagina-container {
-  /*padding: 30px;*/
   display: flex;
   justify-content: center;
-  min-height: 100vh;
 }
 
 .chart-grid {
