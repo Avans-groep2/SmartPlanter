@@ -31,6 +31,8 @@ app.config.globalProperties.$keycloak = keycloak
 
 keycloak.init({ onLoad: 'login-required' })
   .then(() => {
+    window.$keycloak = keycloak;
+    app.config.globalProperties.$keycloak = keycloak;
     console.log("Authenticated")
     const footerSpan = useFooterSpan()
     footerSpan.setKeycloak(keycloak) // ✅ start automatisch realtime updates

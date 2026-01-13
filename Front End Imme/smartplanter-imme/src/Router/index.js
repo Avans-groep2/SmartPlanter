@@ -5,6 +5,7 @@ import Data from '../pages/Data.vue'
 import Notificaties from '../pages/Notificaties.vue'
 
 const routes = [
+  { path: '/', redirect: '/home' },
   { path: '/home', component: Home, meta: { requiresAuth: true }},
   { path: '/account', component: Account },
   { path: '/data', component: Data },
