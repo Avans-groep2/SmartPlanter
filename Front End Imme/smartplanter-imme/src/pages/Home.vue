@@ -203,7 +203,7 @@ export default {
 }
 
 .garden-container {
-    max-width: 1300px;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 15px;
 }
@@ -274,7 +274,7 @@ export default {
     border-radius: 50%; 
     background-color: #3c803c;
     border: 3px solid #2d6a4f;
-    color: #a9d196;
+    color: #b5dea2;
     font-size: 1.2rem;
     font-weight: bold;
     cursor: pointer;

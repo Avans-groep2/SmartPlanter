@@ -39,7 +39,7 @@ import { Chart } from 'chart.js/auto'
 const sensors = ref([
   { label: 'Temperatuur', dataKey: 'temperature', unit: '°C', latestValue: null, status: '...', chart: null, threshold: 30 },
   { label: 'pH', dataKey: 'ph', unit: '', latestValue: null, status: '...', chart: null, threshold: 5.5 },
-  { label: 'EC', dataKey: 'ec', unit: 'µS/cm', latestValue: null, status: '...', chart: null, threshold: 2.5 },
+  { label: 'EC', dataKey: 'ec', unit: 'µS/cm', latestValue: null, status: '...', chart: null, threshold: 14 },
   { label: 'LUX', dataKey: 'lux', unit: 'lx', latestValue: null, status: '...', chart: null, threshold: 1000 },
   { label: 'Waterflow Begin', dataKey: 'flow_start', unit: 'L/m', latestValue: null, status: '...', chart: null, threshold: 40 },
   { label: 'Waterflow Eind', dataKey: 'flow_end', unit: 'L/m', latestValue: null, status: '...', chart: null, threshold: 40 },
@@ -73,7 +73,7 @@ async function loadSensorData(index) {
       sensor.latestValue = values[values.length - 1]
 
       if (sensor.threshold !== null && sensor.latestValue >= sensor.threshold) {
-        sensor.status = 'Te Hoog, Onderneem Actie'
+        sensor.status = 'Slecht, Onderneem Actie'
       } else {
         sensor.status = 'Goed!' 
       }
@@ -151,7 +151,7 @@ onBeforeUnmount(() => {
 }
 
 .chart-grid {
-  margin-top: 2%;
+  margin-top: 2rem;
   display:grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 2rem; 
