@@ -143,65 +143,66 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .data-pagina-container {
-    padding: 30px;
-    display: flex;
-    justify-content: center;
-    min-height: 100vh;
+  padding: 30px;
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
 }
 
 .chart-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem; 
-    max-width: 1300px;
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem; 
+  max-width: 1300px;
 }
 
 .linechart {
-    background-color: #ffffff; 
-    border-radius: 15px;
-    width: 22rem;
-    height: 16rem; 
-    padding: 1rem;
-    overflow: hidden; 
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15); 
-    display: flex;
-    flex-direction: column;
+  background-color: #ffffff; 
+  border-radius: 15px;
+  width: 22rem;
+  height: 16rem; 
+  padding: 1rem;
+  overflow: hidden; 
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15); 
+  display: flex;
+  flex-direction: column;
 }
 
 .chart-wrapper {
-    flex-grow: 1;
-    position: relative;
-    min-height: 0;
+  flex-grow: 1;
+  position: relative;
+  min-height: 0;
 }
 
 .info-sectie {
-    margin-top: 15px;
+  margin-top: 15px;
 }
 
 .datawaarde-uitleg, .data-betekenis {
-    font-size: 0.9rem;
-    color: #2d6a4f;
-    margin: 2px 0;
+  font-size: 0.9rem;
+  color: #2d6a4f;
+  margin: 2px 0;
 }
 
 .inspiratieKnop {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background-color: #2d6a4f;
-    border: 3px solid #2d6a4f;
-    color: white;
-    font-size: 1.2rem;
-    font-weight: bold;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: fixed;
-    right: 20px;
-    bottom: 80px; 
-    z-index: 1000;
-    transition: background-color 0.2s;
-    text-decoration: none;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: #2d6a4f;
+  border: 3px solid #2d6a4f;
+  color: white;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  right: 20px;
+  bottom: 80px; 
+  z-index: 1000;
+  transition: background-color 0.2s;
+  text-decoration: none;
 }
 
 .inspiratieKnop:hover {
@@ -209,13 +210,13 @@ onBeforeUnmount(() => {
 }
 
 .data-betekenis span {
-    font-weight: bold;
-    color: #2d6a4f; 
+  font-weight: bold;
+  color: #2d6a4f; 
 }
 
 .linechart .data-betekenis span:has(text:contains("Te Hoog, Onderneem Actie")),
 
 .status-te-hoog {
-    color: #e74c3c !important; 
+  color: #e74c3c !important; 
 }
 </style>

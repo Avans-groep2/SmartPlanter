@@ -115,7 +115,7 @@ export default {
         'Komkommer', 'Spinazie', 'Aubergine', 'Courgette', 
         'Vijgen', 'Blauwe Bessen', 'Framboos', 'Boerenkool', 
         'Snijbiet', 'Koriander', 'Basilicum', 'Munt', 
-        'Peterselie', 'Rozemarijn'
+        'Peterselie', 'Rozemarijn', 'Aardbei'
       ]
     };
   },
