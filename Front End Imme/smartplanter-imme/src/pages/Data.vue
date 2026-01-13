@@ -18,7 +18,7 @@
           </p>
           <p class="data-betekenis">
             Deze {{ sensor.label.toLowerCase() }} is:
-            <span :class="{ 'status-te-hoog': sensor.status === 'Te Hoog, Onderneem Actie' }">
+            <span :class="{ 'status-te-hoog': sensor.status === 'Slecht, Onderneem Actie' }">
               {{ sensor.status }}
             </span>
           </p>
@@ -151,7 +151,7 @@ onBeforeUnmount(() => {
 }
 
 .chart-grid {
-  margin-top: 2rem;
+  margin-top: 1rem;
   display:grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 2rem; 
