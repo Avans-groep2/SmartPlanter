@@ -51,7 +51,7 @@ async function fetchDeviceData(deviceId) {
     collection: 'smartplanters',
     operation: 'find',
     id: 'device_id',
-    value: deviceId,
+    idvalue: deviceId,
     limit: 5,
     sortvalue: -1
   })
