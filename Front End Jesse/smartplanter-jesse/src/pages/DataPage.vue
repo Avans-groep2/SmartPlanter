@@ -71,7 +71,7 @@ import { ref } from 'vue'
 import SidebarNavbar from '@/components/SidebarNavbar.vue'
 import WelcomeMessage from '@/components/WelcomeMessage.vue'
 import PlantDropdown from '@/components/PlantSelector.vue'
-import DataChart from '@/components/charts/DataChart.vue'
+import DataChart from '@/components/DataChart.vue'
 
 // geselecteerd device (default)
 const selectedDeviceId = ref('device-1')
