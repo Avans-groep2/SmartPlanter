@@ -13,11 +13,15 @@
         <img src="../assets/mail.png" class="footerIcoon" alt="mail"></img></a>
         
       <router-link to="/account" class="nav-item-settings"><img src="../assets/setting.png" class="footerIcoon" alt="settings"/></router-link>
+      <router-link v-if="isAdmin" to="/bradmin" class="nav-item-Admin"><img src="../assets/administrator.png" class="footerIcoon" alt="admin"/></router-link>
+
     </div>
   </footer>
 </template>
 
 <script>
+import router from '..Router/index.js';
+import { computed } from 'vue';
 import { useFooterSpan } from '@/stores/footerSpan';
 
 export default {
@@ -25,13 +29,17 @@ export default {
   setup() {
     const userStore = useFooterSpan()
 
+    const isAdmin = computed(() => {
+      return userStore.keycloak?.hasRealmRole('admin');
+    });
+
     const doLogout = () => {
       if (userStore.keycloak) {
         userStore.keycloak.logout();
       }
     };
     
-    return { userStore, doLogout}
+    return { userStore, doLogout, isAdmin}
 
   }
 }
