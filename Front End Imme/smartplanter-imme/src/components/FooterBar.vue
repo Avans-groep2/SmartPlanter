@@ -13,7 +13,7 @@
         <img src="../assets/mail.png" class="footerIcoon" alt="mail"></img></a>
         
       <router-link to="/account" class="nav-item-settings"><img src="../assets/setting.png" class="footerIcoon" alt="settings"/></router-link>
-      <router-link v-if="isBeheerder" to="/bradmin" class="nav-item-admin"><img src="../assets/administrator.png" class="footerIcoon" alt="admin"/></router-link>
+      <router-link v-if="isBeheerder" to="/bradmin" class="nav-item-admin"><img src="../assets/security.png" class="footerIcoon" alt="admin"/></router-link>
 
     </div>
   </footer>
