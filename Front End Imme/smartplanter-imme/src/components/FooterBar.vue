@@ -13,7 +13,7 @@
         <img src="../assets/mail.png" class="footerIcoon" alt="mail"></img></a>
         
       <router-link to="/account" class="nav-item-settings"><img src="../assets/setting.png" class="footerIcoon" alt="settings"/></router-link>
-      <router-link v-if="isAdmin" to="/bradmin" class="nav-item-admin"><img src="../assets/administrator.png" class="footerIcoon" alt="admin"/></router-link>
+      <router-link v-if="isBeheerder" to="/bradmin" class="nav-item-admin"><img src="../assets/administrator.png" class="footerIcoon" alt="admin"/></router-link>
 
     </div>
   </footer>
@@ -29,8 +29,11 @@ export default {
   setup() {
     const userStore = useFooterSpan()
 
-    const isAdmin = computed(() => {
-      return userStore.keycloak?.hasRealmRole('admin');
+    const isBeheerder = computed(() => {
+      if (!userStore.keycloak) return false;
+
+      return userStore.keycloak.hasRealmRole('beheerder') ||
+        userStore.keycloak.hasResourceRole('beheerder', 'frontend-imme');
     });
 
     const doLogout = () => {
@@ -39,7 +42,7 @@ export default {
       }
     };
     
-    return { userStore, doLogout, isAdmin}
+    return { userStore, doLogout, isBeheerder}
 
   }
 }

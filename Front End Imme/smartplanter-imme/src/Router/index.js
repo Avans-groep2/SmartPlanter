@@ -11,7 +11,7 @@ const routes = [
   { path: '/account', component: Account },
   { path: '/data', component: Data },
   { path: '/notificaties', component: Notificaties },
-  { path: '/bradmin', component: BrAdmin, meta: { requiresAuth: true, role: 'admin'}}
+  { path: '/bradmin', component: BrAdmin, meta: { requiresAuth: true, role: 'beheerder'}}
 ]
 
 const router = createRouter({
@@ -30,7 +30,7 @@ router.beforeEach((to, from, next) => {
   }
 
   if (to.meta.role) {
-    const hasRole = keycloak.hadRealmRole(to.meta.role);
+    const hasRole = keycloak.hasRealmRole(to.meta.role);
     if (!hasRole) {
       console.warn("Geen toegang: Geen admin");
       return next('/home');
