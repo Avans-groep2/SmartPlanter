@@ -20,7 +20,6 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  // Gebruik window of de globalProperties via getCurrentInstance als je wilt
   const keycloak = window.$keycloak 
 
   if (!keycloak) return next()

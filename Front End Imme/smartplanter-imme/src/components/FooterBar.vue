@@ -13,7 +13,7 @@
         <img src="../assets/mail.png" class="footerIcoon" alt="mail"></img></a>
         
       <router-link to="/account" class="nav-item-settings"><img src="../assets/setting.png" class="footerIcoon" alt="settings"/></router-link>
-      <router-link v-if="isAdmin" to="/bradmin" class="nav-item-Admin"><img src="../assets/administrator.png" class="footerIcoon" alt="admin"/></router-link>
+      <router-link v-if="isAdmin" to="/bradmin" class="nav-item-admin"><img src="../assets/administrator.png" class="footerIcoon" alt="admin"/></router-link>
 
     </div>
   </footer>
@@ -79,6 +79,10 @@ export default {
 }
 
 .nav-item-settings.router-link-active img {
+  border-bottom: 2px solid #d968cc;
+}
+
+.nav-item-admin.router-link-active img {
   border-bottom: 2px solid #d968cc;
 }
 
