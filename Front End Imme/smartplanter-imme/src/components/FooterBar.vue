@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import router from '..Router/index.js';
+import router from '../Router/index';
 import { computed } from 'vue';
 import { useFooterSpan } from '@/stores/footerSpan';
 
