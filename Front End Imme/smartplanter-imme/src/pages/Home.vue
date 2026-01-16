@@ -4,7 +4,7 @@
     <a href="https://www.keukenliefde.nl/kook-koelkast-leeg/" class="inspiraiteWebsite" style="color:white";>? </a>
   </div>
 
-  <div v-if="isBeheerder" class="dropdownBeheerder">
+   <div v-if="isBeheerder" class="dropdownBeheerder">
     <h1 class="testBeheerderhome">Test admin</h1>
   </div>
 
@@ -92,25 +92,30 @@
 
 <script>
 import { useMoestuinStore } from '@/stores/moestuinScherm';
-import { computed} from 'vue';
+import { computed, unMounted } from 'vue';
+import { useUserStore } from '../stores/moestuinScherm'
 
 export default {
   name: 'HomePagina',
 
   setup() {
     const moestuinStore = useMoestuinStore();
+    const userStore = useUserStore();
 
       const isBeheerder = computed(() => {
       if (!userStore.keycloak) return false;
 
+      try {
       return userStore.keycloak.hasRealmRole('beheerder') ||
         userStore.keycloak.hasResourceRole('beheerder', 'frontend-imme');
+
+      } catch (e) {
+        console.error("Keycloak check mislukt:", e);
+        return false;
+      }  
     });
 
     return {moestuinStore, isBeheerder};
-  
-
-
 
   },
 
