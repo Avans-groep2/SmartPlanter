@@ -92,23 +92,25 @@
 
 <script>
 import { useMoestuinStore } from '@/stores/moestuinScherm';
+import { computed} from 'vue';
 
 export default {
   name: 'HomePagina',
 
   setup() {
     const moestuinStore = useMoestuinStore();
-    return {moestuinStore};
-  
 
-  const isBeheerder = computed(() => {
+      const isBeheerder = computed(() => {
       if (!userStore.keycloak) return false;
 
       return userStore.keycloak.hasRealmRole('beheerder') ||
         userStore.keycloak.hasResourceRole('beheerder', 'frontend-imme');
     });
 
-    return { isBeheerder }
+    return {moestuinStore, isBeheerder};
+  
+
+
 
   },
 
@@ -205,11 +207,7 @@ export default {
 
 <style>
 
-.testBeheerderhome{
-  color: black;
-  margin-top: 100px;
-  font-size:large;
-}
+
 
 
 .moestuinWerk{
@@ -222,6 +220,12 @@ export default {
   font-size: 40px;
   font-weight: 700;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.testBeheerderhome{
+  color: black;
+  margin-top: 100px;
+  font-size:large;
 }
 
 .garden-container {
