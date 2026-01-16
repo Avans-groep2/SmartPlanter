@@ -10,7 +10,7 @@
         <button class="deviceKeuzenKnop" @click="bevestigNaam">Kies</button>
     </div>
     </div>
-    
+
     <div class="accountKoppelen">
         <h1 class="adminH1">Selecteer Moestuin:</h1>
         <div class="moestuinKeuzeDropDown" ref="dropdown">
@@ -148,7 +148,7 @@ export default {
   border-radius: 5px;
   padding: 10px;
   font-size: 18px;
-  color: #2d6a4f;
+  color: #2d6a4f6a;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
