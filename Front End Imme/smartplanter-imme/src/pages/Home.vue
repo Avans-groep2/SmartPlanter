@@ -93,26 +93,20 @@
 <script>
 import { useMoestuinStore } from '@/stores/moestuinScherm';
 import { computed, unMounted } from 'vue';
-import { useUserStore } from '../stores/moestuinScherm'
+import { useFooterSpan } from '../stores/footerSpan'
 
 export default {
   name: 'HomePagina',
 
   setup() {
     const moestuinStore = useMoestuinStore();
-    const userStore = useUserStore();
+    const footerStore = useFooterSpan();
 
       const isBeheerder = computed(() => {
-      if (!userStore.keycloak) return false;
+      if (!footerStore.keycloak) return false;
 
-      try {
-      return userStore.keycloak.hasRealmRole('beheerder') ||
-        userStore.keycloak.hasResourceRole('beheerder', 'frontend-imme');
-
-      } catch (e) {
-        console.error("Keycloak check mislukt:", e);
-        return false;
-      }  
+      return footerStore.keycloak.hasRealmRole('beheerder') ||
+        footerStore.keycloak.hasResourceRole('beheerder', 'frontend-imme'); 
     });
 
     return {moestuinStore, isBeheerder};

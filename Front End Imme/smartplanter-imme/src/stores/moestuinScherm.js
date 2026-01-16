@@ -57,7 +57,7 @@ export const useMoestuinStore = defineStore('moestuin', {
   },
 
   oogstPlant(buisIndex, slotIndex, score) {
-    this.moestuin[this.actieveMoestuin][buisIndex]
+    this.moestuinen[this.actieveMoestuin][buisIndex]
     .slots[slotIndex].plant = null;
 
     console.log('Oogstscore:', score);
