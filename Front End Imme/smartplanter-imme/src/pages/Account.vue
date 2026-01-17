@@ -53,7 +53,7 @@
 
 
 <script>
-import { useFooterSpan } from '@/stores/footerSpan';
+import { useFooterSpan } from '../stores/footerSpan';
 
 export default {
   name: 'AccountPagina',

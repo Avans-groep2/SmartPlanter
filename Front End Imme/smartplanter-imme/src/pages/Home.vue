@@ -283,10 +283,11 @@ export default {
 
 .resultaatKnop {
   height: 25px;
-  width: 250px;
+  width: 100%;
   background-color:#2d6a4f;
   border: none;
   color: white;
+  margin-bottom: 2%;
 }
 
 .modal-overlay {
@@ -316,7 +317,7 @@ export default {
 .oogstenKnop, .terugKnop{
   background-color: #2d6a4f;
   border-radius: 8px;
-  border-color:black;
+  border-color: 2px black;
   color: white;
 }
 

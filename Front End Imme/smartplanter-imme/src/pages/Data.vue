@@ -4,7 +4,6 @@
   </div>
 
   <div class="dataDropdownAdmin">
-        <h1 class="dataDropdownAdminH1">Selecteer Moestuin:</h1>
         <div class="moestuinKeuzeDropDown" ref="dropdown">
             <div class="dropdown-selected" @click="toggleDropdown">
                 {{ gekozenMoestuin || 'Moestuin' }}
@@ -208,13 +207,8 @@ closeAllDropdowns() {
 
 .dataDropdownAdmin {
   margin-right: 10%;
-  margin-top: 10%;
+  margin-bottom: 5px;
 } 
-
-.dataDropdownAdminH1{
-  font-size: 30px;
-  font-weight: 450;
-}
 
 .moestuinKeuzeDropDown {
   position: relative;
