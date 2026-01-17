@@ -9,7 +9,6 @@
   </div>
 
   <div v-if="isBeheerder" class="dropdownBeheerder">
-        <h1 class="dropdownAdminHomeH1">Selecteer Moestuin:</h1>
         <div class="moestuinKeuzeDropDown" ref="dropdown">
             <div class="dropdown-selected" @click="toggleDropdown">
                 {{ gekozenMoestuin || 'Moestuin' }}
@@ -220,11 +219,6 @@ export default {
 
 <style>
 
-.dropdownAdminHomeH1{
-  font-size: 30px;
-  font-weight: 450;
-}
-
 .moestuinKeuzeDropDown {
   position: relative;
   width: 180px;
@@ -281,12 +275,6 @@ export default {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.testBeheerderhome{
-  color: black;
-  margin-top: 100px;
-  font-size:large;
-}
-
 .garden-container {
     max-width: 1200px;
     margin: 0 auto;
@@ -327,7 +315,7 @@ export default {
 
 .oogstenKnop, .terugKnop{
   background-color: #2d6a4f;
-  border-radius: 8;
+  border-radius: 8px;
   border-color:black;
   color: white;
 }

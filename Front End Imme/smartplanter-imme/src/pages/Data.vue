@@ -51,10 +51,9 @@
 </template>
 
 <script>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import { Chart } from 'chart.js/auto'
 import { useFooterSpan } from '@/stores/footerSpan';
-import { computed } from 'vue';
 
 export default {
   name:"dataPagina",
@@ -70,6 +69,18 @@ export default {
 
     });
 
+    const open=ref(false)
+    const gekozenMoestuin = ref('')
+    const moestuinen = ref(['Moestuin 1', 'Moestuin 2', 'Moestuin 3'])
+
+    const toggleDropdown = () => {
+      open.value = !open.value
+    }
+
+    const selecteerMoestuin = (moestuin) => {
+      gekozenMoestuin.value = moestuin
+      open.value = false
+    }
 
     const sensors = ref([
       { label: 'Temperatuur', dataKey: 'temperature', unit: '°C', latestValue: null, status: '...', chart: null, threshold: 30 },
@@ -84,53 +95,12 @@ export default {
     const deviceId = 'smartplanter_01' 
     let intervalId = null
 
-    async function loadSensorData(index) {
+    const renderChart = (index, labels, values) => {
       const sensor = sensors.value[index]
-      try {
-        const url = new URL('https://smartplanters.dedyn.io:1880/mongoadvanced')
-        url.search = new URLSearchParams({
-          collection: 'smartplanters',
-          operation: 'find',
-          id: 'device_id',
-          value: deviceId,
-          limit: 10,
-          sortvalue: -1
-        })
-      
-    const res = await fetch(url)
-    const data = await res.json()
-    
-    if (data && data.length > 0) {
-      const sorted = data.reverse()
-      const labels = sorted.map(d => new Date(d.time).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }))
-      const values = sorted.map(d => d.data[sensor.dataKey] || 0)
+      const ctx = canvasRefs.value[index]
+      if (!ctx) return;
 
-      sensor.latestValue = values[values.length - 1]
-
-      if (sensor.threshold !== null && sensor.latestValue >= sensor.threshold) {
-        sensor.status = 'Slecht, Onderneem Actie'
-      } else {
-        sensor.status = 'Goed!' 
-      }
-
-      renderChart(index, labels, values)
-    }
-  } catch (e) {
-    console.error("Fout bij ophalen:", e)
-  }
-}
-  return {isBeheerder};
-}
-};
-
-
-
-// De grafiek tekenen of updaten
-function renderChart(index, labels, values) {
-  const sensor = sensors.value[index]
-  const ctx = canvasRefs.value[index]
-
-  if (!sensor.chart) {
+    if (!sensor.chart) {
     sensor.chart = new Chart(ctx, {
       type: 'line',
       data: {
@@ -155,10 +125,6 @@ function renderChart(index, labels, values) {
             padding: { bottom: 10 }
           },
           legend: { display: false }
-        },
-        scales: {
-          x: { grid: { display: false }, ticks: { color: '#999' } },
-          y: { grid: { color: '#f0f0f0' }, ticks: { color: '#999' } }
         }
       }
     })
@@ -168,18 +134,73 @@ function renderChart(index, labels, values) {
     sensor.chart.update('none')
   }
 }
+  const loadSensorData = async(index) => {
+      const sensor = sensors.value[index]
+      try {
+        const url = new URL('https://smartplanters.dedyn.io:1880/mongoadvanced')
+        url.search = new URLSearchParams({
+          collection: 'smartplanters',
+          operation: 'find',
+          id: 'device_id',
+          value: deviceId,
+          limit: 10,
+          sortvalue: -1
+        })
+      
+    const res = await fetch(url)
+    const data = await res.json()
+    
+    if (data && data.length > 0) {
+      const sorted = data.reverse()
+      const labels = sorted.map(d => new Date(d.time).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }))
+      const values = sorted.map(d => d.data[sensor.dataKey] || 0)
 
-onMounted(() => {
-  sensors.value.forEach((_, i) => loadSensorData(i))
-  intervalId = setInterval(() => {
+      sensor.latestValue = values[values.length - 1]
+      sensor.status = (sensor.threshold !== null && sensor.latestValue >= sensor.threshold) 
+        ?'Slecht, Onderneem Actie'
+        :'Goed!' 
+
+      renderChart(index, labels, values)  
+        }
+    } catch (e) {
+      console.error("Fout bij ophalen:", e)
+    }
+  }
+
+  onMounted(() => {
     sensors.value.forEach((_, i) => loadSensorData(i))
-  }, 5000)
-})
+    intervalId = setInterval(() => {
+      sensors.value.forEach((_, i) => loadSensorData(i))
+    }, 5000)
+  })
 
-onBeforeUnmount(() => {
-  clearInterval(intervalId)
-  sensors.value.forEach(s => { if(s.chart) s.chart.destroy() })
-})
+  onBeforeUnmount(() => {
+    clearInterval(intervalId)
+    sensors.value.forEach(s => { if(s.chart) s.chart.destroy() })
+  })
+
+  return {sensors, canvasRefs, isBeheerder, open, gekozenMoestuin, moestuinen, toggleDropdown, selecteerMoestuin}
+    },
+
+methods: {
+closeAllDropdowns() {
+      this.openDropdown = {buisIndex: null, slotIndex:null};
+    },
+
+  handleClickOutside() {
+      this.closeAllDropdowns();
+    }
+  },
+
+  mounted() {
+    document.addEventListener('click', this.handleClickOutside);
+  },
+
+  beforeUnmount() {
+    document.removeEventListener('click', this.handleClickOutside);
+  }
+
+};
 
 </script>
 
