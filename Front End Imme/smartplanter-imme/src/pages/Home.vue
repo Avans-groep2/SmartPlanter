@@ -4,13 +4,27 @@
     <a href="https://www.keukenliefde.nl/kook-koelkast-leeg/" class="inspiraiteWebsite" style="color:white";>? </a>
   </div>
 
-   <div v-if="isBeheerder" class="dropdownBeheerder">
-    <h1 class="testBeheerderhome">Test admin</h1>
-  </div>
-
   <div class="moestuinWerk">
     <h1 class="homeH1">U werk nu in, <span style="color: #2d6a4f;">{{ moestuinStore.actieveMoestuin }}</span></h1>
   </div>
+
+  <div v-if="isBeheerder" class="dropdownBeheerder">
+        <h1 class="dropdownAdminHomeH1">Selecteer Moestuin:</h1>
+        <div class="moestuinKeuzeDropDown" ref="dropdown">
+            <div class="dropdown-selected" @click="toggleDropdown">
+                {{ gekozenMoestuin || 'Moestuin' }}
+                <span class="dropDown">▼</span>
+            </div>
+            <div v-if="open" class="dropdownKeuzes">
+                <div
+                    v-for="moestuin in moestuinen"
+                    :key="moestuin"
+                    class="dropdownKeuze"
+                    @click="selecteerMoestuin(moestuin)"
+                    >{{ moestuin }}</div>
+            </div>
+        </div>
+    </div>
 
   <div class="garden-container">
     <div 
@@ -37,6 +51,11 @@
           @click.stop
         >
 
+        <button 
+          class="resultaatKnop"
+          @click="openOogstModal (buisIndex, slotIndex)">
+          Oogsten</button>
+
           <input
             type="text"
             v-model="searchQuery"
@@ -44,10 +63,6 @@
             class="search-input"
           />
 
-        <button 
-          class="resultaatKnop"
-          @click="openOogstModal (buisIndex, slotIndex)">
-          Oogsten</button>
 
           <div class="plant-list">
             <div
@@ -84,7 +99,6 @@
         <button @click="bevestigOogst" class="oogstenKnop">Oogsten</button>
         <button @click="oogstModalOpen = false" class="terugKnop">Terug</button>
       </div>
-
     </div>
   </div>
 
@@ -92,7 +106,7 @@
 
 <script>
 import { useMoestuinStore } from '@/stores/moestuinScherm';
-import { computed, unMounted } from 'vue';
+import { computed } from 'vue';
 import { useFooterSpan } from '../stores/footerSpan'
 
 export default {
@@ -206,9 +220,55 @@ export default {
 
 <style>
 
+.dropdownAdminHomeH1{
+  font-size: 30px;
+  font-weight: 450;
+}
 
+.moestuinKeuzeDropDown {
+  position: relative;
+  width: 180px;
+  margin-bottom: 25px;
+}
 
+.dropdown-selected {
+  background-color: rgba(255, 255, 255, 0);
+  border: 1px solid #2d6a4f;
+  border-radius: 5px;
+  padding: 10px;
+  font-size: 18px;
+  color: #2d6a4f;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
+.dropdownKeuzes {
+  text-align: left;
+  position: absolute;
+  top: 105%;   
+  width: 100%;
+  border: 1px solid #2d6a4f;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.dropdownKeuze {
+  padding: 10px;
+  font-size: 18px;
+  color: #2d6a4f;
+  cursor: pointer;
+  background-color: white;
+  transition: 0.15s ease;
+}
+
+.dropdownKeuze:hover {
+  background-color: #2d6a4f;
+  color: white;
+}
+
+/*------------------*/
 .moestuinWerk{
   margin-left: 1rem;
   margin-top: 0.5rem;
@@ -235,7 +295,7 @@ export default {
 
 .resultaatKnop {
   height: 25px;
-  width: auto;
+  width: 250px;
   background-color:#2d6a4f;
   border: none;
   color: white;
@@ -254,7 +314,7 @@ export default {
 .oogst-modal {
   background: white;
   padding: 20px;
-  border-radius: 10px;
+  border-radius: 8px;
   width: 300px;
   text-align: center;
 }
@@ -267,6 +327,8 @@ export default {
 
 .oogstenKnop, .terugKnop{
   background-color: #2d6a4f;
+  border-radius: 8;
+  border-color:black;
   color: white;
 }
 
@@ -291,7 +353,6 @@ export default {
 .slot-wrapper {
     position: relative;
 }
-
 
 .plant-slot-button {
     width: 60px;

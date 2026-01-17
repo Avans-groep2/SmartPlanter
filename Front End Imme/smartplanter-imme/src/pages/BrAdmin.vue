@@ -148,7 +148,7 @@ export default {
   border-radius: 5px;
   padding: 10px;
   font-size: 18px;
-  color: #2d6a4f6a;
+  color: #2d6a4f;
   cursor: pointer;
   display: flex;
   justify-content: space-between;

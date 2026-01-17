@@ -3,6 +3,24 @@
     <a href="https://www.keukenliefde.nl/kook-koelkast-leeg/" class="inspiraiteWebsite" style="color:white";>? </a>
   </div>
 
+  <div class="dataDropdownAdmin">
+        <h1 class="dataDropdownAdminH1">Selecteer Moestuin:</h1>
+        <div class="moestuinKeuzeDropDown" ref="dropdown">
+            <div class="dropdown-selected" @click="toggleDropdown">
+                {{ gekozenMoestuin || 'Moestuin' }}
+                <span class="dropDown">▼</span>
+            </div>
+            <div v-if="open" class="dropdownKeuzes">
+                <div
+                    v-for="moestuin in moestuinen"
+                    :key="moestuin"
+                    class="dropdownKeuze"
+                    @click="selecteerMoestuin(moestuin)"
+                    >{{ moestuin }}</div>
+            </div>
+        </div>
+    </div>
+
   <div class="data-pagina-container">
     <div class="chart-grid">
       <div v-for="(sensor, index) in sensors" :key="index" class="linechart">
@@ -32,36 +50,53 @@
   </div>
 </template>
 
-<script setup>
+<script>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { Chart } from 'chart.js/auto'
+import { useFooterSpan } from '@/stores/footerSpan';
+import { computed } from 'vue';
 
-const sensors = ref([
-  { label: 'Temperatuur', dataKey: 'temperature', unit: '°C', latestValue: null, status: '...', chart: null, threshold: 30 },
-  { label: 'pH', dataKey: 'ph', unit: '', latestValue: null, status: '...', chart: null, threshold: 5.5 },
-  { label: 'EC', dataKey: 'ec', unit: 'µS/cm', latestValue: null, status: '...', chart: null, threshold: 14 },
-  { label: 'LUX', dataKey: 'lux', unit: 'lx', latestValue: null, status: '...', chart: null, threshold: 1000 },
-  { label: 'Waterflow Begin', dataKey: 'flow_start', unit: 'L/m', latestValue: null, status: '...', chart: null, threshold: 40 },
-  { label: 'Waterflow Eind', dataKey: 'flow_end', unit: 'L/m', latestValue: null, status: '...', chart: null, threshold: 40 },
-])
+export default {
+  name:"dataPagina",
+  setup(){
 
-const canvasRefs = ref([])
-const deviceId = 'smartplanter_01' 
-let intervalId = null
+    const userStore = useFooterSpan()
 
-async function loadSensorData(index) {
-  const sensor = sensors.value[index]
-  try {
-    const url = new URL('https://smartplanters.dedyn.io:1880/mongoadvanced')
-    url.search = new URLSearchParams({
-      collection: 'smartplanters',
-      operation: 'find',
-      id: 'device_id',
-      value: deviceId,
-      limit: 10,
-      sortvalue: -1
-    })
-    
+    const isBeheerder = computed(() => {
+      if (!footerStore.keycloak) return false;
+
+      return footerStore.keycloak.hasRealmRole('beheerder')||
+        footerStore.keycloak.hasResourceRole('beheerder', 'frontend-imme');
+
+    });
+
+
+    const sensors = ref([
+      { label: 'Temperatuur', dataKey: 'temperature', unit: '°C', latestValue: null, status: '...', chart: null, threshold: 30 },
+      { label: 'pH', dataKey: 'ph', unit: '', latestValue: null, status: '...', chart: null, threshold: 5.5 },
+      { label: 'EC', dataKey: 'ec', unit: 'µS/cm', latestValue: null, status: '...', chart: null, threshold: 14 },
+      { label: 'LUX', dataKey: 'lux', unit: 'lx', latestValue: null, status: '...', chart: null, threshold: 1000 },
+      { label: 'Waterflow Begin', dataKey: 'flow_start', unit: 'L/m', latestValue: null, status: '...', chart: null, threshold: 40 },
+      { label: 'Waterflow Eind', dataKey: 'flow_end', unit: 'L/m', latestValue: null, status: '...', chart: null, threshold: 40 },
+    ])
+
+    const canvasRefs = ref([])
+    const deviceId = 'smartplanter_01' 
+    let intervalId = null
+
+    async function loadSensorData(index) {
+      const sensor = sensors.value[index]
+      try {
+        const url = new URL('https://smartplanters.dedyn.io:1880/mongoadvanced')
+        url.search = new URLSearchParams({
+          collection: 'smartplanters',
+          operation: 'find',
+          id: 'device_id',
+          value: deviceId,
+          limit: 10,
+          sortvalue: -1
+        })
+      
     const res = await fetch(url)
     const data = await res.json()
     
@@ -84,6 +119,10 @@ async function loadSensorData(index) {
     console.error("Fout bij ophalen:", e)
   }
 }
+  return {isBeheerder};
+}
+};
+
 
 
 // De grafiek tekenen of updaten
@@ -145,6 +184,60 @@ onBeforeUnmount(() => {
 </script>
 
 <style>
+
+.dataDropdownAdmin {
+  margin-right: 10%;
+  margin-top: 10%;
+} 
+
+.dataDropdownAdminH1{
+  font-size: 30px;
+  font-weight: 450;
+}
+
+.moestuinKeuzeDropDown {
+  position: relative;
+  width: 180px;
+  margin-bottom: 25px;
+}
+
+.dropdown-selected {
+  background-color: rgba(255, 255, 255, 0);
+  border: 1px solid #2d6a4f;
+  border-radius: 5px;
+  padding: 10px;
+  font-size: 18px;
+  color: #2d6a4f;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dropdownKeuzes {
+  text-align: left;
+  position: absolute;
+  top: 105%;   
+  width: 100%;
+  border: 1px solid #2d6a4f;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.dropdownKeuze {
+  padding: 10px;
+  font-size: 18px;
+  color: #2d6a4f;
+  cursor: pointer;
+  background-color: white;
+  transition: 0.15s ease;
+}
+
+.dropdownKeuze:hover {
+  background-color: #2d6a4f;
+  color: white;
+}
+
 .data-pagina-container {
   display: flex;
   justify-content: center;
