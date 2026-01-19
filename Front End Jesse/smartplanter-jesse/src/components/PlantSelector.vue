@@ -32,7 +32,8 @@ const $auth = appContext.config.globalProperties.$auth
 
 // Alleen voornaam van ingelogde gebruiker
 const currentUserFirstName = ref($auth.user?.firstName)
-console.log(currentUserFirstName.value)
+const currentUserID = ref($auth.user?.id)
+console.log("Name :" + currentUserFirstName.value + "ID : " + currentUserID.value)
 
 // Fetch planters
 function loadPlanters() {
