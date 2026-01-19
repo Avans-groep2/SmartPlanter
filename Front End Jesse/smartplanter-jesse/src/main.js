@@ -31,9 +31,9 @@ initTheme()
    KEYCLOAK CONFIG
 ====================================================== */
 const keycloakConfig = {
-  url: process.env.VUE_APP_KEYCLOAK_URL || 'https://141.148.237.73:8443',
-  realm: process.env.VUE_APP_KEYCLOAK_REALM || 'smartplanter',
-  clientId: process.env.VUE_APP_KEYCLOAK_CLIENT_ID || 'frontend-jesse',
+  url: process.env.VUE_APP_KEYCLOAK_URL,
+  realm: process.env.VUE_APP_KEYCLOAK_REALM,
+  clientId: process.env.VUE_APP_KEYCLOAK_CLIENT_ID,
 }
 
 const keycloak = new Keycloak(keycloakConfig)
@@ -48,6 +48,7 @@ function buildUserObject() {
   if (!keycloak.tokenParsed) return null
 
   const {
+    sub,               // ← Keycloak user ID
     preferred_username,
     email,
     given_name,
@@ -56,6 +57,8 @@ function buildUserObject() {
   } = keycloak.tokenParsed
 
   return {
+    id: sub,           // ← hier is je ID beschikbaar
+    sub,               // optioneel, Keycloak puur
     username: preferred_username,
     email,
     firstName: given_name,
@@ -78,7 +81,8 @@ function createDevAuth() {
     user: {
       username: 'dev',
       fullName: 'Developer Mode',
-      roles: ['admin']
+      roles: ['admin'],
+      id: 'dev'       // ook hier ID toevoegen voor dev mode
     },
     logout() {},
     refresh() {}
