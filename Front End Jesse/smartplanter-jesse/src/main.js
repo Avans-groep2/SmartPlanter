@@ -31,9 +31,9 @@ initTheme()
    KEYCLOAK CONFIG
 ====================================================== */
 const keycloakConfig = {
-  url: process.env.VUE_APP_KEYCLOAK_URL,
-  realm: process.env.VUE_APP_KEYCLOAK_REALM,
-  clientId: process.env.VUE_APP_KEYCLOAK_CLIENT_ID,
+  url: process.env.VUE_APP_KEYCLOAK_URL || 'https://141.148.237.73:8443',
+  realm: process.env.VUE_APP_KEYCLOAK_REALM || 'smartplanter',
+  clientId: process.env.VUE_APP_KEYCLOAK_CLIENT_ID || 'frontend-jesse',
 }
 
 const keycloak = new Keycloak(keycloakConfig)
