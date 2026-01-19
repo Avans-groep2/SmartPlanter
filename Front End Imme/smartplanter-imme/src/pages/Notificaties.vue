@@ -7,6 +7,22 @@
     <h1 class="notificatiesH1">Overige meldingen</h1>
     <p class="meldingenLaden">Hier worden meldingen geladen...</p></div>
     
+    <div v-if="isBeheerder" class="meldingenDropdownAdmin">
+        <div class="moestuinKeuzeDropDown" ref="dropdown">
+            <div class="dropdown-selected" @click="toggleDropdown">
+                {{ gekozenMoestuin || 'Moestuin' }}
+                <span class="dropDown">▼</span>
+            </div>
+            <div v-if="open" class="dropdownKeuzes">
+                <div
+                    v-for="moestuin in moestuinen"
+                    :key="moestuin"
+                    class="dropdownKeuze"
+                    @click="selecteerMoestuin(moestuin)"
+                    >{{ moestuin }}</div>
+            </div>
+        </div>
+    </div>
 
     <div class="inspiratieKnop"> 
     <a href="https://www.keukenliefde.nl/kook-koelkast-leeg/" class="inspiraiteWebsite" style="color:white";>? </a>
@@ -17,9 +33,58 @@
 
 
 <script>
+import { computed } from 'vue';
+import { useFooterSpan } from '../stores/footerSpan';
+
 export default {
   name: 'MeldingenPagina',
-  components: {}
+  components: {},
+
+  setup() {
+    const footerStore = useFooterSpan();
+
+      const isBeheerder = computed(() => {
+      if (!footerStore.keycloak) return false;
+
+      return footerStore.keycloak.hasRealmRole('beheerder') ||
+        footerStore.keycloak.hasResourceRole('beheerder', 'frontend-imme'); 
+    });
+
+    const open=ref(false)
+    const gekozenMoestuin = ref('')
+    const moestuinen = ref(['Moestuin 1', 'Moestuin 2', 'Moestuin 3'])
+
+    const toggleDropdown = () => {
+      open.value = !open.value
+    }
+
+    const selecteerMoestuin = (moestuin) => {
+      gekozenMoestuin.value = moestuin
+      open.value = false
+    }
+
+    return { isBeheerder};
+
+  },
+
+  methods: {
+  closeAllDropdowns() {
+        this.openDropdown = {buisIndex: null, slotIndex:null};
+      },
+
+    handleClickOutside() {
+        this.closeAllDropdowns();
+      }
+    },
+
+    mounted() {
+      document.addEventListener('click', this.handleClickOutside);
+    },
+
+    beforeUnmount() {
+      document.removeEventListener('click', this.handleClickOutside);
+    }
+
 }
 </script>
 
@@ -27,6 +92,58 @@ export default {
 
 
 <style>
+
+.meldingenDropdownAdmin {
+  margin-bottom: 5px;
+  width: 200px;
+  display: flex; 
+  position: absolute;
+  right: 10%;
+  top: 10%;
+}
+
+.moestuinKeuzeDropDown {
+  position: relative;
+  width: 180px;
+  margin-bottom: 25px;
+}
+
+.dropdown-selected {
+  background-color: rgba(255, 255, 255, 0);
+  border: 1px solid #2d6a4f;
+  border-radius: 5px;
+  padding: 10px;
+  font-size: 18px;
+  color: #2d6a4f;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dropdownKeuzes {
+  text-align: left;
+  position: absolute;
+  top: 105%;   
+  width: 100%;
+  border: 1px solid #2d6a4f;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.dropdownKeuze {
+  padding: 10px;
+  font-size: 18px;
+  color: #2d6a4f;
+  cursor: pointer;
+  background-color: white;
+  transition: 0.15s ease;
+}
+
+.dropdownKeuze:hover {
+  background-color: #2d6a4f;
+  color: white;
+}
 
 .notificatiesH1 {
   font-size: 28px;

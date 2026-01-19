@@ -40,7 +40,13 @@
           class="plant-slot-button"
           @click.stop="toggleDropdown(buisIndex, slotIndex)"
         >
-          {{ slot.plant ? slot.plant : '+' }}
+          <img
+              v-if="slot.plant"
+              :src="slot.plant.img"
+              :alt="slot.plant.naam"
+              class="plant-image"
+            />
+            <span v-else>+</span>
         </button>
 
         <div
@@ -66,11 +72,11 @@
           <div class="plant-list">
             <div
               v-for="plant in filteredPlants"
-              :key="plant"
+              :key="plant.naam"
               class="plant-item"
               @click="selectPlant(buisIndex, slotIndex, plant)"
             >
-              {{ plant }}
+              {{ plant.naam }}
             </div>
 
             <div v-if="filteredPlants.length === 0" class="no-results">
@@ -104,7 +110,7 @@
 </template>
 
 <script>
-import { useMoestuinStore } from '@/stores/moestuinScherm';
+import { useMoestuinStore } from '../stores/moestuinScherm';
 import { computed } from 'vue';
 import { useFooterSpan } from '../stores/footerSpan'
 
@@ -140,12 +146,25 @@ export default {
         slotIndex:null
       },
       allePlanten: [
-        'Tomaat', 'Paprika', 'Peppers', 'Sla', 'Paksoi', 
-        'Komkommer', 'Spinazie', 'Aubergine', 'Courgette', 
-        'Vijgen', 'Blauwe Bessen', 'Framboos', 'Boerenkool', 
-        'Snijbiet', 'Koriander', 'Basilicum', 'Munt', 
-        'Peterselie', 'Rozemarijn', 'Aardbei'
-      ]
+        { naam: 'Tomaat', img: '/plantenimg/tomaat.png' },
+        { naam: 'Paprika', img: '/plantenimg/paprika.png' },
+        { naam: 'Peper', img: '/plantenimg/peper.png' },
+        { naam: 'Sla', img: '/plantenimg/sla.png' },
+        { naam: 'Aubergine', img: '/plantenimg/aubergine.png' },
+        { naam: 'Courgette', img: '/plantenimg/courgette.png' },
+        { naam: 'Basilicum', img: '/plantenimg/basilicum.png' },
+        { naam: 'Munt', img: '/plantenimg/munt.png' },
+        { naam: 'Peterselie', img: '/plantenimg/peterselie.png' },
+        { naam: 'Rozemarijn', img: '/plantenimg/rozemarijn.png' },
+        { naam: 'Spinazie', img: '/plantenimg/spinazie.png' },
+        { naam: 'Snijbiet', img: '/plantenimg/snijbiet.png' },
+        { naam: 'Boerenkool', img: '/plantenimg/boerenkool.png' },
+        { naam: 'Komkommer', img: '/plantenimg/komkommer.png' },
+        { naam: 'Aardbei', img: '/plantenimg/aardbei.png' },
+        { naam: 'Framboos', img: '/plantenimg/framboos.png' },
+        { naam: 'Blauwe Bessen', img: '/plantenimg/blauweBessen.png' },
+        { naam: 'Vijgen', img: '/plantenimg/vijgen.png' }
+]
     };
   },
 
@@ -156,14 +175,14 @@ export default {
 
     filteredPlants() {
       return this.allePlanten.filter(plant => 
-        plant.toLowerCase().includes(this.searchQuery.toLowerCase())
+        plant.naam.toLowerCase().includes(this.searchQuery.toLowerCase())
       );
     }
   },
 
   methods: {
-    selectPlant(buisIndex, slotIndex, plantNaam) {
-      this.moestuinStore.setPlant(buisIndex, slotIndex, plantNaam);
+    selectPlant(buisIndex, slotIndex, plant) {
+      this.moestuinStore.setPlant(buisIndex, slotIndex, plant);
       this.closeAllDropdowns();
     },
 
@@ -202,7 +221,7 @@ export default {
       this.openDropdown = {buisIndex: null, slotIndex:null};
     },
 
-  handleClickOutside() {
+    handleClickOutside() {
       this.closeAllDropdowns();
     }
   },
@@ -218,10 +237,16 @@ export default {
 </script>
 
 <style>
+.plant-image {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
 .dropdownBeheerder {
   position: absolute;
-  top: 20px;
-  right: 20px;
+  top: 10%;
+  right: 10%;
   margin-bottom: 5px;
   width: 200px;
   display: flex; 

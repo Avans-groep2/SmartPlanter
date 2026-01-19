@@ -210,8 +210,8 @@ closeAllDropdowns() {
   width: 200px;
   display: flex; 
   position: absolute;
-  right: 20px;
-  top: 20px;
+  right: 10%;
+  top: 10%;
 }
 
 .moestuinKeuzeDropDown {
