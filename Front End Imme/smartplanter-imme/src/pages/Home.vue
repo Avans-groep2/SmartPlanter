@@ -131,6 +131,8 @@ export default {
     const gekozenMoestuin = ref('')
     const moestuinen = ref(['Moestuin 1', 'Moestuin 2', 'Moestuin 3'])
     const dropdown = ref(null)
+    const moestuinDropdown = ref(null)
+
 
     const toggleMoestuinDropdown = () => {
       openMoestuin.value = !openMoestuin.value
