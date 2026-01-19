@@ -129,9 +129,6 @@ export default {
       return 'good'
     }
 
-    console.log('Value:', value, 'Threshold:', threshold)
-
-
     const statusTekst = (status) => {
       switch (status) {
         case 'good': return 'Goed'
@@ -237,14 +234,14 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 
 .dataDropdownAdmin {
   margin-bottom: 5px;
   width: 200px;
   display: flex; 
   position: absolute;
-  right: 2rem;
+  right: 1rem;
   top: 12%;
 }
 

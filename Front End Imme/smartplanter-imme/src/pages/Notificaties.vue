@@ -93,7 +93,7 @@ export default {
   width: 200px;
   display: flex; 
   position: absolute;
-  right: 2rem;
+  right: 1rem;
   top: 12%;
 }
 

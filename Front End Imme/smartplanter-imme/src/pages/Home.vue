@@ -156,7 +156,7 @@ export default {
       document.removeEventListener('click', handleClickOutside)
     })
 
-    return {toggleMoestuinDropdown, moestuinStore, isBeheerder, open, gekozenMoestuin, moestuinen, toggleDropdown, selecteerMoestuin, dropdown};
+    return {toggleMoestuinDropdown, moestuinStore, isBeheerder, open, gekozenMoestuin, moestuinen, selecteerMoestuin, dropdown};
 
   },
 
@@ -248,7 +248,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .plant-image {
   width: 40px;
   height: 40px;
@@ -258,7 +258,7 @@ export default {
 .homeDropdownAdmin {
   position: absolute;
   top: 12%;
-  right: 2rem;
+  right: 1rem;
   margin-bottom: 5px;
   width: 200px;
   display: flex; 
