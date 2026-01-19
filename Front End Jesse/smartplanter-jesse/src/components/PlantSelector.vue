@@ -32,19 +32,10 @@ const $auth = appContext.config.globalProperties.$auth
 
 // Alleen voornaam van ingelogde gebruiker
 const currentUserFirstName = $auth.user?.firstName
-const currentUserID = $auth.user?.sub
-
-const userId = $auth.user?.sub
-console.log('Keycloak user ID:', userId)
-
-const userTokenId = $auth.tokenParsed?.sub
-console.log('Keycloak user ID:', userTokenId)
-
-
+const currentUserID = $auth.user?.getId()
 
 console.log("Name: " + currentUserFirstName + " | ID: " + currentUserID)
 console.log('AUTH USER:', $auth.user)
-console.log('TOKEN PARSED:', $auth.tokenParsed)
 
 
 // Fetch planters
