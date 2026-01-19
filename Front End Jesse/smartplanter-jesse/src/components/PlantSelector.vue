@@ -1,11 +1,11 @@
 <template>
   <div class="dropdown">
-    <button @click="open = !open" class="dropdown-btn">
+    <button @click="open = !open">
       {{ selected?.label || 'Selecteer een plant' }}
     </button>
 
     <transition name="fade-slide">
-      <ul v-if="open" class="dropdown-menu">
+      <ul v-if="open">
         <li
           v-for="option in options"
           :key="option.deviceId"
@@ -21,70 +21,73 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, watch, defineEmits, getCurrentInstance } from 'vue'
 
+const emit = defineEmits(["change"])
+const open = ref(false)
+const selected = ref(null)
+const options = ref([])
 
-const emit = defineEmits(["change"]);
-
-const open = ref(false);
-const selected = ref(null);
-const options = ref([]);
-
+// $auth beschikbaar maken in <script setup>
 const { proxy } = getCurrentInstance()
-const currentUserFirstName = proxy.$auth.user?.given_name || "tester"
+const currentUserFirstName = proxy.$auth?.user?.given_name || 'tester'
 
 // Fetch planters via proxy
 function loadPlanters() {
   fetch("/api?table=Planter")
     .then(res => {
-      if (!res.ok) throw new Error(`Network response was not ok: ${res.status}`);
-      return res.json();
+      if (!res.ok) throw new Error(`Network response was not ok: ${res.status}`)
+      const contentType = res.headers.get('content-type')
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new TypeError("Expected JSON, got " + contentType)
+      }
+      return res.json()
     })
     .then(data => {
-      // Filter op ingelogde gebruiker
-      const userPlanters = data.filter(item => item.UserID === currentUserFirstName);
+      const userPlanters = data.filter(item => item.UserID === currentUserFirstName)
       options.value = userPlanters.map(p => ({
         label: p.DeviceNaam,
         deviceId: p.DeviceID
-      }));
+      }))
 
       if (options.value.length > 0) {
-        const savedDevice = localStorage.getItem("chosenDevice");
+        const savedDevice = localStorage.getItem("chosenDevice")
         selected.value = savedDevice 
           ? options.value.find(o => o.deviceId === savedDevice) || options.value[0]
-          : options.value[0];
+          : options.value[0]
 
-        emit("change", selected.value.deviceId);
+        emit("change", selected.value.deviceId)
       }
     })
     .catch(err => {
-      console.error("Fout bij ophalen van planters:", err);
-    });
+      console.error("Fout bij ophalen van planters:", err)
+    })
 }
 
 function handleClickOutside(event) {
-  const dropdown = document.querySelector(".dropdown");
-  if (dropdown && !dropdown.contains(event.target)) open.value = false;
+  const dropdown = document.querySelector(".dropdown")
+  if (dropdown && !dropdown.contains(event.target)) open.value = false
 }
 
 function select(option) {
-  selected.value = option;
-  open.value = false;
+  selected.value = option
+  open.value = false
 }
 
 onMounted(() => {
-  loadPlanters();
-  document.addEventListener("click", handleClickOutside);
-});
+  loadPlanters()
+  document.addEventListener("click", handleClickOutside)
+})
 
 onBeforeUnmount(() => {
-  document.removeEventListener("click", handleClickOutside);
-});
+  document.removeEventListener("click", handleClickOutside)
+})
 
 watch(selected, value => {
-  if (!value) return;
-  localStorage.setItem("chosenDevice", value.deviceId);
-  emit("change", value.deviceId);
-});
+  if (!value) return
+  localStorage.setItem("chosenDevice", value.deviceId)
+  emit("change", value.deviceId)
+})
 </script>
+
 
   <style>
   /* Dropdown container */
