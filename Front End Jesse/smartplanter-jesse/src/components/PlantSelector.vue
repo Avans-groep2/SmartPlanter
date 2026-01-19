@@ -44,8 +44,6 @@ const user = computed(() => $auth.user)
 const currentUserFirstName = computed(() => user.value?.firstName)
 const currentUserID = computed(() => user.value?.id)
 
-console.log("ID:" + currentUserID.value)
-
 // debug
 watch(user, (u) => {
   if (u) {
@@ -58,6 +56,8 @@ watch(user, (u) => {
 // Fetch planters (wacht tot user bestaat)
 async function loadPlanters() {
   if (!currentUserFirstName.value) return
+
+  console.log("ID:" + currentUserID.value)
 
   try {
     const res = await fetch(
