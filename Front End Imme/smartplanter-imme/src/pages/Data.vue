@@ -3,7 +3,7 @@
     <a href="https://www.keukenliefde.nl/kook-koelkast-leeg/" class="inspiraiteWebsite" style="color:white";>? </a>
   </div>
 
-  <div class="dataDropdownAdmin">
+  <div v-if="isBeheerder" class="dataDropdownAdmin">
         <div class="moestuinKeuzeDropDown" ref="dropdown">
             <div class="dropdown-selected" @click="toggleDropdown">
                 {{ gekozenMoestuin || 'Moestuin' }}
@@ -206,10 +206,13 @@ closeAllDropdowns() {
 <style>
 
 .dataDropdownAdmin {
-  margin-right: 10%;
   margin-bottom: 5px;
   width: 200px;
-} 
+  display: flex; 
+  position: absolute;
+  right: 20px;
+  top: 20px;
+}
 
 .moestuinKeuzeDropDown {
   position: relative;

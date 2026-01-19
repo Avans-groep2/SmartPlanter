@@ -95,8 +95,8 @@
       <p>Resultaat: {{ oogstScore }}</p>
 
       <div class="modal-buttons">
-        <button @click="bevestigOogst" class="oogstenKnop">Oogsten</button>
         <button @click="oogstModalOpen = false" class="terugKnop">Terug</button>
+        <button @click="bevestigOogst" class="oogstenKnop">Oogsten</button>
       </div>
     </div>
   </div>
@@ -218,6 +218,14 @@ export default {
 </script>
 
 <style>
+.dropdownBeheerder {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  margin-bottom: 5px;
+  width: 200px;
+  display: flex; 
+} 
 
 .moestuinKeuzeDropDown {
   position: relative;
@@ -314,10 +322,10 @@ export default {
   justify-content: space-between;
 }
 
-.oogstenKnop, .terugKnop{
+.terugKnop, .oogstenKnop{
   background-color: #2d6a4f;
   border-radius: 5px;
-  border-color: 2px black;
+  border: 2px black;
   color: white;
   padding: 5px;
 }
