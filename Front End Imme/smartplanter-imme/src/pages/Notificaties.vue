@@ -93,8 +93,8 @@ export default {
   width: 200px;
   display: flex; 
   position: absolute;
-  right: 10%;
-  top: 10%;
+  right: 2rem;
+  top: 12%;
 }
 
 .moestuinKeuzeDropDown {
@@ -157,7 +157,7 @@ export default {
   margin-left: 5%;
   margin-top: 2%;
   margin-bottom: 2%;
-  width: 90%;
+  width: 80%;
   height: 35vh;
   background-color: #ffffff; 
   border-radius: 8px;
@@ -168,7 +168,7 @@ export default {
   padding: 0.5rem;
   margin-left: 5%;
   margin-bottom: 2%;
-  width: 90%;
+  width: 80%;
   min-height: 35vh;
   background-color: #ffffff;  
   border-radius: 8px;

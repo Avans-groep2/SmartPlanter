@@ -10,9 +10,9 @@
 
   <div v-if="isBeheerder" class="homeDropdownAdmin">
         <div class="moestuinKeuzeDropDown" ref="dropdown">
-            <div class="dropdown-selected" @click="toggleDropdown">
+            <div class="dropdown-selected" @click="toggleMoestuinDropdown">
                 {{ gekozenMoestuin || 'Moestuin' }}
-                <span class="dropDown">▼</span>
+                <span>▼</span>
             </div>
             <div v-if="open" class="dropdownKeuzes">
                 <div
@@ -133,7 +133,7 @@ export default {
     const moestuinen = ref(['Moestuin 1', 'Moestuin 2', 'Moestuin 3'])
     const dropdown = ref(null)
 
-    const toggleDropdown = () => {
+    const toggleMoestuinDropdown = () => {
       open.value = !open.value
     }
 
@@ -156,7 +156,7 @@ export default {
       document.removeEventListener('click', handleClickOutside)
     })
 
-    return {moestuinStore, isBeheerder, open, gekozenMoestuin, moestuinen, toggleDropdown, selecteerMoestuin, dropdown};
+    return {toggleMoestuinDropdown, moestuinStore, isBeheerder, open, gekozenMoestuin, moestuinen, toggleDropdown, selecteerMoestuin, dropdown};
 
   },
 
@@ -258,7 +258,7 @@ export default {
 .homeDropdownAdmin {
   position: absolute;
   top: 12%;
-  right: 5%;
+  right: 2rem;
   margin-bottom: 5px;
   width: 200px;
   display: flex; 

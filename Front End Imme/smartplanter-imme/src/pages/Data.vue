@@ -129,6 +129,9 @@ export default {
       return 'good'
     }
 
+    console.log('Value:', value, 'Threshold:', threshold)
+
+
     const statusTekst = (status) => {
       switch (status) {
         case 'good': return 'Goed'
@@ -241,7 +244,7 @@ export default {
   width: 200px;
   display: flex; 
   position: absolute;
-  right: 5%;
+  right: 2rem;
   top: 12%;
 }
 
