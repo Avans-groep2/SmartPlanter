@@ -58,7 +58,7 @@ export default {
   name:"dataPagina",
   setup(){
 
-    const userStore = useFooterSpan()
+    const footerStore = useFooterSpan()
 
     const isBeheerder = computed(() => {
       if (!footerStore.keycloak) return false;
@@ -208,6 +208,7 @@ closeAllDropdowns() {
 .dataDropdownAdmin {
   margin-right: 10%;
   margin-bottom: 5px;
+  width: 200px;
 } 
 
 .moestuinKeuzeDropDown {

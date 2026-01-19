@@ -316,9 +316,10 @@ export default {
 
 .oogstenKnop, .terugKnop{
   background-color: #2d6a4f;
-  border-radius: 8px;
+  border-radius: 5px;
   border-color: 2px black;
   color: white;
+  padding: 5px;
 }
 
 .moestuinbuis {
