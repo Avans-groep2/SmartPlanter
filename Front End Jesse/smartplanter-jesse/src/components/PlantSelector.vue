@@ -19,66 +19,93 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, watch, defineEmits, getCurrentInstance } from 'vue'
+import {
+  ref,
+  computed,
+  onMounted,
+  onBeforeUnmount,
+  watch,
+  defineEmits,
+  getCurrentInstance
+} from 'vue'
 
 const emit = defineEmits(['change'])
+
 const open = ref(false)
 const selected = ref(null)
 const options = ref([])
 
-// Haal $auth op uit globalProperties
+// haal $auth op
 const { appContext } = getCurrentInstance()
 const $auth = appContext.config.globalProperties.$auth
 
-// Alleen voornaam van ingelogde gebruiker
-const currentUserFirstName = $auth.user?.firstName
-const currentUserID = $auth.user?.getId()
+const user = computed(() => $auth.user)
 
-console.log("Name: " + currentUserFirstName + " | ID: " + currentUserID)
-console.log('AUTH USER:', $auth.user)
+const currentUserFirstName = computed(() => user.value?.firstName)
+const currentUserID = computed(() => user.value?.id)
 
+console.log("ID:" + currentUserID.value)
 
-// Fetch planters
-function loadPlanters() {
-  if (!currentUserFirstName) return // stop als voornaam niet beschikbaar
-  fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter')
-    .then(res => {
-      if (!res.ok) throw new Error(`Network response was not ok: ${res.status}`)
-      return res.json()
-    })
-    .then(data => {
-      const userPlanters = data.filter(item => item.UserID === currentUserFirstName)
-      options.value = userPlanters.map(p => ({
-        label: p.DeviceNaam,
-        deviceId: p.DeviceID
-      }))
+// debug
+watch(user, (u) => {
+  if (u) {
+    console.log('AUTH USER:', u)
+    console.log('Name:', u.firstName)
+    console.log('ID:', u.id)
+  }
+})
 
-      if (options.value.length > 0) {
-        const savedDevice = localStorage.getItem('chosenDevice')
-        selected.value = savedDevice
-          ? options.value.find(o => o.deviceId === savedDevice) || options.value[0]
-          : options.value[0]
+// Fetch planters (wacht tot user bestaat)
+async function loadPlanters() {
+  if (!currentUserFirstName.value) return
 
-        emit('change', selected.value.deviceId)
-      }
-    })
-    .catch(err => console.error('Fout bij ophalen van planters:', err))
+  try {
+    const res = await fetch(
+      'https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter'
+    )
+    if (!res.ok) throw new Error(res.status)
+
+    const data = await res.json()
+
+    // ⚠️ tijdelijk op firstName, beter is userID
+    const userPlanters = data.filter(
+      item => item.UserID === currentUserFirstName.value
+    )
+
+    options.value = userPlanters.map(p => ({
+      label: p.DeviceNaam,
+      deviceId: p.DeviceID
+    }))
+
+    if (options.value.length > 0) {
+      const savedDevice = localStorage.getItem('chosenDevice')
+      selected.value =
+        options.value.find(o => o.deviceId === savedDevice) ??
+        options.value[0]
+
+      emit('change', selected.value.deviceId)
+    }
+  } catch (err) {
+    console.error('Fout bij ophalen van planters:', err)
+  }
 }
 
-// Dropdown handlers
-function handleClickOutside(event) {
-  const dropdown = document.querySelector('.dropdown')
-  if (dropdown && !dropdown.contains(event.target)) open.value = false
-}
-
+// dropdown helpers
 function select(option) {
   selected.value = option
   open.value = false
 }
 
-// Lifecycle
+function handleClickOutside(event) {
+  const dropdown = document.querySelector('.dropdown')
+  if (dropdown && !dropdown.contains(event.target)) {
+    open.value = false
+  }
+}
+
+// lifecycle
 onMounted(() => {
-  loadPlanters()
+  if (user.value) loadPlanters()
   document.addEventListener('click', handleClickOutside)
 })
 
@@ -86,8 +113,13 @@ onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside)
 })
 
-// Update localStorage bij selectie
-watch(selected, value => {
+// herlaad als user beschikbaar wordt (belangrijk!)
+watch(user, (u) => {
+  if (u) loadPlanters()
+})
+
+// opslag & emit
+watch(selected, (value) => {
   if (!value) return
   localStorage.setItem('chosenDevice', value.deviceId)
   emit('change', value.deviceId)
