@@ -31,20 +31,20 @@ const { appContext } = getCurrentInstance()
 const $auth = appContext.config.globalProperties.$auth
 
 // Alleen voornaam van ingelogde gebruiker
-const currentUserFirstName = ref($auth.user?.firstName)
-const currentUserID = ref($auth.user?.id)
-console.log("Name :" + currentUserFirstName.value + "ID : " + currentUserID.value)
+const currentUserFirstName = $auth.user?.firstName
+const currentUserID = $auth.user?.sub
+console.log("Name: " + currentUserFirstName + " | ID: " + currentUserID)
 
 // Fetch planters
 function loadPlanters() {
-  if (!currentUserFirstName.value) return // stop als voornaam niet beschikbaar
+  if (!currentUserFirstName) return // stop als voornaam niet beschikbaar
   fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter')
     .then(res => {
       if (!res.ok) throw new Error(`Network response was not ok: ${res.status}`)
       return res.json()
     })
     .then(data => {
-      const userPlanters = data.filter(item => item.UserID === currentUserFirstName.value)
+      const userPlanters = data.filter(item => item.UserID === currentUserFirstName)
       options.value = userPlanters.map(p => ({
         label: p.DeviceNaam,
         deviceId: p.DeviceID
