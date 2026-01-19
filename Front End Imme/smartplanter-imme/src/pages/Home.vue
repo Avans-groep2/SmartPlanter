@@ -8,7 +8,7 @@
     <h1 class="homeH1">U werk nu in, <span style="color: #2d6a4f;">{{ moestuinStore.actieveMoestuin }}</span></h1>
   </div>
 
-  <div v-if="isBeheerder" class="dropdownBeheerder">
+  <div v-if="isBeheerder" class="homeDropdownAdmin">
         <div class="moestuinKeuzeDropDown" ref="dropdown">
             <div class="dropdown-selected" @click="toggleDropdown">
                 {{ gekozenMoestuin || 'Moestuin' }}
@@ -111,7 +111,7 @@
 
 <script>
 import { useMoestuinStore } from '../stores/moestuinScherm';
-import { computed } from 'vue';
+import { computed, ref, onMounted, onBeforeUnmount } from 'vue';
 import { useFooterSpan } from '../stores/footerSpan'
 
 export default {
@@ -128,7 +128,35 @@ export default {
         footerStore.keycloak.hasResourceRole('beheerder', 'frontend-imme'); 
     });
 
-    return {moestuinStore, isBeheerder};
+    const open = ref(false)
+    const gekozenMoestuin = ref('')
+    const moestuinen = ref(['Moestuin 1', 'Moestuin 2', 'Moestuin 3'])
+    const dropdown = ref(null)
+
+    const toggleDropdown = () => {
+      open.value = !open.value
+    }
+
+    const selecteerMoestuin = (moestuin) => {
+      gekozenMoestuin.value = moestuin
+      open.value = false
+    }
+
+    const handleClickOutside = (event) => {
+      if (dropdown.value && !dropdown.value.contains(event.target)) {
+        open.value = false
+      }
+    }
+
+    onMounted(() => {
+      document.addEventListener('click', handleClickOutside, true)
+    })
+
+    onBeforeUnmount(() => {
+      document.removeEventListener('click', handleClickOutside)
+    })
+
+    return {moestuinStore, isBeheerder, open, gekozenMoestuin, moestuinen, toggleDropdown, selecteerMoestuin, dropdown};
 
   },
 
@@ -164,7 +192,7 @@ export default {
         { naam: 'Framboos', img: '/plantenimg/framboos.png' },
         { naam: 'Blauwe Bessen', img: '/plantenimg/blauweBessen.png' },
         { naam: 'Vijgen', img: '/plantenimg/vijgen.png' }
-]
+      ]
     };
   },
 
@@ -215,23 +243,7 @@ export default {
       : { buisIndex, slotIndex };
 
     this.searchQuery = '';
-    },
-
-    closeAllDropdowns() {
-      this.openDropdown = {buisIndex: null, slotIndex:null};
-    },
-
-    handleClickOutside() {
-      this.closeAllDropdowns();
     }
-  },
-
-  mounted() {
-    document.addEventListener('click', this.handleClickOutside);
-  },
-
-  beforeUnmount() {
-    document.removeEventListener('click', this.handleClickOutside);
   }
 };
 </script>
@@ -243,10 +255,10 @@ export default {
   object-fit: contain;
 }
 
-.dropdownBeheerder {
+.homeDropdownAdmin {
   position: absolute;
-  top: 10%;
-  right: 10%;
+  top: 12%;
+  right: 5%;
   margin-bottom: 5px;
   width: 200px;
   display: flex; 

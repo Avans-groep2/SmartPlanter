@@ -33,12 +33,11 @@
 
 
 <script>
-import { computed } from 'vue';
+import { computed, ref, onMounted, onBeforeUnmount } from 'vue';
 import { useFooterSpan } from '../stores/footerSpan';
 
 export default {
   name: 'MeldingenPagina',
-  components: {},
 
   setup() {
     const footerStore = useFooterSpan();
@@ -53,6 +52,7 @@ export default {
     const open=ref(false)
     const gekozenMoestuin = ref('')
     const moestuinen = ref(['Moestuin 1', 'Moestuin 2', 'Moestuin 3'])
+    const dropdown = ref(null)
 
     const toggleDropdown = () => {
       open.value = !open.value
@@ -63,27 +63,22 @@ export default {
       open.value = false
     }
 
-    return { isBeheerder};
-
-  },
-
-  methods: {
-  closeAllDropdowns() {
-        this.openDropdown = {buisIndex: null, slotIndex:null};
-      },
-
-    handleClickOutside() {
-        this.closeAllDropdowns();
+    const handleClickOutside = (event) => {
+      if (dropdown.value && !dropdown.value.contains(event.target)) {
+        open.value = false
       }
-    },
-
-    mounted() {
-      document.addEventListener('click', this.handleClickOutside);
-    },
-
-    beforeUnmount() {
-      document.removeEventListener('click', this.handleClickOutside);
     }
+
+    onMounted(() => {
+      document.addEventListener('click', handleClickOutside, true)
+    })
+
+    onBeforeUnmount(() => {
+      document.removeEventListener('click', handleClickOutside)
+    })
+
+    return { isBeheerder, open, gekozenMoestuin, moestuinen, toggleDropdown, selecteerMoestuin, dropdown};
+  },
 
 }
 </script>

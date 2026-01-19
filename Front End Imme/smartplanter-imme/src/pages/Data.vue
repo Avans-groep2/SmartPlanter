@@ -5,9 +5,9 @@
 
   <div v-if="isBeheerder" class="dataDropdownAdmin">
         <div class="moestuinKeuzeDropDown" ref="dropdown">
-            <div class="dropdown-selected" @click="toggleDropdown">
+            <div class="dropdown-selected" @click.stop="toggleDropdown">
                 {{ gekozenMoestuin || 'Moestuin' }}
-                <span class="dropDown">▼</span>
+                <span>▼</span>
             </div>
             <div v-if="open" class="dropdownKeuzes">
                 <div
@@ -30,69 +30,115 @@
         <div class="info-sectie">
           <p class="datawaarde-uitleg">
             {{ sensor.label }} waarde: 
-            <span v-if="sensor.latestValue !== null">{{ sensor.latestValue.toFixed(1) }} {{ sensor.unit }}</span>
+            <span v-if="sensor.latestValue !== null">
+              {{ formatValue(sensor.latestValue, sensor.decimals) }} {{ sensor.unit }}</span>
             <span v-else>...</span>
           </p>
           <p class="data-betekenis">
             Deze {{ sensor.label.toLowerCase() }} is:
-            <span :class="{ 'status-te-hoog': sensor.status === 'Slecht, Onderneem Actie' }">
-              {{ sensor.status }}
+            <span :class="['status', `status--${sensor.status}`]" >
+              {{ statusTekst(sensor.status)}}
             </span>
           </p>
         </div>
       </div>
     </div>
+    </div>
 
     <div class="inspiratieKnop"> 
       <a href="https://www.keukenliefde.nl/kook-koelkast-leeg/" class="inspiraiteWebsite" style="color:white">?</a>
     </div>
-  </div>
+  
 </template>
 
 <script>
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import { Chart } from 'chart.js/auto'
-import { useFooterSpan } from '@/stores/footerSpan';
+import { useFooterSpan } from '../stores/footerSpan';
 
 export default {
   name:"dataPagina",
   setup(){
 
     const footerStore = useFooterSpan()
-
     const isBeheerder = computed(() => {
       if (!footerStore.keycloak) return false;
 
-      return footerStore.keycloak.hasRealmRole('beheerder')||
-        footerStore.keycloak.hasResourceRole('beheerder', 'frontend-imme');
-
+      return (footerStore.keycloak.hasRealmRole('beheerder')||
+        footerStore.keycloak.hasResourceRole('beheerder', 'frontend-imme')
+    )
     });
 
     const open=ref(false)
     const gekozenMoestuin = ref('')
     const moestuinen = ref(['Moestuin 1', 'Moestuin 2', 'Moestuin 3'])
+    const dropdown = ref(null)
 
     const toggleDropdown = () => {
-      open.value = !open.value
+      (open.value = !open.value) 
     }
-
     const selecteerMoestuin = (moestuin) => {
       gekozenMoestuin.value = moestuin
       open.value = false
     }
 
+    const handleClickOutside = (e) => {
+      if (dropdown.value && !dropdown.value.contains(e.target)) {
+        open.value = false
+      }
+    }
+
     const sensors = ref([
-      { label: 'Temperatuur', dataKey: 'temperature', unit: '°C', latestValue: null, status: '...', chart: null, threshold: 30 },
-      { label: 'pH', dataKey: 'ph', unit: '', latestValue: null, status: '...', chart: null, threshold: 5.5 },
-      { label: 'EC', dataKey: 'ec', unit: 'µS/cm', latestValue: null, status: '...', chart: null, threshold: 14 },
-      { label: 'LUX', dataKey: 'lux', unit: 'lx', latestValue: null, status: '...', chart: null, threshold: 1000 },
-      { label: 'Waterflow Begin', dataKey: 'flow_start', unit: 'L/m', latestValue: null, status: '...', chart: null, threshold: 40 },
-      { label: 'Waterflow Eind', dataKey: 'flow_end', unit: 'L/m', latestValue: null, status: '...', chart: null, threshold: 40 },
+      { label: 'Temperatuur', dataKey: 'temperature', unit: '°C', decimals: 1, latestValue: null, status: 'unknown', chart: null, 
+      threshold: { warning: {min: 15, max: 25}, critical: {min: 10, max: 30} } },
+      { label: 'pH', dataKey: 'ph', unit: '', decimals: 2, latestValue: null, status: 'unknown', chart: null, 
+      threshold: { warning: {min: 4.5, max: 5.5}, critical: {min: 4, max: 6} } },
+      { label: 'EC', dataKey: 'ec', unit: 'µS/cm', decimals: 2, latestValue: null, status: 'unknown', chart: null, 
+      threshold: { warning: {min: 1.5, max: 3.5}, critical: {min: 0.8, max: 4} } },
+      { label: 'LUX', dataKey: 'lux', unit: 'lx', decimals: 1, latestValue: null, status: 'unknown', chart: null, 
+      threshold: { warning: {min: 1000, max: 3000}, critical: {min: 500, max: 3500} } },
+      { label: 'Waterflow Begin', dataKey: 'flow_start', unit: 'L/m', decimals: 1, latestValue: null, status: 'unknown', chart: null, 
+      threshold: { warning: {min: 20, max: 60}, critical: {min: 15, max: 70} } },
+      { label: 'Waterflow Eind', dataKey: 'flow_end', unit: 'L/m', decimals: 1, latestValue: null, status: 'unknown', chart: null, 
+      threshold: { warning: {min: 20, max: 40 }, critical: {min: 15, max: 80} } },
     ])
+
+    const formatValue = (value, decimals = 1) => {
+      if(value == null) return '...'
+      return Number(value).toFixed(decimals)
+    }
 
     const canvasRefs = ref([])
     const deviceId = 'smartplanter_01' 
     let intervalId = null
+
+
+    const bepaalStatus = (value, threshold) => {
+      if(value == null) return 'unknown'
+
+      const { warning, critical } = threshold
+
+      if (value < critical.min || value > critical.max) {
+        return 'critical'
+      }
+
+      if (value < warning.min || value > warning.max){
+        return 'warning'
+      }
+
+      return 'good'
+    }
+
+    const statusTekst = (status) => {
+      switch (status) {
+        case 'good': return 'Goed!'
+        case 'warning': return 'Slecht'
+        case 'critical': return ' Kritisch!' 
+        default: return 'Onbekend'
+      }
+    }
+
+
 
     const renderChart = (index, labels, values) => {
       const sensor = sensors.value[index]
@@ -149,58 +195,43 @@ export default {
     const res = await fetch(url)
     const data = await res.json()
     
-    if (data && data.length > 0) {
-      const sorted = data.reverse()
-      const labels = sorted.map(d => new Date(d.time).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }))
-      const values = sorted.map(d => d.data[sensor.dataKey] || 0)
+   if (data?.length) {
+          const sorted = data.reverse()
+          const values = sorted.map(d => d.data[sensor.dataKey] ?? 0)
+          const labels = sorted.map(d =>
+            new Date(d.time).toLocaleTimeString('nl-NL', {
+              hour: '2-digit',
+              minute: '2-digit'
+            })
+          )
 
-      sensor.latestValue = values[values.length - 1]
-      sensor.status = (sensor.threshold !== null && sensor.latestValue >= sensor.threshold) 
-        ?'Slecht, Onderneem Actie'
-        :'Goed!' 
-
-      renderChart(index, labels, values)  
+          sensor.latestValue = values.at(-1)
+          sensor.status = bepaalStatus(sensor.latestValue, sensor.threshold)
+          renderChart(index, labels, values)
         }
-    } catch (e) {
-      console.error("Fout bij ophalen:", e)
+      } catch (e) {
+        console.error(e)
+      }
     }
-  }
 
   onMounted(() => {
     sensors.value.forEach((_, i) => loadSensorData(i))
     intervalId = setInterval(() => {
       sensors.value.forEach((_, i) => loadSensorData(i))
     }, 5000)
+
+    document.addEventListener('click', handleClickOutside, true);
   })
 
   onBeforeUnmount(() => {
     clearInterval(intervalId)
     sensors.value.forEach(s => { if(s.chart) s.chart.destroy() })
+    document.removeEventListener('click', handleClickOutside);
   })
 
-  return {sensors, canvasRefs, isBeheerder, open, gekozenMoestuin, moestuinen, toggleDropdown, selecteerMoestuin}
-    },
-
-methods: {
-closeAllDropdowns() {
-      this.openDropdown = {buisIndex: null, slotIndex:null};
-    },
-
-  handleClickOutside() {
-      this.closeAllDropdowns();
+  return {formatValue, sensors, canvasRefs, isBeheerder, open, gekozenMoestuin, moestuinen, toggleDropdown, selecteerMoestuin, dropdown, statusTekst}
     }
-  },
-
-  mounted() {
-    document.addEventListener('click', this.handleClickOutside);
-  },
-
-  beforeUnmount() {
-    document.removeEventListener('click', this.handleClickOutside);
-  }
-
-};
-
+}
 </script>
 
 <style>
@@ -210,8 +241,8 @@ closeAllDropdowns() {
   width: 200px;
   display: flex; 
   position: absolute;
-  right: 10%;
-  top: 10%;
+  right: 5%;
+  top: 12%;
 }
 
 .moestuinKeuzeDropDown {
@@ -324,12 +355,21 @@ closeAllDropdowns() {
   background-color: #3c803c;
 }
 
-.data-betekenis span {
+<!-------statusTekstKleur----------->
+
+.status {
   font-weight: bold;
-  color: #2d6a4f; 
 }
 
-.data-betekenis span.status-te-hoog {
+.status--good {
+  color: #2d6a4f;
+}
+
+.status--warning {
+  color: #e29f32;
+}
+
+.status--critical {
   color: #db4434;
 }
 </style>
