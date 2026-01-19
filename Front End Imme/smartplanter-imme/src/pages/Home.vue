@@ -9,12 +9,12 @@
   </div>
 
   <div v-if="isBeheerder" class="homeDropdownAdmin">
-        <div class="moestuinKeuzeDropDown" ref="dropdown">
+        <div class="moestuinKeuzeDropDown" ref="moestuinDropdown">
             <div class="dropdown-selected" @click="toggleMoestuinDropdown">
                 {{ gekozenMoestuin || 'Moestuin' }}
                 <span>▼</span>
             </div>
-            <div v-if="open" class="dropdownKeuzes">
+            <div v-if="openMoestuin" class="dropdownKeuzes">
                 <div
                     v-for="moestuin in moestuinen"
                     :key="moestuin"
@@ -64,7 +64,7 @@
           <input
             type="text"
             v-model="searchQuery"
-            placeholder="Zoek groente/fruit..."
+            placeholder="Zoek uw groente of fruit..."
             class="search-input"
           />
 
@@ -84,7 +84,6 @@
             </div>
           </div>
         </div>
-
       </div>
     </div>
   </div>
@@ -128,25 +127,46 @@ export default {
         footerStore.keycloak.hasResourceRole('beheerder', 'frontend-imme'); 
     });
 
-    const open = ref(false)
+    const openMoestuin = ref(false)
     const gekozenMoestuin = ref('')
     const moestuinen = ref(['Moestuin 1', 'Moestuin 2', 'Moestuin 3'])
     const dropdown = ref(null)
 
     const toggleMoestuinDropdown = () => {
-      open.value = !open.value
+      openMoestuin.value = !openMoestuin.value
     }
 
     const selecteerMoestuin = (moestuin) => {
       gekozenMoestuin.value = moestuin
-      open.value = false
+      openMoestuin.value = false
     }
 
+    const openDropdown = ref({ buisIndex: null, slotIndex: null });
+    const searchQuery = ref('');
+
+    const toggleSlotDropdown = (buisIndex, slotIndex) => {
+      const isSame =
+        openDropdown.value.buisIndex === buisIndex &&
+        openDropdown.value.slotIndex === slotIndex;
+
+      openDropdown.value = isSame
+        ? { buisIndex: null, slotIndex: null }
+        : { buisIndex, slotIndex };
+
+      searchQuery.value = '';
+    };
+
     const handleClickOutside = (event) => {
-      if (dropdown.value && !dropdown.value.contains(event.target)) {
-        open.value = false
-      }
+      if (moestuinDropdown.value && !moestuinDropdown.value.contains(event.target)) {
+        openMoestuin.value = false
     }
+
+    const openSlotEl = document.querySelector('.dropdown-menu.open');
+      if (openSlotEl && !openSlotEl.contains(event.target)) {
+        openDropdown.value = { buisIndex: null, slotIndex: null };
+        searchQuery.value = '';
+      }
+    };
 
     onMounted(() => {
       document.addEventListener('click', handleClickOutside, true)
@@ -156,17 +176,14 @@ export default {
       document.removeEventListener('click', handleClickOutside)
     })
 
-    return {toggleMoestuinDropdown, moestuinStore, isBeheerder, open, gekozenMoestuin, moestuinen, selecteerMoestuin, dropdown};
+    return {toggleMoestuinDropdown, moestuinStore, isBeheerder, 
+      openMoestuin, gekozenMoestuin, moestuinen, selecteerMoestuin, 
+      openDropdown, searchQuery, toggleSlotDropdown, moestuinDropdown};
 
   },
 
   data() {
     return {
-      searchQuery: '',
-      openDropdown: {
-        buisIndex: null,
-        slotIndex: null
-      },
       oogstModalOpen: false,
       oogstScore: 5,
       oogstTarget: {
@@ -211,7 +228,8 @@ export default {
   methods: {
     selectPlant(buisIndex, slotIndex, plant) {
       this.moestuinStore.setPlant(buisIndex, slotIndex, plant);
-      this.closeAllDropdowns();
+      this.openDropdown = { buisIndex: null, slotIndex: null };
+      this.searchQuery = '';
     },
 
     openOogstModal(buisIndex, slotIndex) {
@@ -230,7 +248,7 @@ export default {
       );
 
       this.oogstModalOpen = false;
-      this.closeAllDropdowns();
+      this.openDropdown = { buisIndex: null, slotIndex: null };
     },  
 
     toggleDropdown(buisIndex, slotIndex) {
@@ -249,6 +267,11 @@ export default {
 </script>
 
 <style scoped>
+
+.dropdown-menu.open {
+  display: block;
+}
+
 .plant-image {
   width: 40px;
   height: 40px;
@@ -257,11 +280,12 @@ export default {
 
 .homeDropdownAdmin {
   position: absolute;
-  top: 12%;
+  top: 2rem;
   right: 1rem;
   margin-bottom: 5px;
   width: 200px;
   display: flex; 
+  z-index: 3000;
 } 
 
 .moestuinKeuzeDropDown {

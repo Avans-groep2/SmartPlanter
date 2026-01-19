@@ -92,7 +92,7 @@ export default {
       { label: 'Temperatuur', dataKey: 'temperature', unit: '°C', decimals: 1, latestValue: null, status: 'unknown', chart: null, 
       threshold: { warning: {min: 15, max: 25}, critical: {min: 10, max: 30} } },
       { label: 'pH', dataKey: 'ph', unit: '', decimals: 2, latestValue: null, status: 'unknown', chart: null, 
-      threshold: { warning: {min: 4.5, max: 5.5}, critical: {min: 4, max: 6} } },
+      threshold: { warning: {min: 14, max: 14}, critical: {min: 15, max: 15} } },
       { label: 'EC', dataKey: 'ec', unit: 'µS/cm', decimals: 2, latestValue: null, status: 'unknown', chart: null, 
       threshold: { warning: {min: 1.5, max: 3.5}, critical: {min: 0.8, max: 4} } },
       { label: 'LUX', dataKey: 'lux', unit: 'lx', decimals: 1, latestValue: null, status: 'unknown', chart: null, 
@@ -169,10 +169,27 @@ export default {
             color: '#333',
             padding: { bottom: 10 }
           },
-          legend: { display: false }
+          legend: { display: false }, 
+          tooltip: {
+            callbacks: {
+              label: function(context){
+                const value = context.raw;
+                return value.toFixed(sensor.decimals) + ' ' + sensor.unit;
+              }
+            }
+          }
+        }, 
+        scales: {
+          y: {
+            ticks: {
+              callback: function(value) {
+                return value.toFixed(sensor.decimals);
+              }
+            }
+          }
         }
       }
-    })
+    });
   } else {
     sensor.chart.data.labels = labels
     sensor.chart.data.datasets[0].data = values
@@ -241,7 +258,7 @@ export default {
   width: 200px;
   display: flex; 
   position: absolute;
-  right: 1rem;
+  right: 0.5rem;
   top: 12%;
 }
 
