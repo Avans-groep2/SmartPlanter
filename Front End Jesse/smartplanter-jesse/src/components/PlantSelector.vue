@@ -31,7 +31,7 @@ const currentUserFirstName = "tester";
 
 // Fetch planters met .then/.catch
 function loadPlanters() {
-  fetch("http://smartplanters.dedyn.io:1880/smartplantdata?table=Planter")
+  fetch("https://smartplanters.dedyn.io:1880/smartplantdata?table=planter")
     .then(response => {
       if (!response.ok) throw new Error(`Network response was not ok: ${response.status}`);
       return response.json();
