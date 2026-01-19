@@ -75,7 +75,7 @@ export default {
     const dropdown = ref(null)
 
     const toggleDropdown = () => {
-      (open.value = !open.value) 
+      open.value = !open.value
     }
     const selecteerMoestuin = (moestuin) => {
       gekozenMoestuin.value = moestuin
@@ -131,9 +131,9 @@ export default {
 
     const statusTekst = (status) => {
       switch (status) {
-        case 'good': return 'Goed!'
+        case 'good': return 'Goed'
         case 'warning': return 'Slecht'
-        case 'critical': return ' Kritisch!' 
+        case 'critical': return ' Kritisch' 
         default: return 'Onbekend'
       }
     }
@@ -355,7 +355,7 @@ export default {
   background-color: #3c803c;
 }
 
-<!-------statusTekstKleur----------->
+/*-------statusTekstKleur-----------*/
 
 .status {
   font-weight: bold;
