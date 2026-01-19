@@ -14,7 +14,6 @@
       data-key="temperatuur" 
       label="Temperatuur" 
       unit="°C" 
-      decimals="1"
       :threshold="30" 
     />
 
@@ -24,7 +23,6 @@
       data-key="ph" 
       label="pH" 
       unit="pH" 
-      :decimals="1"
       :threshold="6.5" 
     />
 
@@ -34,7 +32,6 @@
       data-key="ec" 
       label="EC" 
       unit="mS/cm" 
-      :decimals="1"
       :threshold="2.5" 
     />
 
@@ -91,9 +88,13 @@ header {
 }
 
 .chartContainer {
-  max-width: 90%;
+  width: 100%;
+  max-width: 90%; 
+  margin: 0 auto;
+  padding: 1rem;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); /* flexibele min-width */
   gap: 1rem;
+  box-sizing: border-box;
 }
 </style>

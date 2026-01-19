@@ -138,10 +138,12 @@ onBeforeUnmount(() => cleanupChart())
 <style>
 .linechart {
   background-color: var(--light);
-  width: 25rem;
-  height: 15rem;
+  width: 100%;        /* past zich aan aan de grid-cell */
+  max-width: 25rem;   /* optioneel, voorkom dat het te groot wordt */
+  height: 17rem;
   border-radius: 15px;
   padding: 1rem;
+  box-sizing: border-box; /* padding telt mee voor width */
 }
 
 .linechart p { color: var(--text); margin: 0.5rem 0; }

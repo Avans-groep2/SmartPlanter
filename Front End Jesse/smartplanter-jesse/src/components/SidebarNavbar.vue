@@ -33,7 +33,7 @@ const isBeheerder = computed(() => $auth.user?.roles.includes('beheerder'))
             <i class="fa-solid fa-bell"></i>
             <span class="label">Meldingen</span>
           </router-link>
-          <p class="notificationCount">20</p>
+          <p class="notificationCount">0</p>
         </li>
 
         <li>

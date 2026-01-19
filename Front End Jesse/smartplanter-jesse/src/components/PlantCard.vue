@@ -123,60 +123,61 @@ export default {
 /* Plant position badge */
 .plant-position {
   display: flex;
-  width: 27%;
-  height: 2.5rem;
+  justify-content: center;   
+  align-items: center;       
+  min-width: 100px;         
+  height: 2.5rem;            
   background: var(--primary);
   border-radius: 50px;
-  align-items: center;
+  box-sizing: border-box;    
 }
 
+/* Cijfers en iconen in de badge */
 .plant-position h1,
 .plant-position i {
-  font-size: 2rem;
+  font-size: 2rem;       
   font-weight: 600;
   color: var(--text);
+  margin: 0;               
+  line-height: 1;          
 }
 
 /* Plant info */
 .daysToOogst {
   font-size: 1.5rem;
-  display: flex;
-  justify-content: center;
-  padding: 0.5rem;
-}
-
-.plantDate p,
-.plantOogst p {
-  font-size: 1.2rem;
+  text-align: center; 
+  padding: 0.5rem 0;  
+  margin-bottom: 0.5rem; 
   color: var(--text);
 }
 
 .plantDate,
 .plantOogst {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-between; 
+  gap: 0.5rem; 
+  font-size: 1.2rem;
+  margin: 0rem 0.3rem 0rem 0.3rem;
+  color: var(--text);
 }
 
+.plantDate p,
+.plantOogst p {
+  margin: 0; 
+
+}
 /* Button styling */
 .btnOogst {
-  background: var(--danger);
+  background: var(--primary);
+  color: var(--text);
   border-radius: 25px;
   height: 2.5rem;
   border: none;
   width: 90%;
-  margin: 1rem 2rem 0 1rem;
+  margin: 1rem 2rem 1rem 1rem;
   font-size: 2rem;
   font-weight: 600;
   cursor: pointer;
 }
 
-.plants-position i {
-  font-weight: 600;
-  color: var(--text);
-}
-
-.plants-position h1 {
-  font-weight: 500;
-  color: var(--text);
-}
 </style>

@@ -19,77 +19,79 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch, defineEmits } from "vue";
-
-// ─────────────────────────────────────────────
-// Emits
-// ─────────────────────────────────────────────
+import { ref, onMounted, onBeforeUnmount, watch, defineEmits } from "vue";
 
 const emit = defineEmits(["change"]);
 
-// ─────────────────────────────────────────────
-// State
-// ─────────────────────────────────────────────
-
 const open = ref(false);
 const selected = ref(null);
+const options = ref([]);
 
-// ─────────────────────────────────────────────
-// Device options
-// ─────────────────────────────────────────────
+const currentUserFirstName = "tester";
 
-const options = [
-  { label: "Smartplanter 1", deviceId: "device-1" },
-  { label: "Smartplanter 2", deviceId: "device-2" },
-  { label: "Smartplanter 3", deviceId: "device-3" }
-];
+// Fetch planters met .then/.catch
+function loadPlanters() {
+  fetch("http://smartplanters.dedyn.io:1880/smartplantdata?table=Planter")
+    .then(response => {
+      if (!response.ok) throw new Error(`Network response was not ok: ${response.status}`);
+      return response.json();
+    })
+    .then(data => {
+      const userPlanters = data.filter(item => item.UserID === currentUserFirstName);
+      options.value = userPlanters.map(p => ({
+        label: p.DeviceNaam,
+        deviceId: p.DeviceID
+      }));
 
-// ─────────────────────────────────────────────
-// Lifecycle
-// ─────────────────────────────────────────────
+      if (options.value.length > 0) {
+        const savedDevice = localStorage.getItem("chosenDevice");
+        selected.value = savedDevice 
+          ? options.value.find(o => o.deviceId === savedDevice) || options.value[0] 
+          : options.value[0];
 
-onMounted(() => {
-  const savedDevice = localStorage.getItem("chosenDevice");
+        emit("change", selected.value.deviceId);
+      }
+    })
+    .catch(err => {
+      console.error("Fout bij ophalen van planters:", err);
+    });
+}
 
-  if (savedDevice) {
-    const option = options.find(o => o.deviceId === savedDevice);
-    if (option) selected.value = option;
-  } else {
-    // default select first device
-    selected.value = options[0];
-  }
-
-  emit("change", selected.value.deviceId);
-});
-
-// ─────────────────────────────────────────────
-// Watchers
-// ─────────────────────────────────────────────
-
-watch(selected, (value) => {
-  if (!value) return;
-
-  localStorage.setItem("chosenDevice", value.deviceId);
-  emit("change", value.deviceId);
-});
-
-// ─────────────────────────────────────────────
-// Methods
-// ─────────────────────────────────────────────
+function handleClickOutside(event) {
+  const dropdown = document.querySelector(".dropdown");
+  if (dropdown && !dropdown.contains(event.target)) open.value = false;
+}
 
 function select(option) {
   selected.value = option;
   open.value = false;
 }
+
+onMounted(() => {
+  loadPlanters();
+  document.addEventListener("click", handleClickOutside);
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener("click", handleClickOutside);
+});
+
+watch(selected, value => {
+  if (!value) return;
+  localStorage.setItem("chosenDevice", value.deviceId);
+  emit("change", value.deviceId);
+});
 </script>
 
 <style>
+/* Dropdown container */
 .dropdown {
-  position: relative;
+  position: relative;  
   width: 200px;
   z-index: 999;
 }
 
+/* Button styling */
 .dropdown-btn {
   width: 100%;
   padding: 8px;
@@ -102,53 +104,52 @@ function select(option) {
   border-radius: 15px;
 }
 
+/* Dropdown menu */
 .dropdown-menu {
   position: absolute;
+  top: 100%;
+  left: 0;
   width: 100%;
-  margin-top: 4px;
+  margin: 0.5rem 0 0 0;
   padding: 0;
   list-style: none;
   border: 1px solid var(--light);
   background: var(--light);
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
   overflow: hidden;
+  transform-origin: top center;
 }
 
+/* Menu items */
 .dropdown-menu li {
   padding: 8px;
   cursor: pointer;
   background: var(--light);
   color: var(--text);
+  transition: background 0.2s, color 0.2s;
 }
 
 .dropdown-menu li:hover {
   background: var(--primary);
-  color: var(--primary-dark);
+  font-weight: 600;
 }
 
-/* 💫 Transition */
+/* Fade + slide animation */
 .fade-slide-enter-active,
 .fade-slide-leave-active {
-  transition: all 0.2s ease;
-  transform-origin: top;
+  transition: all 0.25s ease;
 }
 
-.fade-slide-enter-from {
+.fade-slide-enter-from,
+.fade-slide-leave-to {
   opacity: 0;
-  transform: translateY(-6px);
+  transform: translateY(-10px);
 }
 
-.fade-slide-enter-to {
-  opacity: 1;
-  transform: translateY(0);
-}
-
+.fade-slide-enter-to,
 .fade-slide-leave-from {
   opacity: 1;
   transform: translateY(0);
-}
-
-.fade-slide-leave-to {
-  opacity: 0;
-  transform: translateY(-6px);
 }
 </style>

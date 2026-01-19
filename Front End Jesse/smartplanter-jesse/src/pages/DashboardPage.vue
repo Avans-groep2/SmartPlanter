@@ -11,85 +11,85 @@
       name="Wortel"
       position="01"
       days-to-harvest="12"
-      plant-date="26-11-2025"
-      -harvest-date="13-12-2025"/>
+      plant-date='26-11-2025'
+      -harvest-date='13-12-2025'/>
 
       <PlantCard
       name="Wortel"
       position="02"
       days-to-harvest="12"
-      plant-date="26-11-2025"
-      -harvest-date="13-12-2025"/>
+      plant-date='26-11-2025'
+      -harvest-date='13-12-2025'/>
 
       <PlantCard
       name="Wortel"
       position="03"
       days-to-harvest="12"
-      plant-date="26-11-2025"
-      -harvest-date="13-12-2025"/>
+      plant-date='26-11-2025'
+      -harvest-date='13-12-2025'/>
 
       <PlantCard
       name="Wortel"
       position="04"
       days-to-harvest="12"
-      plant-date="26-11-2025"
-      -harvest-date="13-12-2025"/>
+      plant-date='26-11-2025'
+      -harvest-date='13-12-2025'/>
 
       <PlantCard
       name="Wortel"
       position="05"
       days-to-harvest="12"
-      plant-date="26-11-2025"
-      -harvest-date="13-12-2025"/>
+      plant-date='26-11-2025'
+      -harvest-date='13-12-2025'/>
 
       <PlantCard
       name="Wortel"
       position="06"
       days-to-harvest="12"
-      plant-date="26-11-2025"
-      -harvest-date="13-12-2025"/>
+      plant-date='26-11-2025'
+      -harvest-date='13-12-2025'/>
 
       <PlantCard
       name="Aardbei"
       position="07"
       days-to-harvest="12"
-      plant-date="26-11-2025"
-      -harvest-date="13-12-2025"/>
+      plant-date='26-11-2025'
+      -harvest-date='13-12-2025'/>
 
       <PlantCard
       name="Wortel"
       position="08"
       days-to-harvest="12"
-      plant-date="26-11-2025"
-      -harvest-date="13-12-2025"/>
+      plant-date='26-11-2025'
+      -harvest-date='13-12-2025'/>
 
       <PlantCard
       name="Wortel"
       position="09"
       days-to-harvest="12"
-      plant-date="26-11-2025"
-      -harvest-date="13-12-2025"/>
+      plant-date='26-11-2025'
+      -harvest-date='13-12-2025'/>
 
       <PlantCard
       name="Wortel"
       position="10"
       days-to-harvest="12"
-      plant-date="26-11-2025"
-      -harvest-date="13-12-2025"/>
+      plant-date='26-11-2025'
+      -harvest-date='13-12-2025'/>
 
       <PlantCard
       name="Wortel"
-      position="10"
+      position="11"
       days-to-harvest="11"
-      plant-date="26-11-2025"
-      -harvest-date="13-12-2025"/>
+      plant-date='26-11-2025'
+      -harvest-date='13-12-2025'/>
 
       <PlantCard
       name="Wortel"
       position="12"
       days-to-harvest="12"
-      plant-date="26-11-2025"
-      -harvest-date="13-12-2025"/>
+      plant-date='26-11-2025'
+      -harvest-date='13-12-2025'/>
 
 
 
