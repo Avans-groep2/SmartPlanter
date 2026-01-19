@@ -21,71 +21,75 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, watch, defineEmits, getCurrentInstance } from 'vue'
 
+const emit = defineEmits(['change'])
+const open = ref(false)
+const selected = ref(null)
+const options = ref([])
 
-const emit = defineEmits(["change"]);
+// Haal $auth op uit globalProperties
+const { appContext } = getCurrentInstance()
+const $auth = appContext.config.globalProperties.$auth
 
-const open = ref(false);
-const selected = ref(null);
-const options = ref([]);
+// Alleen voornaam van ingelogde gebruiker
+const currentUserFirstName = ref($auth.user?.firstName)
+console.log(currentUserFirstName.value)
 
-const { proxy } = getCurrentInstance()
-const currentUserFirstName = proxy.$auth.user?.given_name
-console.log(currentUserFirstName)
-
-// Fetch planters via proxy
+// Fetch planters
 function loadPlanters() {
-  fetch("https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter")
+  if (!currentUserFirstName.value) return // stop als voornaam niet beschikbaar
+  fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter')
     .then(res => {
-      if (!res.ok) throw new Error(`Network response was not ok: ${res.status}`);
-      return res.json();
+      if (!res.ok) throw new Error(`Network response was not ok: ${res.status}`)
+      return res.json()
     })
     .then(data => {
-      // Filter op ingelogde gebruiker
-      const userPlanters = data.filter(item => item.UserID === currentUserFirstName);
+      const userPlanters = data.filter(item => item.UserID === currentUserFirstName.value)
       options.value = userPlanters.map(p => ({
         label: p.DeviceNaam,
         deviceId: p.DeviceID
-      }));
+      }))
 
       if (options.value.length > 0) {
-        const savedDevice = localStorage.getItem("chosenDevice");
-        selected.value = savedDevice 
+        const savedDevice = localStorage.getItem('chosenDevice')
+        selected.value = savedDevice
           ? options.value.find(o => o.deviceId === savedDevice) || options.value[0]
-          : options.value[0];
+          : options.value[0]
 
-        emit("change", selected.value.deviceId);
+        emit('change', selected.value.deviceId)
       }
     })
-    .catch(err => {
-      console.error("Fout bij ophalen van planters:", err);
-    });
+    .catch(err => console.error('Fout bij ophalen van planters:', err))
 }
 
+// Dropdown handlers
 function handleClickOutside(event) {
-  const dropdown = document.querySelector(".dropdown");
-  if (dropdown && !dropdown.contains(event.target)) open.value = false;
+  const dropdown = document.querySelector('.dropdown')
+  if (dropdown && !dropdown.contains(event.target)) open.value = false
 }
 
 function select(option) {
-  selected.value = option;
-  open.value = false;
+  selected.value = option
+  open.value = false
 }
 
+// Lifecycle
 onMounted(() => {
-  loadPlanters();
-  document.addEventListener("click", handleClickOutside);
-});
+  loadPlanters()
+  document.addEventListener('click', handleClickOutside)
+})
 
 onBeforeUnmount(() => {
-  document.removeEventListener("click", handleClickOutside);
-});
+  document.removeEventListener('click', handleClickOutside)
+})
 
+// Update localStorage bij selectie
 watch(selected, value => {
-  if (!value) return;
-  localStorage.setItem("chosenDevice", value.deviceId);
-  emit("change", value.deviceId);
-});
+  if (!value) return
+  localStorage.setItem('chosenDevice', value.deviceId)
+  emit('change', value.deviceId)
+})
 </script>
+
 
   <style>
   /* Dropdown container */
