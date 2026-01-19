@@ -29,7 +29,7 @@ const selected = ref(null);
 const options = ref([]);
 
 const { proxy } = getCurrentInstance()
-const currentUserFirstName = proxy.$auth.user?.given_name
+const currentUserFirstName = proxy.$auth.user?.given_name || "tester"
 
 // Fetch planters via proxy
 function loadPlanters() {
