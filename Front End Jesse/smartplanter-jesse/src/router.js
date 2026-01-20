@@ -39,7 +39,7 @@ const routes = [
     name: 'admin',
     component: AdminPage,
     meta: {
-      requiresRole: 'beheerder'
+      // requiresRole: 'beheerder'
     }
   }
 ]

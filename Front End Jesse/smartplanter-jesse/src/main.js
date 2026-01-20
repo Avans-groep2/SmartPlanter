@@ -82,7 +82,7 @@ function createDevAuth() {
       username: 'dev',
       fullName: 'Developer Mode',
       roles: ['admin'],
-      id: 'dev'       // ook hier ID toevoegen voor dev mode
+      id: 'tester'       // ook hier ID toevoegen voor dev mode
     },
     logout() {},
     refresh() {}

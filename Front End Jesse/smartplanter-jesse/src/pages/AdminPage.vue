@@ -4,85 +4,74 @@
   <div class="Admin">
     <WelcomeMessage />
 
-    <!-- ================= DEVICE MELDINGEN ================= -->
+    <!-- ================== Devices Tabel ================== -->
     <div class="adminContainer">
       <div class="adminTitle">
         <input v-model="newDeviceId" placeholder="Device ID" />
         <button @click="addDevice">Aanmaken</button>
       </div>
 
-      <div class="table">
-        <div class="row header">
-          <div>Device ID</div>
-          <div>Datum</div>
-          <div>Tijd</div>
-          <div>Melding</div>
-        </div>
+      <table class="deviceTable">
+        <thead>
+          <tr>
+            <th>Device ID</th>
+          </tr>
+        </thead>
 
-        <div
-          v-for="(melding, index) in deviceMeldingen"
-          :key="index"
-          class="row"
-        >
-          <div>{{ melding.deviceId }}</div>
-          <div>{{ melding.datum }}</div>
-          <div>{{ melding.tijd }}</div>
-          <div>{{ melding.tekst }}</div>
-        </div>
+        <tbody>
+          <tr v-for="(device, index) in devices" :key="index">
+            <td>{{ device.TtnDeviceID }}</td>
+          </tr>
 
-        <div v-if="deviceMeldingen.length === 0" class="loading">
-          Geen meldingen gevonden
-        </div>
-      </div>
+          <tr v-if="devices.length === 0">
+            <td>Geen devices gevonden</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
-    <!-- ================= GEBRUIKER ↔ DEVICE ================= -->
+    <!-- ================== Planters Tabel met Dropdowns ================== -->
     <div class="adminContainer">
-      <div class="adminTitle dropdown">
-        <input v-model="gebruikersnaam" placeholder="Gebruikersnaam" />
+      <div class="adminTitle">
+        <!-- Dropdowns zonder lege optie -->
+        <select v-model="selectedUserID">
+          <option v-for="user in uniqueUserIDs" :key="user" :value="user">
+            {{ user }}
+          </option>
+        </select>
 
-        <button @click="open = !open" class="dropdown-btn">
-          {{ selectedDevice || 'Selecteer Device' }}
-        </button>
+        <select v-model="selectedDeviceID">
+          <option v-for="device in devices" :key="device.TtnDeviceID" :value="device.TtnDeviceID">
+            {{ device.TtnDeviceID }}
+          </option>
+        </select>
 
-        <transition name="fade-slide">
-          <ul v-if="open" class="dropdown-menu">
-            <li
-              v-for="device in devices"
-              :key="device.deviceId"
-              @click="selectDevice(device)"
-            >
-              {{ device.deviceNaam }} ({{ device.deviceId }})
-            </li>
-          </ul>
-        </transition>
-
-        <button @click="koppelDevice">Koppelen</button>
+        <button @click="koppel">Koppelen</button>
       </div>
 
-      <div class="table">
-        <div class="row header">
-          <div>Gebruikersnaam</div>
-          <div>Email</div>
-          <div>Device ID</div>
-          <div>Device Naam</div>
-        </div>
+      <table class="deviceTable">
+        <thead>
+          <tr>
+            <th>UserID</th>
+            <th>DeviceID</th>
+            <th>PlantenTeller</th>
+            <th>DeviceNaam</th>
+          </tr>
+        </thead>
 
-        <div
-          v-for="(item, index) in gebruikersDevices"
-          :key="index"
-          class="row"
-        >
-          <div>{{ item.gebruikersnaam }}</div>
-          <div>{{ item.email }}</div>
-          <div>{{ item.deviceId }}</div>
-          <div>{{ item.deviceNaam }}</div>
-        </div>
+        <tbody>
+          <tr v-for="(planter, index) in planters" :key="index">
+            <td>{{ planter.UserID }}</td>
+            <td>{{ planter.DeviceID }}</td>
+            <td>{{ planter.PlantenTeller }}</td>
+            <td>{{ planter.DeviceNaam }}</td>
+          </tr>
 
-        <div v-if="gebruikersDevices.length === 0" class="loading">
-          Geen koppelingen gevonden
-        </div>
-      </div>
+          <tr v-if="planters.length === 0">
+            <td colspan="4">Geen planters gevonden</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </template>
@@ -97,93 +86,70 @@ export default {
 
   data() {
     return {
-      // dropdown
-      open: false,
+      // Devices tabel
       devices: [],
-      selectedDevice: null,
-      selectedDeviceId: null,
-
-      // input
       newDeviceId: '',
-      gebruikersnaam: '',
 
-      // data
-      deviceMeldingen: [],
-      gebruikersDevices: []
+      // Planters tabel
+      planters: [],
+      selectedUserID: '',
+      selectedDeviceID: '',
+
+      // Koppelingen (frontend only)
+      koppelingen: []
     }
   },
 
   mounted() {
-    // ================= MOCK DATA =================
+    // Haal Devices op
+    fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Devices')
+      .then(res => res.json())
+      .then(data => {
+        this.devices = data
+        // Init dropdowns op eerste waarde automatisch
+        if (data.length) this.selectedDeviceID = data[0].TtnDeviceID
+      })
+      .catch(err => console.error('Fout bij ophalen devices:', err))
 
-    this.devices = [
-      { deviceId: 'DEV-001', deviceNaam: 'Sensor Keuken' },
-      { deviceId: 'DEV-002', deviceNaam: 'Sensor Garage' },
-      { deviceId: 'DEV-003', deviceNaam: 'Sensor Zolder' }
-    ]
+    // Haal Planters op
+    fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter')
+      .then(res => res.json())
+      .then(data => {
+        this.planters = data
+        if (data.length) this.selectedUserID = data[0].UserID
+      })
+      .catch(err => console.error('Fout bij ophalen planters:', err))
+  },
 
-    this.deviceMeldingen = [
-      {
-        deviceId: 'DEV-001',
-        datum: '2026-01-05',
-        tijd: '10:32',
-        tekst: 'Temperatuur te hoog'
-      },
-      {
-        deviceId: 'DEV-002',
-        datum: '2026-01-05',
-        tijd: '11:10',
-        tekst: 'Batterij bijna leeg'
-      }
-    ]
-
-    this.gebruikersDevices = [
-      {
-        gebruikersnaam: 'jan',
-        email: 'jan@test.nl',
-        deviceId: 'DEV-001',
-        deviceNaam: 'Sensor Keuken'
-      },
-      {
-        gebruikersnaam: 'piet',
-        email: 'piet@test.nl',
-        deviceId: 'DEV-002',
-        deviceNaam: 'Sensor Garage'
-      }
-    ]
+  computed: {
+    uniqueUserIDs() {
+      const ids = this.planters.map(p => p.UserID)
+      return [...new Set(ids)]
+    }
   },
 
   methods: {
-    selectDevice(device) {
-      this.selectedDevice = device.deviceNaam
-      this.selectedDeviceId = device.deviceId
-      this.open = false
-    },
-
     addDevice() {
       if (!this.newDeviceId) return
 
-      this.devices.push({
-        deviceId: this.newDeviceId,
-        deviceNaam: `Nieuw Device (${this.newDeviceId})`
-      })
+      this.devices.push({ TtnDeviceID: this.newDeviceId })
+
+      // Optioneel: selecteer automatisch nieuwe device in dropdown
+      this.selectedDeviceID = this.newDeviceId
 
       this.newDeviceId = ''
     },
 
-    koppelDevice() {
-      if (!this.gebruikersnaam || !this.selectedDeviceId) return
+    koppel() {
+      if (!this.selectedUserID || !this.selectedDeviceID) return
 
-      this.gebruikersDevices.push({
-        gebruikersnaam: this.gebruikersnaam,
-        email: `${this.gebruikersnaam}@test.nl`,
-        deviceId: this.selectedDeviceId,
-        deviceNaam: this.selectedDevice
+      // Voeg toe aan koppelingen (frontend only)
+      this.koppelingen.push({
+        UserID: this.selectedUserID,
+        DeviceID: this.selectedDeviceID
       })
 
-      this.gebruikersnaam = ''
-      this.selectedDevice = null
-      this.selectedDeviceId = null
+      alert(`Gekoppeld: ${this.selectedUserID} → ${this.selectedDeviceID}`)
     }
   }
 }
@@ -192,97 +158,63 @@ export default {
 <style scoped>
 .Admin {
   margin-left: 5rem;
-  color: var(--text); /* ✅ alle standaard tekst krijgt var(--text) */
-}
-
-.adminContainer {
-  background: var(--light);
-  width: 90%;
-  height: 20%;
-  border-radius: 15px;
-  margin: 2rem 0 0 3rem;
-  padding: 1rem;
-  color: var(--text); /* tekstkleur in container */
-}
-
-.adminTitle {
-  display: flex;
-  gap: 0.5rem;
-  position: relative;
   color: var(--text);
 }
 
-input {
+/* Container */
+.adminContainer {
+  background: var(--light);
+  width: 90%;
+  border-radius: 15px;
+  margin: 2rem 0 0 3rem;
+  padding: 1rem;
+}
+
+/* Input + button + dropdown */
+.adminTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+input,
+select {
   padding: 0.5rem;
   border-radius: 10px;
   border: 1px solid var(--icon);
-  color: var(--text); /* tekstkleur in input */
   background: var(--light);
+  color: var(--text);
 }
 
 button {
   padding: 0.5rem 1rem;
   border-radius: 10px;
   background: var(--primary);
-  color: white; /* knoppen houden witte tekst */
+  color: white;
   border: none;
   cursor: pointer;
 }
 
-/* ================= TABLE ================= */
-.table {
+/* Tables */
+.deviceTable {
+  width: 100%;
+  border-collapse: collapse;
   margin-top: 1rem;
-  color: var(--text); /* standaard tekstkleur in tabel */
 }
 
-.row {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  padding: 0.4rem 0;
-}
-
-.header {
+/* Alleen lijn onder header */
+.deviceTable thead th {
+  padding: 0.6rem;
+  text-align: left;
   font-weight: bold;
   border-bottom: 1px solid var(--icon);
-  color: var(--text);
 }
 
-/* ================= DROPDOWN ================= */
-.dropdown-btn {
-  background: var(--primary);
-  color: white;
-}
-
-.dropdown-menu {
-  position: absolute;
-  top: 3rem;
-  background: var(--light);
-  width: 100%;
-  border-radius: 10px;
-  border: 1px solid var(--icon);
-  z-index: 10;
-  color: var(--text); /* tekstkleur dropdown-items */
-}
-
-.dropdown-menu li {
-  padding: 0.5rem;
-  cursor: pointer;
-}
-
-.dropdown-menu li:hover {
-  background: var(--primary);
-  color: var(--light);
-}
-
-/* ================= TRANSITION ================= */
-.fade-slide-enter-active,
-.fade-slide-leave-active {
-  transition: all 0.2s ease;
-}
-
-.fade-slide-enter-from,
-.fade-slide-leave-to {
-  opacity: 0;
-  transform: translateY(-6px);
+/* Geen lijnen tussen rows */
+.deviceTable tbody td {
+  padding: 0.6rem;
+  text-align: left;
+  border: none;
 }
 </style>

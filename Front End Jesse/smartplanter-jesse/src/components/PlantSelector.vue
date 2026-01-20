@@ -41,7 +41,6 @@ const $auth = appContext.config.globalProperties.$auth
 
 const user = computed(() => $auth.user)
 
-const currentUserFirstName = computed(() => user.value?.firstName)
 const currentUserID = computed(() => user.value?.id)
 
 // debug
@@ -55,7 +54,7 @@ watch(user, (u) => {
 
 // Fetch planters (wacht tot user bestaat)
 async function loadPlanters() {
-  if (!currentUserFirstName.value) return
+  if (!currentUserID.value) return
 
   console.log("ID:" + currentUserID.value)
 
@@ -69,7 +68,7 @@ async function loadPlanters() {
 
     // ⚠️ tijdelijk op firstName, beter is userID
     const userPlanters = data.filter(
-      item => item.UserID === currentUserFirstName.value
+      item => item.UserID === currentUserID.value
     )
 
     options.value = userPlanters.map(p => ({
