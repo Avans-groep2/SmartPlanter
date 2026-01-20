@@ -64,10 +64,9 @@ export default {
     const moestuinStore = useMoestuinStore();
 
     return{
-      footerSpan,
+      footerStore,
       moestuinStore
     };
-
   },
 
   data() {

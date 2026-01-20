@@ -259,7 +259,7 @@ export default {
   display: flex; 
   position: absolute;
   right: 5px;
-  top: 70px;
+  top: 75px;
 }
 
 .moestuinKeuzeDropDown {
