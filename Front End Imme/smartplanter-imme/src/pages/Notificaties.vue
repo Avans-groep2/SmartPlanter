@@ -33,14 +33,16 @@
 
 
 <script>
-import { computed, ref, onMounted, onBeforeUnmount } from 'vue';
+import { computed } from 'vue';
 import { useFooterSpan } from '../stores/footerSpan';
+import { useMoestuinStore } from '../stores/moestuinScherm';
 
 export default {
   name: 'MeldingenPagina',
 
   setup() {
     const footerStore = useFooterSpan();
+    const MoestuinStore = useMoestuinStore();
 
       const isBeheerder = computed(() => {
       if (!footerStore.keycloak) return false;
@@ -48,38 +50,46 @@ export default {
       return footerStore.keycloak.hasRealmRole('beheerder') ||
         footerStore.keycloak.hasResourceRole('beheerder', 'frontend-imme'); 
     });
-
-    const open=ref(false)
-    const gekozenMoestuin = ref('')
-    const moestuinen = ref(['Moestuin 1', 'Moestuin 2', 'Moestuin 3'])
-    const dropdown = ref(null)
-
-    const toggleDropdown = () => {
-      open.value = !open.value
-    }
-
-    const selecteerMoestuin = (moestuin) => {
-      gekozenMoestuin.value = moestuin
-      open.value = false
-    }
-
-    const handleClickOutside = (event) => {
-      if (dropdown.value && !dropdown.value.contains(event.target)) {
-        open.value = false
-      }
-    }
-
-    onMounted(() => {
-      document.addEventListener('click', handleClickOutside, true)
-    })
-
-    onBeforeUnmount(() => {
-      document.removeEventListener('click', handleClickOutside)
-    })
-
-    return { isBeheerder, open, gekozenMoestuin, moestuinen, toggleDropdown, selecteerMoestuin, dropdown};
+    return { MoestuinStore, isBeheerder, footerStore};
   },
 
+  data(){
+    return {
+      open: false,
+      moestuinen: ['Moestuin 1', 'Moestuin 2', 'Moestuin 3']
+    }
+  },
+
+  computed: {
+    gekozenMoestuin() {
+      return this.MoestuinStore.actieveMoestuin;
+    }
+  },
+
+  methods: {
+    toggleDropdown() {
+      this.open = !this.open;
+    },
+
+    selecteerMoestuin(moestuin) {
+      this.moestuinStore.setMoestuin(moestuin);
+      this.open = false; 
+    },
+
+     handleClickOutside(event) {
+      if (this.$refs.dropdown && !this.$refs.dropdown.contains(event.target)) {
+        this.open = false;
+      }
+    },
+  },
+
+  mounted() {
+    document.addEventListener("click", this.handleClickOutside);
+  },
+
+  beforeUnmount() {
+    document.removeEventListener("click", this.handleClickOutside);
+  }
 }
 </script>
 

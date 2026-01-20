@@ -53,6 +53,7 @@
 
 
 <script>
+import { computed } from 'vue';
 import { useFooterSpan } from '../stores/footerSpan';
 import { useMoestuinStore } from '../stores/moestuinScherm';
 
@@ -112,7 +113,7 @@ export default {
   beforeUnmount() {
     document.removeEventListener("click", this.handleClickOutside);
   }
-};
+}
 
 </script>
 

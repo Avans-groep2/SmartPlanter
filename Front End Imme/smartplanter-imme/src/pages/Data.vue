@@ -258,7 +258,7 @@ export default {
   width: 200px;
   display: flex; 
   position: absolute;
-  right: 5px;
+  right: 2px;
   top: 75px;
 }
 

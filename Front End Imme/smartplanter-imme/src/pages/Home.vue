@@ -57,7 +57,7 @@
 
         <button v-if="slot.plant"
           class="resultaatKnop"
-          @click="openOogst (buisIndex, slotIndex)">
+          @click="openOogstModal (buisIndex, slotIndex)">
           Oogsten</button>
 
           <input
