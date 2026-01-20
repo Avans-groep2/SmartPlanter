@@ -64,8 +64,8 @@
     </div>
   </div>
 </template>
-
 <script>
+import { getCurrentInstance } from 'vue'
 import WelcomeMessage from '@/components/WelcomeMessage.vue'
 import SidebarNavbar from '@/components/SidebarNavbar.vue'
 import PlantSelector from '@/components/PlantSelector.vue'
@@ -82,16 +82,22 @@ export default {
     return {
       meldingen: [],
       planters: [],
-      selectedDeviceID: '' // ← leeg = alle planters
+      selectedDeviceID: '' // leeg = alle planters
     }
   },
 
   mounted() {
-    // Meldingen ophalen
-    fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Meldingen')
+    // Haal $auth op uit globalProperties
+    const { appContext } = getCurrentInstance()
+    const $auth = appContext.config.globalProperties.$auth
+    const userId = $auth.user?.id  // of gebruik $auth.user.email als ID niet beschikbaar is
+
+    // Meldingen ophalen en filteren op ingelogde gebruiker
+    fetch(`https://smartplanters.dedyn.io:1880/smartplantdata?table=Meldingen`)
       .then(res => res.json())
       .then(data => {
-        this.meldingen = data
+        // Filter direct op userId
+        this.meldingen = data.filter(m => m.UserID === userId)
       })
       .catch(err =>
         console.error('Fout bij ophalen meldingen:', err)
@@ -112,34 +118,27 @@ export default {
     belangrijkeMeldingen() {
       return this.meldingen.filter(m =>
         m.Prioriteit === 'important' &&
-        (
-          !this.selectedDeviceID ||
-          m.DeviceID === this.selectedDeviceID
-        )
+        (!this.selectedDeviceID || m.DeviceID === this.selectedDeviceID)
       )
     },
 
     overigeMeldingen() {
       return this.meldingen.filter(m =>
         m.Prioriteit === 'normal' &&
-        (
-          !this.selectedDeviceID ||
-          m.DeviceID === this.selectedDeviceID
-        )
+        (!this.selectedDeviceID || m.DeviceID === this.selectedDeviceID)
       )
     }
   },
 
   methods: {
     getPlanterNaam(deviceId) {
-      const planter = this.planters.find(
-        p => p.DeviceID === deviceId
-      )
+      const planter = this.planters.find(p => p.DeviceID === deviceId)
       return planter ? planter.DeviceNaam : 'Onbekende planter'
     }
   }
 }
 </script>
+
 
 <style scoped>
 .Notification {

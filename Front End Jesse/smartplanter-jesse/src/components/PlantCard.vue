@@ -13,6 +13,7 @@
       </div>
     </div>
 
+    <!-- Header -->
     <header class="plants-title">
       <h2 class="title">
         <i class="fa-solid fa-seedling"></i>
@@ -25,19 +26,48 @@
       </div>
     </header>
 
+    <!-- Plant info -->
     <section class="plant-info">
-      <h1 class="daysToOogst"><strong>{{ daysToHarvest }}</strong> dagen tot oogst</h1>
+      <h1 class="daysToOogst"><strong>{{ daysToHarvest }}</strong></h1>
       <div class="plantDate">
         <p>Geplant op:</p>
-        <p>{{ plantDate }}</p>
+        <p>{{ displayPlantDate }}</p>
       </div>
       <div class="plantOogst">
         <p>Oogst verwacht:</p>
-        <p>{{ HarvestDate }}</p>
+        <p>{{ displayHarvestDate }}</p>
       </div>
     </section>
 
-    <button class="btnOogst">Plant oogsten</button>
+    <!-- Button oogsten -->
+    <button class="btnOogst" @click="showHarvestScreen = true">
+      Plant oogsten
+    </button>
+
+    <!-- Oogst modal -->
+    <div v-if="showHarvestScreen" class="harvest-screen">
+
+      <h2>Hoe was de oogst?</h2>
+
+      <!-- Rating -->
+      <div class="rating">
+        <i
+          v-for="star in 5"
+          :key="star"
+          class="fa-star"
+          :class="star <= displayRating ? 'fas full' : 'far empty'"
+          @mouseenter="hoverStar(star)"
+          @mouseleave="leaveStar"
+          @click="setRating(star)"
+        ></i>
+      </div>
+
+      <!-- Actions -->
+      <div class="harvest-actions">
+        <button @click="showHarvestScreen = false">Annuleren</button>
+        <button @click="confirmHarvest">Bevestigen</button>
+      </div>
+    </div>
   </article>
 </template>
 
@@ -46,10 +76,62 @@ export default {
   name: "PlantCard",
   props: {
     name: String,
-    position: Number,
-    daysToHarvest: Number,
-    plantDate: Date,
-    HarvestDate: Date,
+    position: String,      // Als je "01", "02" wilt tonen
+    plantDate: String,     // in ISO formaat YYYY-MM-DD
+    harvestDate: String,   // in ISO formaat YYYY-MM-DD
+  },
+  data() {
+    return {
+      showHarvestScreen: false,
+      rating: 3,
+      hoverRatingValue: null
+    }
+  },
+  computed: {
+    displayRating() {
+      return this.hoverRatingValue ?? this.rating
+    },
+    // Automatisch berekende dagen tot oogst
+    daysToHarvest() {
+      if (!this.harvestDate) return ''
+      const today = new Date()
+      const harvest = new Date(this.harvestDate)
+      const diffTime = harvest - today
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+      return diffDays > 0 ? `${diffDays} dagen tot oogst` : "Kan geoogst worden!"
+    },
+    // Frontend weergave DD-MM-YYYY
+    displayPlantDate() {
+      if (!this.plantDate) return ''
+      const date = new Date(this.plantDate)
+      const day = String(date.getDate()).padStart(2, '0')
+      const month = String(date.getMonth() + 1).padStart(2, '0')
+      const year = date.getFullYear()
+      return `${day}-${month}-${year}`
+    },
+    displayHarvestDate() {
+      if (!this.harvestDate) return ''
+      const date = new Date(this.harvestDate)
+      const day = String(date.getDate()).padStart(2, '0')
+      const month = String(date.getMonth() + 1).padStart(2, '0')
+      const year = date.getFullYear()
+      return `${day}-${month}-${year}`
+    }
+  },
+  methods: {
+    setRating(star) {
+      this.rating = star
+    },
+    hoverStar(star) {
+      this.hoverRatingValue = star
+    },
+    leaveStar() {
+      this.hoverRatingValue = null
+    },
+    confirmHarvest() {
+      console.log('Geoogst met score:', this.rating)
+      this.showHarvestScreen = false
+    }
   }
 }
 </script>
@@ -58,7 +140,7 @@ export default {
 /*========== Plants Container =========*/
 .plants-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 0.25fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 16px;
   padding: 20px 20px 0 20px;
   cursor: default;
@@ -66,7 +148,7 @@ export default {
 
 /* Card styling */
 .plants-position {
-  position: relative; /* nodig voor overlay */
+  position: relative; 
   flex-direction: column;
   background: var(--light);
   padding: 0.5rem 0 0 0;
@@ -75,7 +157,7 @@ export default {
 
 /* Overlay */
 .overlay {
-  display: none;
+  display: flex;
   position: absolute;
   top: 0;
   left: 0;
@@ -84,14 +166,11 @@ export default {
   background: var(--light);
   justify-content: center;
   align-items: center;
+  gap: 1rem;
   color: #fff;
   border-radius: 25px;
   transition: opacity 0.3s ease;
   pointer-events: none;
-}
-
-.overlay h2 {
-  margin-right: 1rem;
 }
 
 .plants-position:hover .overlay {
@@ -132,7 +211,6 @@ export default {
   box-sizing: border-box;    
 }
 
-/* Cijfers en iconen in de badge */
 .plant-position h1,
 .plant-position i {
   font-size: 2rem;       
@@ -164,8 +242,8 @@ export default {
 .plantDate p,
 .plantOogst p {
   margin: 0; 
-
 }
+
 /* Button styling */
 .btnOogst {
   background: var(--primary);
@@ -180,4 +258,57 @@ export default {
   cursor: pointer;
 }
 
+/*========== Oogst Modal =========*/
+.harvest-screen {
+  position: absolute;
+  inset: 0;
+  background: var(--light);
+  border-radius: 25px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  gap: 1rem;
+}
+
+.harvest-screen h2 {
+  color: var(--text);
+}
+
+/* Rating */
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rating i {
+  font-size: 2.5rem;
+  cursor: pointer;
+}
+
+.rating .full {
+    color: var(--primary);
+}
+
+.rating .empty {
+  color: var(--primary);
+}
+
+/* Buttons in modal */
+.harvest-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.harvest-actions button {
+  background: var(--primary);
+  color: var(--text);
+  border: none;
+  border-radius: 20px;
+  padding: 0.5rem 1.5rem;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
 </style>
