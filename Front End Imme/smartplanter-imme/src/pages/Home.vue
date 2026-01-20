@@ -1,17 +1,17 @@
 <template>
 
   <div class="inspiratieKnop"> 
-    <a href="https://www.keukenliefde.nl/kook-koelkast-leeg/" class="inspiraiteWebsite" style="color:white";>? </a>
+    <a href="https://www.keukenliefde.nl/kook-koelkast-leeg/" class="inspiratieWebsite" style="color:white";>? </a>
   </div>
 
   <div class="moestuinWerk">
     <h1 class="homeH1">U werk nu in, <span style="color: #2d6a4f;">{{ moestuinStore.actieveMoestuin }}</span></h1>
   </div>
 
-  <div v-if="isBeheerder" class="homeDropdownAdmin">
-        <div class="moestuinKeuzeDropDown" ref="moestuinDropdown">
-            <div class="dropdown-selected" @click="toggleMoestuinDropdown">
-                {{ gekozenMoestuin || 'Moestuin' }}
+  <div v-if="isBeheerder" class="homeDropdownAdmin" ref="adminDropdownRef">
+        <div class="moestuinKeuzeDropDown">
+            <div class="dropdown-selected" @click.stop="openMoestuin = !openMoestuin">
+                {{ moestuinStore.actieveMoestuin || 'Moestuin' }}
                 <span>▼</span>
             </div>
             <div v-if="openMoestuin" class="dropdownKeuzes">
@@ -38,7 +38,7 @@
       >
         <button
           class="plant-slot-button"
-          @click.stop="toggleDropdown(buisIndex, slotIndex)"
+          @click.stop="toggleSlot(buisIndex, slotIndex)"
         >
           <img
               v-if="slot.plant"
@@ -53,12 +53,11 @@
           v-if="openDropdown.buisIndex === buisIndex && openDropdown.slotIndex === slotIndex"
           class="dropdown-menu"
           :class="{'open-up': buis.openUpwards}"
-          @click.stop
         >
 
-        <button 
+        <button v-if="slot.plant"
           class="resultaatKnop"
-          @click="openOogstModal (buisIndex, slotIndex)">
+          @click="openOogst (buisIndex, slotIndex)">
           Oogsten</button>
 
           <input
@@ -77,10 +76,6 @@
               @click="selectPlant(buisIndex, slotIndex, plant)"
             >
               {{ plant.naam }}
-            </div>
-
-            <div v-if="filteredPlants.length === 0" class="no-results">
-              Geen resultaten gevonden.
             </div>
           </div>
         </div>
@@ -110,7 +105,7 @@
 
 <script>
 import { useMoestuinStore } from '../stores/moestuinScherm';
-import { computed, ref, onMounted, onBeforeUnmount } from 'vue';
+import { computed, ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import { useFooterSpan } from '../stores/footerSpan'
 
 export default {
@@ -120,78 +115,48 @@ export default {
     const moestuinStore = useMoestuinStore();
     const footerStore = useFooterSpan();
 
-      const isBeheerder = computed(() => {
-      if (!footerStore.keycloak) return false;
-
-      return footerStore.keycloak.hasRealmRole('beheerder') ||
-        footerStore.keycloak.hasResourceRole('beheerder', 'frontend-imme'); 
-    });
-
     const openMoestuin = ref(false)
-    const gekozenMoestuin = ref('')
-    const moestuinen = ref(['Moestuin 1', 'Moestuin 2', 'Moestuin 3'])
-    const dropdown = ref(null)
+    const openDropdown = ref({buisIndex: null, slotIndex: null});
     const moestuinDropdown = ref(null)
 
+    const isBeheerder = computed(() => {
+      if (!footerStore.keycloak) return false;
+      return footerStore.keycloak.hasRealmRole('beheerder') ||
+             footerStore.keycloak.hasResourceRole('beheerder', 'frontend-imme'); 
+    });
 
-    const toggleMoestuinDropdown = () => {
-      openMoestuin.value = !openMoestuin.value
-    }
-
-    const selecteerMoestuin = (moestuin) => {
-      gekozenMoestuin.value = moestuin
-      openMoestuin.value = false
-    }
-
-    const openDropdown = ref({ buisIndex: null, slotIndex: null });
-    const searchQuery = ref('');
-
-    const toggleSlotDropdown = (buisIndex, slotIndex) => {
-      const isSame =
-        openDropdown.value.buisIndex === buisIndex &&
-        openDropdown.value.slotIndex === slotIndex;
-
-      openDropdown.value = isSame
-        ? { buisIndex: null, slotIndex: null }
-        : { buisIndex, slotIndex };
-
-      searchQuery.value = '';
-    };
-
+    
     const handleClickOutside = (event) => {
-      if (moestuinDropdown.value && !moestuinDropdown.value.contains(event.target)) {
-        openMoestuin.value = false
-    }
-
-    const openSlotEl = document.querySelector('.dropdown-menu.open');
-      if (openSlotEl && !openSlotEl.contains(event.target)) {
-        openDropdown.value = { buisIndex: null, slotIndex: null };
-        searchQuery.value = '';
+      if (openMoestuin.value && moestuinDropdown.value && !moestuinDropdown.value.contains(event.target)){
+         openMoestuin.value = false;
+      }
+      if (!event.target.closest('slot-wrapper')) {
+        openDropdown.value = {buisIndex: null, slotIndex: null};
       }
     };
 
     onMounted(() => {
-      document.addEventListener('click', handleClickOutside, true)
+      document.addEventListener('click', handleClickOutside)
     })
 
     onBeforeUnmount(() => {
       document.removeEventListener('click', handleClickOutside)
     })
 
-    return {toggleMoestuinDropdown, moestuinStore, isBeheerder, 
-      openMoestuin, gekozenMoestuin, moestuinen, selecteerMoestuin, 
-      openDropdown, searchQuery, toggleSlotDropdown, moestuinDropdown};
-
+    return { moestuinStore, isBeheerder, openMoestuin, 
+      openDropdown, moestuinDropdown};
   },
 
   data() {
     return {
+      searchQuery: '',
       oogstModalOpen: false,
       oogstScore: 5,
       oogstTarget: {
         buisIndex:null,
         slotIndex:null
       },
+      moestuinen: ['Moestuin 1', 'Moestuin 2', 'Moestuin 3'],
       allePlanten: [
         { naam: 'Tomaat', img: '/plantenimg/tomaat.png' },
         { naam: 'Paprika', img: '/plantenimg/paprika.png' },
@@ -228,10 +193,26 @@ export default {
   },
 
   methods: {
+    selecteerMoestuin(moestuin){
+      this.moestuinStore.setMoestuin(moestuin);
+      this.openMoestuin = false;
+    },
+
+     toggleDropdown(buisIndex, slotIndex) {
+      const isZelfdeSlot =
+        this.openDropdown.buisIndex === buisIndex &&
+        this.openDropdown.slotIndex === slotIndex;
+
+        this.openDropdown = isZelfdeSlot
+          ? { buisIndex: null, slotIndex: null }
+          : { buisIndex, slotIndex };
+
+        this.searchQuery = '';
+     },
+
     selectPlant(buisIndex, slotIndex, plant) {
       this.moestuinStore.setPlant(buisIndex, slotIndex, plant);
       this.openDropdown = { buisIndex: null, slotIndex: null };
-      this.searchQuery = '';
     },
 
     openOogstModal(buisIndex, slotIndex) {
@@ -248,21 +229,8 @@ export default {
         slotIndex,
         this.oogstScore
       );
-
       this.oogstModalOpen = false;
       this.openDropdown = { buisIndex: null, slotIndex: null };
-    },  
-
-    toggleDropdown(buisIndex, slotIndex) {
-      const isSame =
-    this.openDropdown.buisIndex === buisIndex &&
-    this.openDropdown.slotIndex === slotIndex;
-
-    this.openDropdown = isSame
-      ? { buisIndex: null, slotIndex: null }
-      : { buisIndex, slotIndex };
-
-    this.searchQuery = '';
     }
   }
 };
@@ -282,7 +250,7 @@ export default {
 
 .homeDropdownAdmin {
   position: absolute;
-  top: 2rem;
+  top: 25px;
   right: 1rem;
   margin-bottom: 5px;
   width: 200px;
