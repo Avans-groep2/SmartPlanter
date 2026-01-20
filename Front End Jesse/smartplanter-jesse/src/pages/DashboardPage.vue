@@ -15,35 +15,35 @@
 />
 
 <PlantCard
-  name="Wortel"
+  name="Aardbei"
   position="02"
   plant-date="2025-11-26"
   harvest-date="2026-01-19"  
 />
 
 <PlantCard
-  name="Wortel"
+  name="Komkommer"
   position="03"
   plant-date="2025-11-26"
   harvest-date="2026-01-22"
 />
 
 <PlantCard
-  name="Wortel"
+  name="Courgette"
   position="04"
   plant-date="2025-11-26"
   harvest-date="2026-01-24"
 />
 
 <PlantCard
-  name="Wortel"
+  name="Sla"
   position="05"
   plant-date="2025-11-26"
   harvest-date="2026-01-25"
 />
 
 <PlantCard
-  name="Wortel"
+  name="Basilicum"
   position="06"
   plant-date="2025-11-26"
   harvest-date="2026-01-26"
@@ -57,7 +57,7 @@
 />
 
 <PlantCard
-  name="Wortel"
+  name="Cilantro"
   position="08"
   plant-date="2025-11-26"
   harvest-date="2026-01-30"
@@ -71,27 +71,28 @@
 />
 
 <PlantCard
-  name="Wortel"
+  name="Komkommer"
   position="10"
   plant-date="2025-11-26"
   harvest-date="2026-02-03"
 />
 
 <PlantCard
-  name="Wortel"
+  name="Courgette"
   position="11"
   plant-date="2025-11-26"
   harvest-date="2026-02-05"
 />
 
 <PlantCard
-  name="Wortel"
+  name="Sla"
   position="12"
   plant-date="2025-11-26"
   harvest-date="2026-02-07"
 />
+
 <PlantCard
-  name="Wortel"
+  name="Basilicum"
   position="13"
   plant-date="2025-11-26"
   harvest-date="2026-02-09"
@@ -105,19 +106,12 @@
 />
 
 <PlantCard
-  name="Wortel"
+  name="Cilantro"
   position="15"
   plant-date="2025-11-26"
   harvest-date="2026-02-13"
 />
-
-
-
-
-
-
-
-      
+    
     
     </div>
   </div>
