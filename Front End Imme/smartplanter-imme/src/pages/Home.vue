@@ -105,7 +105,7 @@
 
 <script>
 import { useMoestuinStore } from '../stores/moestuinScherm';
-import { computed, ref, onMounted, onBeforeUnmount, watch } from 'vue';
+import { computed, ref, onMounted, onBeforeUnmount } from 'vue';
 import { useFooterSpan } from '../stores/footerSpan'
 
 export default {
@@ -117,7 +117,7 @@ export default {
 
     const openMoestuin = ref(false)
     const openDropdown = ref({buisIndex: null, slotIndex: null});
-    const moestuinDropdown = ref(null)
+    const adminDropdownRef = ref(null)
 
     const isBeheerder = computed(() => {
       if (!footerStore.keycloak) return false;
@@ -127,11 +127,11 @@ export default {
 
     
     const handleClickOutside = (event) => {
-      if (openMoestuin.value && moestuinDropdown.value && !moestuinDropdown.value.contains(event.target)){
+      if (openMoestuin.value && adminDropdownRef.value && !adminDropdownRef.value.contains(event.target)){
          openMoestuin.value = false;
       }
-      if (!event.target.closest('slot-wrapper')) {
-        openDropdown.value = {buisIndex: null, slotIndex: null};
+      if (!event.target.closest('.slot-wrapper')) {
+        openDropdown.value = { buisIndex: null, slotIndex: null };
       }
     };
 
@@ -144,7 +144,7 @@ export default {
     })
 
     return { moestuinStore, isBeheerder, openMoestuin, 
-      openDropdown, moestuinDropdown};
+      openDropdown, adminDropdownRef};
   },
 
   data() {
@@ -198,7 +198,7 @@ export default {
       this.openMoestuin = false;
     },
 
-     toggleDropdown(buisIndex, slotIndex) {
+     toggleSlot(buisIndex, slotIndex) {
       const isZelfdeSlot =
         this.openDropdown.buisIndex === buisIndex &&
         this.openDropdown.slotIndex === slotIndex;
@@ -227,8 +227,7 @@ export default {
       this.moestuinStore.oogstPlant(
         buisIndex,
         slotIndex,
-        this.oogstScore
-      );
+        this.oogstScore);
       this.oogstModalOpen = false;
       this.openDropdown = { buisIndex: null, slotIndex: null };
     }
@@ -250,7 +249,7 @@ export default {
 
 .homeDropdownAdmin {
   position: absolute;
-  top: 25px;
+  top: 40px;
   right: 1rem;
   margin-bottom: 5px;
   width: 200px;
