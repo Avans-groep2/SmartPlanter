@@ -42,7 +42,7 @@ export default {
 
   setup() {
     const footerStore = useFooterSpan();
-    const MoestuinStore = useMoestuinStore();
+    const moestuinStore = useMoestuinStore();
 
       const isBeheerder = computed(() => {
       if (!footerStore.keycloak) return false;
@@ -50,7 +50,7 @@ export default {
       return footerStore.keycloak.hasRealmRole('beheerder') ||
         footerStore.keycloak.hasResourceRole('beheerder', 'frontend-imme'); 
     });
-    return { MoestuinStore, isBeheerder, footerStore};
+    return { moestuinStore, isBeheerder, footerStore};
   },
 
   data(){
