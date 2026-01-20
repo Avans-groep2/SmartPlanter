@@ -55,38 +55,13 @@
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import { Chart } from 'chart.js/auto'
 import { useFooterSpan } from '../stores/footerSpan';
+import { useMoestuinStore } from '../stores/moestuinScherm';
 
 export default {
   name:"dataPagina",
   setup(){
-
+    const moestuinStore = useMoestuinStore();
     const footerStore = useFooterSpan()
-    const isBeheerder = computed(() => {
-      if (!footerStore.keycloak) return false;
-
-      return (footerStore.keycloak.hasRealmRole('beheerder')||
-        footerStore.keycloak.hasResourceRole('beheerder', 'frontend-imme')
-    )
-    });
-
-    const open=ref(false)
-    const gekozenMoestuin = ref('')
-    const moestuinen = ref(['Moestuin 1', 'Moestuin 2', 'Moestuin 3'])
-    const dropdown = ref(null)
-
-    const toggleDropdown = () => {
-      open.value = !open.value
-    }
-    const selecteerMoestuin = (moestuin) => {
-      gekozenMoestuin.value = moestuin
-      open.value = false
-    }
-
-    const handleClickOutside = (e) => {
-      if (dropdown.value && !dropdown.value.contains(e.target)) {
-        open.value = false
-      }
-    }
 
     const sensors = ref([
       { label: 'Temperatuur', dataKey: 'temperature', unit: '°C', decimals: 1, latestValue: null, status: 'unknown', chart: null, 
@@ -101,19 +76,62 @@ export default {
       threshold: { warning: {min: 20, max: 60}, critical: {min: 15, max: 70} } },
       { label: 'Waterflow Eind', dataKey: 'flow_end', unit: 'L/m', decimals: 1, latestValue: null, status: 'unknown', chart: null, 
       threshold: { warning: {min: 20, max: 40 }, critical: {min: 15, max: 80} } },
-    ])
-
-    const formatValue = (value, decimals = 1) => {
-      if(value == null) return '...'
-      return Number(value).toFixed(decimals)
-    }
+    ]);
 
     const canvasRefs = ref([])
     const deviceId = 'smartplanter_01' 
     let intervalId = null
 
+    const isBeheerder = computed(() => {
+      if (!footerStore.keycloak) return false;
+      return footerStore.keycloak.hasRealmRole('beheerder')||
+          footerStore.keycloak.hasResourceRole('beheerder', 'frontend-imme')
+    });
 
-    const bepaalStatus = (value, threshold) => {
+    return { moestuinStore, sensors, canvasRefs, isBeheerder, deviceId, intervalId};
+  },
+
+    data(){
+      return {
+        open: false, 
+        moestuinen: ['Moestuin 1', 'Moestuin 2', 'Moestuin3'],
+      };
+    },
+
+      computed: {
+        gekozenMoestuin(){
+          return this.moestuinStore.actieveMoestuin;
+        }
+      },
+
+      methods: {
+        toggleDropdown() {
+         this.open = !this.open;
+      },
+
+        selecteerMoestuin(moestuin) {
+          this.moestuinStore.setMoestuin(moestuin);
+          this.open = false; 
+      },
+
+        handleClickOutside(event) {
+          if (this.$refs.dropdown && !this.$refs.dropdown.contains(event.target)) {
+            this.open = false;
+      }
+    },
+    formatValue(value, decimals = 1){
+      if(value == null) return '...'
+      return Number(value).toFixed(decimals)
+    },
+    statusTekst(status){
+      switch (status) {
+        case 'good': return 'Goed'
+        case 'warning': return 'Slecht'
+        case 'critical': return ' goed' 
+        default: return 'Onbekend'
+      }
+  },
+    bepaalStatus(value, threshold){
       if(value == null) return 'unknown'
 
       const { warning, critical } = threshold
@@ -127,22 +145,11 @@ export default {
       }
 
       return 'good'
-    }
+    },
 
-    const statusTekst = (status) => {
-      switch (status) {
-        case 'good': return 'Goed'
-        case 'warning': return 'Slecht'
-        case 'critical': return ' Kritisch' 
-        default: return 'Onbekend'
-      }
-    }
-
-
-
-    const renderChart = (index, labels, values) => {
-      const sensor = sensors.value[index]
-      const ctx = canvasRefs.value[index]
+    renderChart(index, labels, values){
+      const sensor = this.sensors[index];
+      const ctx = this.canvasRefs[index];
       if (!ctx) return;
 
     if (!sensor.chart) {
@@ -155,12 +162,18 @@ export default {
           tension: 0.4,
           borderColor: '#2d6a4f',
           backgroundColor: '#3c803c33',
-          fill: true
+          fill: true,
+          pointRadius: 4,
+          pointHoverRadius: 6
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        interaction: {
+          intersect: false,
+          mode: 'index'
+        },
         plugins: {
           title: { 
             display: true, 
@@ -171,32 +184,21 @@ export default {
           },
           legend: { display: false }, 
           tooltip: {
-            callbacks: {
-              label: function(context){
-                const value = context.raw;
-                return value.toFixed(sensor.decimals) + ' ' + sensor.unit;
-              }
-            }
-          }
-        }, 
-        scales: {
-          y: {
-            ticks: {
-              callback: function(value) {
-                return value.toFixed(sensor.decimals);
-              }
+                enabled: true,
+                callbacks: {
+                  label: (context) => `${context.raw.toFixed(sensor.decimals)} ${sensor.unit}`
+                }
             }
           }
         }
-      }
-    });
+        }); 
   } else {
     sensor.chart.data.labels = labels
     sensor.chart.data.datasets[0].data = values
     sensor.chart.update('none')
   }
-}
-  const loadSensorData = async(index) => {
+},
+  async loadSensorData(index) {
       const sensor = sensors.value[index]
       try {
         const url = new URL('https://smartplanters.dedyn.io:1880/mongoadvanced')
@@ -204,51 +206,42 @@ export default {
           collection: 'smartplanters',
           operation: 'find',
           id: 'device_id',
-          value: deviceId,
+          value: this.deviceId,
           limit: 10,
           sortvalue: -1
-        })
+        });
       
     const res = await fetch(url)
     const data = await res.json()
     
-   if (data?.length) {
-          const sorted = data.reverse()
-          const values = sorted.map(d => d.data[sensor.dataKey] ?? 0)
-          const labels = sorted.map(d =>
-            new Date(d.time).toLocaleTimeString('nl-NL', {
-              hour: '2-digit',
-              minute: '2-digit'
-            })
-          )
-
-          sensor.latestValue = values.at(-1)
-          sensor.status = bepaalStatus(sensor.latestValue, sensor.threshold)
-          renderChart(index, labels, values)
+      if (data?.length) {
+          const sorted = data.reverse();
+          const values = sorted.map(d => d.data[sensor.dataKey] ?? 0);
+          const labels = sorted.map(d => new Date(d.time).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }));
+          sensor.latestValue = values.at(-1);
+          sensor.status = this.bepaalStatus(sensor.latestValue, sensor.threshold);
+          this.renderChart(index, labels, values);
         }
-      } catch (e) {
-        console.error(e)
-      }
+      } catch (e) { console.error(e); }
     }
+  },
 
-  onMounted(() => {
-    sensors.value.forEach((_, i) => loadSensorData(i))
-    intervalId = setInterval(() => {
-      sensors.value.forEach((_, i) => loadSensorData(i))
+  mounted() {
+    this.sensors.forEach((_, i) => this.loadSensorData(i))
+    this.intervalId = setInterval(() => {
+      this.sensors.forEach((_, i) => this.loadSensorData(i))
     }, 5000)
 
-    document.addEventListener('click', handleClickOutside, true);
-  })
+    document.addEventListener('click', this.handleClickOutside);
+  },
 
-  onBeforeUnmount(() => {
-    clearInterval(intervalId)
-    sensors.value.forEach(s => { if(s.chart) s.chart.destroy() })
-    document.removeEventListener('click', handleClickOutside);
-  })
-
-  return {formatValue, sensors, canvasRefs, isBeheerder, open, gekozenMoestuin, moestuinen, toggleDropdown, selecteerMoestuin, dropdown, statusTekst}
-    }
+  beforeUnmount() {
+    clearInterval(this.intervalId)
+    this.sensors.forEach(s => { if(s.chart) s.chart.destroy() })
+    document.removeEventListener('click', this.handleClickOutside);
+  }
 }
+
 </script>
 
 <style scoped>

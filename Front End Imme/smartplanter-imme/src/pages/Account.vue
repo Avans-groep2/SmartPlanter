@@ -14,7 +14,7 @@
   <div class="MoestuinKeuze">
     <h1 class="accountH1">U werkt nu in:</h1>
     <div class="moestuinKeuzeDropDown" ref="dropdown">
-      <div class="dropdown-selected" @click="toggleDropdown">
+      <div class="dropdown-selected" @click.stop="toggleDropdown">
         {{ gekozenMoestuin || 'Moestuin' }}
         <span class="dropDown">▼</span>
       </div>

@@ -9,7 +9,7 @@
     
     <div v-if="isBeheerder" class="meldingenDropdownAdmin">
         <div class="moestuinKeuzeDropDown" ref="dropdown">
-            <div class="dropdown-selected" @click="toggleDropdown">
+            <div class="dropdown-selected" @click.stop="toggleDropdown">
                 {{ gekozenMoestuin || 'Moestuin' }}
                 <span class="dropDown">▼</span>
             </div>
@@ -62,7 +62,7 @@ export default {
 
   computed: {
     gekozenMoestuin() {
-      return this.MoestuinStore.actieveMoestuin;
+      return this.moestuinStore.actieveMoestuin;
     }
   },
 
