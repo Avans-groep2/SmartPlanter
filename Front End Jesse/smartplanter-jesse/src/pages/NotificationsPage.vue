@@ -2,7 +2,11 @@
   <SidebarNavbar />  
   
   <div class="Notifications">
-    <WelcomeMessage/>
+    <header>
+      <WelcomeMessage />
+      <PlantSelector @change="selectedDeviceId = $event" />
+    </header>
+    
 
     <div class="list-container">
       <div class="list-header">Belangrijke Meldingen</div>
@@ -47,12 +51,14 @@
 <script>
 import WelcomeMessage from '@/components/WelcomeMessage.vue';
 import SidebarNavbar from '@/components/SidebarNavbar.vue';
+import PlantSelector from '@/components/PlantSelector.vue';
 
 export default {
   name: 'NotificationPage',
   components: {
     SidebarNavbar,
-    WelcomeMessage
+    WelcomeMessage,
+    PlantSelector
   },
 
   data() {
@@ -80,6 +86,12 @@ export default {
   width: auto;
   margin-left: 5rem;
   overflow-y: hidden;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .list-container {

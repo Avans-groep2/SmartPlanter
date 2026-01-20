@@ -4,7 +4,7 @@
   <div class="Data">
     <header>
       <WelcomeMessage />
-      <PlantDropdown @change="selectedDeviceId = $event" />
+      <PlantSelector @change="selectedDeviceId = $event" />
     </header>
 
     <div class="chartContainer">
@@ -67,7 +67,7 @@ import { ref } from 'vue'
 
 import SidebarNavbar from '@/components/SidebarNavbar.vue'
 import WelcomeMessage from '@/components/WelcomeMessage.vue'
-import PlantDropdown from '@/components/PlantSelector.vue'
+import PlantSelector from '@/components/PlantSelector.vue'
 import DataChart from '@/components/DataChart.vue'
 
 // geselecteerd device (default)
