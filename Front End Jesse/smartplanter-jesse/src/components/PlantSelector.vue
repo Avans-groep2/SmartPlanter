@@ -25,9 +25,14 @@ import {
   onMounted,
   onBeforeUnmount,
   watch,
-  defineEmits,
-  getCurrentInstance
+  getCurrentInstance,
+  defineProps,
+  defineEmits
 } from 'vue'
+
+const props = defineProps({
+  includeAllOption: { type: Boolean, default: false } // voeg optie “Alle planters” toe
+})
 
 const emit = defineEmits(['change'])
 
@@ -40,23 +45,11 @@ const { appContext } = getCurrentInstance()
 const $auth = appContext.config.globalProperties.$auth
 
 const user = computed(() => $auth.user)
-
 const currentUserID = computed(() => user.value?.id)
 
-// debug
-watch(user, (u) => {
-  if (u) {
-    console.log('AUTH USER:', u)
-    console.log('Name:', u.firstName)
-    console.log('ID:', u.id)
-  }
-})
-
-// Fetch planters (wacht tot user bestaat)
+// Fetch planters
 async function loadPlanters() {
   if (!currentUserID.value) return
-
-  console.log("ID:" + currentUserID.value)
 
   try {
     const res = await fetch(
@@ -66,7 +59,6 @@ async function loadPlanters() {
 
     const data = await res.json()
 
-    // ⚠️ tijdelijk op firstName, beter is userID
     const userPlanters = data.filter(
       item => item.UserID === currentUserID.value
     )
@@ -76,14 +68,30 @@ async function loadPlanters() {
       deviceId: p.DeviceID
     }))
 
-    if (options.value.length > 0) {
-      const savedDevice = localStorage.getItem('chosenDevice')
-      selected.value =
-        options.value.find(o => o.deviceId === savedDevice) ??
-        options.value[0]
-
-      emit('change', selected.value.deviceId)
+    // Voeg “Alle planters” optie toe bovenaan indien prop true
+    if (props.includeAllOption) {
+      options.value.unshift({ label: 'Alle planters', deviceId: '' })
     }
+
+    // Selecteer opgeslagen device of eerste optie
+    if (options.value.length > 0) {
+  const savedDevice = localStorage.getItem('chosenDevice')
+
+  if (props.includeAllOption) {
+    // probeer “Alle planters” te selecteren
+    selected.value =
+      options.value.find(o => o.deviceId === '') ??
+      options.value.find(o => o.deviceId === savedDevice) ??
+      options.value[0]
+  } else {
+    selected.value =
+      options.value.find(o => o.deviceId === savedDevice) ??
+      options.value[0]
+  }
+
+  emit('change', selected.value.deviceId)
+}
+
   } catch (err) {
     console.error('Fout bij ophalen van planters:', err)
   }
@@ -95,6 +103,7 @@ function select(option) {
   open.value = false
 }
 
+// klik buiten dropdown sluiten
 function handleClickOutside(event) {
   const dropdown = document.querySelector('.dropdown')
   if (dropdown && !dropdown.contains(event.target)) {
@@ -112,7 +121,7 @@ onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside)
 })
 
-// herlaad als user beschikbaar wordt (belangrijk!)
+// herlaad als user beschikbaar wordt
 watch(user, (u) => {
   if (u) loadPlanters()
 })
@@ -125,74 +134,73 @@ watch(selected, (value) => {
 })
 </script>
 
+<style>
+/* Dropdown container */
+.dropdown {
+  position: relative;  
+  width: 200px;
+  z-index: 999;
+}
 
-  <style>
-  /* Dropdown container */
-  .dropdown {
-    position: relative;  
-    width: 200px;
-    z-index: 999;
-  }
+/* Button styling */
+.dropdown-btn {
+  width: 100%;
+  padding: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  background: var(--primary);
+  border: 1px solid var(--light);
+  color: var(--text);
+  border-radius: 15px;
+}
 
-  /* Button styling */
-  .dropdown-btn {
-    width: 100%;
-    padding: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 1rem;
-    background: var(--primary);
-    border: 1px solid var(--light);
-    color: var(--text);
-    border-radius: 15px;
-  }
+/* Dropdown menu */
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  margin: 0.5rem 0 0 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--light);
+  background: var(--light);
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  overflow: hidden;
+  transform-origin: top center;
+}
 
-  /* Dropdown menu */
-  .dropdown-menu {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    width: 100%;
-    margin: 0.5rem 0 0 0;
-    padding: 0;
-    list-style: none;
-    border: 1px solid var(--light);
-    background: var(--light);
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    overflow: hidden;
-    transform-origin: top center;
-  }
+/* Menu items */
+.dropdown-menu li {
+  padding: 8px;
+  cursor: pointer;
+  background: var(--light);
+  color: var(--text);
+  transition: background 0.2s, color 0.2s;
+}
 
-  /* Menu items */
-  .dropdown-menu li {
-    padding: 8px;
-    cursor: pointer;
-    background: var(--light);
-    color: var(--text);
-    transition: background 0.2s, color 0.2s;
-  }
+.dropdown-menu li:hover {
+  background: var(--primary);
+  font-weight: 600;
+}
 
-  .dropdown-menu li:hover {
-    background: var(--primary);
-    font-weight: 600;
-  }
+/* Fade + slide animation */
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: all 0.25s ease;
+}
 
-  /* Fade + slide animation */
-  .fade-slide-enter-active,
-  .fade-slide-leave-active {
-    transition: all 0.25s ease;
-  }
+.fade-slide-enter-from,
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
 
-  .fade-slide-enter-from,
-  .fade-slide-leave-to {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-
-  .fade-slide-enter-to,
-  .fade-slide-leave-from {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  </style>
+.fade-slide-enter-to,
+.fade-slide-leave-from {
+  opacity: 1;
+  transform: translateY(0);
+}
+</style>

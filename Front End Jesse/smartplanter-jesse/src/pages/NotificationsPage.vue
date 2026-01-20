@@ -1,60 +1,77 @@
 <template>
-  <SidebarNavbar />  
-  
-  <div class="Notifications">
+  <SidebarNavbar />
+
+  <div class="Notification">
     <header>
       <WelcomeMessage />
-      <PlantSelector @change="selectedDeviceId = $event" />
+      <PlantSelector @change="selectedDeviceID = $event" :includeAllOption="true"/>
     </header>
-    
 
-    <div class="list-container">
-      <div class="list-header">Belangrijke Meldingen</div>
+    <!-- ================== Belangrijke Meldingen ================== -->
+    <div class="notificationContainer">
+      <h2 class="notificationTitle">Belangrijke meldingen</h2>
 
-      <div 
-        v-for="(belangrijkeMelding, index) in meldingen" 
-        :key="index" 
-        class="list-row"
-      >
-        <div>{{ belangrijkeMelding.datum }}</div>
-        <div>{{ belangrijkeMelding.tijd }}</div>
-        <div>{{ belangrijkeMelding.tekst }}</div>
-      </div>
+      <table class="deviceTable">
+        <thead>
+          <tr>
+            <th>Planter</th>
+            <th>Bericht</th>
+          </tr>
+        </thead>
 
-      <!-- Optioneel: als er nog geen data is -->
-      <div v-if="meldingen.length === 0" class="loading">
-        Meldingen worden geladen...
-      </div>
+        <tbody>
+          <tr
+            v-for="(melding, index) in belangrijkeMeldingen"
+            :key="index"
+          >
+            <td>{{ getPlanterNaam(melding.DeviceID) }}</td>
+            <td>{{ melding.Bericht }}</td>
+          </tr>
+
+          <tr v-if="belangrijkeMeldingen.length === 0">
+            <td colspan="2">Geen belangrijke meldingen</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
-    <div class="list-container">
-      <div class="list-header">Overige Meldingen</div>
+    <!-- ================== Overige Meldingen ================== -->
+    <div class="notificationContainer">
+      <h2 class="notificationTitle">Overige meldingen</h2>
 
-      <div 
-        v-for="(melding, index) in meldingen" 
-        :key="index" 
-        class="list-row"
-      >
-        <div>{{ melding.datum }}</div>
-        <div>{{ melding.tijd }}</div>
-        <div>{{ melding.tekst }}</div>
-      </div>
+      <table class="deviceTable">
+        <thead>
+          <tr>
+            <th>Planter</th>
+            <th>Bericht</th>
+          </tr>
+        </thead>
 
-      <!-- Optioneel: als er nog geen data is -->
-      <div v-if="meldingen.length === 0" class="loading">
-        Meldingen worden geladen...
-      </div>
+        <tbody>
+          <tr
+            v-for="(melding, index) in overigeMeldingen"
+            :key="index"
+          >
+            <td>{{ getPlanterNaam(melding.DeviceID) }}</td>
+            <td>{{ melding.Bericht }}</td>
+          </tr>
+
+          <tr v-if="overigeMeldingen.length === 0">
+            <td colspan="2">Geen overige meldingen</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </template>
 
 <script>
-import WelcomeMessage from '@/components/WelcomeMessage.vue';
-import SidebarNavbar from '@/components/SidebarNavbar.vue';
-import PlantSelector from '@/components/PlantSelector.vue';
+import WelcomeMessage from '@/components/WelcomeMessage.vue'
+import SidebarNavbar from '@/components/SidebarNavbar.vue'
+import PlantSelector from '@/components/PlantSelector.vue'
 
 export default {
-  name: 'NotificationPage',
+  name: 'NotificationsPage',
   components: {
     SidebarNavbar,
     WelcomeMessage,
@@ -63,29 +80,71 @@ export default {
 
   data() {
     return {
-      meldingen: []
-    };
+      meldingen: [],
+      planters: [],
+      selectedDeviceID: '' // ← leeg = alle planters
+    }
   },
 
-  async mounted() {
-    try {
-      const response = await fetch("");
-      const data = await response.json();
+  mounted() {
+    // Meldingen ophalen
+    fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Meldingen')
+      .then(res => res.json())
+      .then(data => {
+        this.meldingen = data
+      })
+      .catch(err =>
+        console.error('Fout bij ophalen meldingen:', err)
+      )
 
-      this.meldingen = data;
-    } catch (error) {
-      console.error("Fout bij ophalen van meldingen:", error);
+    // Planters ophalen
+    fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter')
+      .then(res => res.json())
+      .then(data => {
+        this.planters = data
+      })
+      .catch(err =>
+        console.error('Fout bij ophalen planters:', err)
+      )
+  },
+
+  computed: {
+    belangrijkeMeldingen() {
+      return this.meldingen.filter(m =>
+        m.Prioriteit === 'important' &&
+        (
+          !this.selectedDeviceID ||
+          m.DeviceID === this.selectedDeviceID
+        )
+      )
+    },
+
+    overigeMeldingen() {
+      return this.meldingen.filter(m =>
+        m.Prioriteit === 'normal' &&
+        (
+          !this.selectedDeviceID ||
+          m.DeviceID === this.selectedDeviceID
+        )
+      )
+    }
+  },
+
+  methods: {
+    getPlanterNaam(deviceId) {
+      const planter = this.planters.find(
+        p => p.DeviceID === deviceId
+      )
+      return planter ? planter.DeviceNaam : 'Onbekende planter'
     }
   }
-};
+}
 </script>
 
-<style>
-.Notifications {
-  min-height: 100vh;
-  width: auto;
+<style scoped>
+.Notification {
   margin-left: 5rem;
-  overflow-y: hidden;
+  color: var(--text);
 }
 
 header {
@@ -94,37 +153,37 @@ header {
   align-items: center;
 }
 
-.list-container {
+/* Container */
+.notificationContainer {
   background: var(--light);
-  border-radius: 12px;
-  padding: 12px;
   width: 90%;
-  height: 17rem;
+  border-radius: 15px;
   margin: 2rem 0 0 3rem;
-  font-family: sans-serif;
+  padding: 1rem;
 }
 
-.list-header {
-  font-size: 2rem;
+/* Titel */
+.notificationTitle {
+  margin-bottom: 0.8rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+/* Tables */
+.deviceTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.deviceTable thead th {
+  padding: 0.6rem;
+  text-align: left;
   font-weight: bold;
-  margin-bottom: 10px;
-  color: var(--text);
+  border-bottom: 1px solid var(--icon);
 }
 
-.list-row {
-  display: grid;
-  grid-template-columns: 100px 60px 1fr;
-  padding: 6px 0;
-  border-bottom: 1px solid #bcbcbc;
-}
-
-.list-row:last-child {
-  border-bottom: none;
-}
-
-.loading {
-  padding: 10px 0;
-  color: #555;
-  font-style: italic;
+.deviceTable tbody td {
+  padding: 0.6rem;
+  border: none;
 }
 </style>
