@@ -54,21 +54,38 @@
 
 <script>
 import { useFooterSpan } from '../stores/footerSpan';
+import { useMoestuinStore } from '../stores/moestuinScherm';
 
 export default {
   name: 'AccountPagina',
+
+  setup() {
+    const footerStore = useFooterSpan();
+    const moestuinStore = useMoestuinStore();
+
+    return{
+      footerSpan,
+      moestuinStore
+    };
+
+  },
+
   data() {
     return {
-      gekozenMoestuin: "",
       open: false,    
       moestuinen: ["Moestuin 1", "Moestuin 2", "Moestuin 3"],
       moestuinNaam: ""
     };
   },
 
+  computed: {
+    gekozenMoestuin(){
+      return this.moestuinStore.actieveMoestuin;
+    }
+  },
+
   methods: {
     bevestigNaam(){
-      const footerSpan = useFooterSpan()
       footerSpan.firstName = this.moestuinNaam
       this.moestuinNaam = ""
     }, 
@@ -78,7 +95,6 @@ export default {
     },
 
     selecteerMoestuin(moestuin) {
-      this.gekozenMoestuin = moestuin;
       this.moestuinStore.setMoestuin(moestuin);
       this.open = false; 
     },

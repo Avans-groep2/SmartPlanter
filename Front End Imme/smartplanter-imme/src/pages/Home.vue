@@ -249,7 +249,7 @@ export default {
 
 .homeDropdownAdmin {
   position: absolute;
-  top: 40px;
+  top: 3rem;
   right: 1rem;
   margin-bottom: 5px;
   width: 200px;
