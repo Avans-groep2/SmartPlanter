@@ -127,7 +127,7 @@ export default {
       switch (status) {
         case 'good': return 'Goed'
         case 'warning': return 'Slecht'
-        case 'critical': return ' goed' 
+        case 'critical': return ' Kritisch' 
         default: return 'Onbekend'
       }
   },
@@ -199,7 +199,7 @@ export default {
   }
 },
   async loadSensorData(index) {
-      const sensor = sensors.value[index]
+      const sensor = this.sensors.value[index]
       try {
         const url = new URL('https://smartplanters.dedyn.io:1880/mongoadvanced')
         url.search = new URLSearchParams({
