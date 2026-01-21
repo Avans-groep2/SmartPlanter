@@ -55,6 +55,8 @@ export default {
 
   data(){
     return {
+      meldingen: [],
+      loading: true,
       open: false,
       moestuinen: ['Moestuin 1', 'Moestuin 2', 'Moestuin 3']
     }
@@ -81,10 +83,24 @@ export default {
         this.open = false;
       }
     },
-  },
+
+    async haalMeldingenOp() {
+  try {
+    const response = await fetch('https://smartplanters.dedyn.io:1880/smartplantdata');
+    const data = await response.json();
+    console.log('API response:', data);
+    this.meldingen = data;
+  } catch (err) {
+    console.error('Fout bij ophalen meldingen', err);
+  } finally {
+    this.loading = false;
+  }
+},
+
 
   mounted() {
     document.addEventListener("click", this.handleClickOutside);
+    this.haalMeldingenOp();
   },
 
   beforeUnmount() {

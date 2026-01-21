@@ -94,7 +94,7 @@ export default {
     data(){
       return {
         open: false, 
-        moestuinen: ['Moestuin 1', 'Moestuin 2', 'Moestuin3'],
+        moestuinen: ['Moestuin 1', 'Moestuin 2', 'Moestuin 3'],
       };
     },
 
@@ -163,8 +163,8 @@ export default {
           borderColor: '#2d6a4f',
           backgroundColor: '#3c803c33',
           fill: true,
-          pointRadius: 4,
-          pointHoverRadius: 6
+          pointRadius: 2,
+          pointHoverRadius: 4
         }]
       },
       options: {
