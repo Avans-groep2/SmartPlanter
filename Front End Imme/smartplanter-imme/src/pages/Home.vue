@@ -47,12 +47,11 @@
               class="plant-image"
             />
             <span v-else>+</span>
+        </button>
 
-            <div class="testInfo">
+        <div class="testInfo">
               <p class="testInfoP">Test</p>
             </div>
-
-        </button>
 
         <div
           v-if="openDropdown.buisIndex === buisIndex && openDropdown.slotIndex === slotIndex"
@@ -243,12 +242,13 @@ export default {
 <style scoped>
 .testInfo{
   background-color: black;
-  max-width: 15px;
-  max-height: 5px;
+  max-width: 25px;
+  max-height: 15px;
 }
 
 .testInfoP{
   color: white;
+  font-size: 10px;
 }
 
 
