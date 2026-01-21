@@ -7,15 +7,26 @@
 
     <div class="navigatie">
       <router-link to="/home" class="nav-item">Moestuin</router-link>
-      <router-link to="/notificaties" class="nav-item">Notificaties</router-link>
+      <router-link to="/notificaties" class="nav-item">Notificaties
+        <span v-if="userStore.meldingenCount > 0" class="nav-badge">
+          {{ userStore.meldingenCount }}
+        </span>
+      </router-link>
       <router-link to="/data" class="nav-item">Data</router-link>
     </div>
   </nav>
 </template>
 
 <script>
+import { useMoestuinStore } from '../stores/moestuinScherm';
+
 export default {
-  name: 'NavBar'
+  name: 'NavBar',
+  setup() {
+    const userStore = useMoestuinStore();
+
+    return { userStore };
+  }
 }
 </script>
 
@@ -34,6 +45,32 @@ export default {
 .navigatie{
   display: flex;
   gap: 2vh;
+}
+
+.notification-link {
+  position: relative;
+  padding-right: 15px; /* Ruimte maken voor het bolletje */
+}
+
+.nav-badge {
+  position: absolute;
+  top: -8px;      /* Iets boven de tekst */
+  right: -5px;     /* Iets naar rechts */
+  background-color: #ff4d4d; /* Fel rood */
+  color: white;
+  font-size: 11px;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 50%;
+  min-width: 12px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  /* Geen filter: invert nodig hier! */
+}
+
+/* Zorg dat het bolletje niet verdwijnt bij hover */
+.nav-item:hover .nav-badge {
+  filter: none; 
 }
 
 .nav-item {

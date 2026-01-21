@@ -23,20 +23,26 @@ const STORAGE_KEY = 'moestuin-data';
 export const useMoestuinStore = defineStore('moestuin', {
   state: () =>  {
     const saved = localStorage.getItem(STORAGE_KEY);
+    let baseState;
 
     if (saved) {
-        return JSON.parse(saved);
-    }
-
-    return {
+        baseState = JSON.parse(saved);
+    }else {
+      basestate = {
         actieveMoestuin: 'Moestuin 1',
         moestuinen: {
             'Moestuin 1': createLayout(),
             'Moestuin 2': createLayout(),
             'Moestuin 3': createLayout()
-    }
+        }
+      }
     };
-  },
+    return {
+      ...baseState,
+      meldingen: [],
+      loadingMeldingen: false
+    }
+  }, 
 
   getters: {
     huidigeLayout(state) {
@@ -45,25 +51,32 @@ export const useMoestuinStore = defineStore('moestuin', {
   },
 
   actions: {
+    setMeldingen(data) {
+      this.meldingen = Array.isArray(data) ? data : [];
+    },
+    setLoading(status) {
+      this.loadingMeldingen = status;
+    },
+
     setMoestuin(moestuin) {
       this.actieveMoestuin = moestuin;
       this.save();
     },
 
-  setPlant(buisIndex, slotIndex, plantNaam) {
-    this.moestuinen[this.actieveMoestuin][buisIndex]
-        .slots[slotIndex].plant = plantNaam;
-        this.save();
-  },
+    setPlant(buisIndex, slotIndex, plantNaam) {
+      this.moestuinen[this.actieveMoestuin][buisIndex]
+          .slots[slotIndex].plant = plantNaam;
+          this.save();
+    },
 
-  oogstPlant(buisIndex, slotIndex, score) {
-    this.moestuinen[this.actieveMoestuin][buisIndex]
-    .slots[slotIndex].plant = null;
+    oogstPlant(buisIndex, slotIndex, score) {
+      this.moestuinen[this.actieveMoestuin][buisIndex]
+      .slots[slotIndex].plant = null;
 
-    console.log('Oogstscore:', score);
+      console.log('Oogstscore:', score);
 
-    this.save();
-  },
+      this.save();
+    },
 
   save() {
     localStorage.setItem(
