@@ -76,7 +76,7 @@
 
 
 <script>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, onBeforeUnmount } from 'vue';
 import { useFooterSpan } from '../stores/footerSpan';
 import { useMoestuinStore } from '../stores/moestuinScherm';
 
@@ -100,26 +100,32 @@ export default {
       try{
         loading.value = true;
         const response = await fetch('https://smartplanters.dedyn.io:1880/smartplantdata');
+        if(!response.ok) throw new Error('Netwerk response was niet ok')
         const data = await response.json();
-        meldingen.value = data;
+        meldingen.value = Array.isArray(data) ? data : [];
+        console.log("Opgehaalde meldingen:", meldingen.value);
       } catch (error) {
         console.error("Er konden geen meldingen opgehaald worden:", error);
+        meldingen.value = [];
       } finally {
         loading.value = false;
       }
     };
 
     const belangrijkeMeldingen = computed(() => {
-      return meldingen.value.filter(m => m.Prioriteit?.toLowerCase() === 'hoog');
+      if (!meldingen.value) return [];
+      return meldingen.value.filter(m => m && m.Prioriteit?.toLowerCase() === 'hoog');
     });
 
     const overigeMeldingen = computed(() => {
-      return meldingen.value.filter(m => m.Prioriteit?.toLowerCase() !== 'hoog');
+      if(!meldingen.value) return [];
+      return meldingen.value.filter(m => m && m.Prioriteit?.toLowerCase() !== 'hoog');
     });
 
     onMounted(() => {
       fetchMeldingen();
-      setInterval(fetchMeldingen, 60000);
+      const interval = setInterval(fetchMeldingen, 60000);
+      onBeforeUnmount(() => clearInterval(interval));
     })
 
 
