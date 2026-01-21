@@ -7,7 +7,7 @@
 
     <div class="navigatie">
       <router-link to="/home" class="nav-item">Moestuin</router-link>
-      <router-link to="/notificaties" class="nav-item">Notificaties
+      <router-link to="/notificaties" class="nav-item notification-link">Notificaties
         <span v-if="userStore.meldingenCount > 0" class="nav-badge">
           {{ userStore.meldingenCount }}
         </span>

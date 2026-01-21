@@ -28,11 +28,11 @@ export const useMoestuinStore = defineStore('moestuin', {
     if (saved) {
         baseState = JSON.parse(saved);
     }else {
-      basestate = {
+      baseState = {
         actieveMoestuin: 'Moestuin 1',
         moestuinen: {
             'Moestuin 1': createLayout(),
-            'Moestuin 2': createLayout(),
+            'Moestuin 2': createLsayout(),
             'Moestuin 3': createLayout()
         }
       }
@@ -47,6 +47,9 @@ export const useMoestuinStore = defineStore('moestuin', {
   getters: {
     huidigeLayout(state) {
         return state.moestuinen[state.actieveMoestuin];
+    },
+    meldingenCount(state) {
+      return state.meldingen.length;
     }
   },
 
