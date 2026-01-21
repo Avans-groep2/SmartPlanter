@@ -107,6 +107,7 @@ export default {
     document.removeEventListener("click", this.handleClickOutside);
   }
 }
+}
 </script>
 
 
