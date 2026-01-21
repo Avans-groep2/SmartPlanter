@@ -2,10 +2,10 @@
 
   <div class="belangrijke_meldingen">
     <h1 style="color:red;" class="notificatiesH1">Belangrijke meldingen!</h1>
-    <p v-if="loading" class="meldingenLaden">Meldingen wordeen geladen...</p>
+    <p v-if="loading" class="meldingenLaden">Meldingen worden geladen...</p>
   
-    <table v-else-if="belangrijkeMeldingen.length" class="meldingen-tabel">
-      <thead>>
+    <table v-else-if="belangrijkeMeldingen.length > 0" class="meldingen-tabel">
+      <thead>
         <tr>
           <th>Moestuin</th>
           <th>Melding</th>
@@ -23,14 +23,14 @@
         </tr>
       </tbody>
     </table>
-      <p v-else class="geen-meldingen">Geen belangrijke meldingen.</p>    
+      <p v-else-if="!loading" class="geen-meldingen">Geen belangrijke meldingen.</p>    
     </div>
 
     <div class="overige_meldingen">
       <h1 class="notificatiesH1">Overige meldingen</h1>
       <p v-if="loading" class="meldingenLaden">Meldingen worden geladen...</p>
     
-    <table v-else-if="overigeMeldingen.length" class="meldingen-tabel">
+    <table v-else-if="overigeMeldingen.length > 0" class="meldingen-tabel">
       <thead>
         <tr>
           <th>Moestuin</th>
@@ -48,7 +48,7 @@
         </tr>
       </tbody>
     </table>
-      <p v-else class="geen-meldingen">Geen overige meldingen.</p>
+      <p v-else-if="!loading" class="geen-meldingen">Geen overige meldingen.</p>
     </div>
     
     <div v-if="isBeheerder" class="meldingenDropdownAdmin">
@@ -110,11 +110,11 @@ export default {
     };
 
     const belangrijkeMeldingen = computed(() => {
-      return meldingen.value.filter(m => m.Prioriteit === 'hoog');
+      return meldingen.value.filter(m => m.Prioriteit?.toLowerCase() === 'hoog');
     });
 
     const overigeMeldingen = computed(() => {
-      return meldingen.value.filter(m => m.Prioriteit !== 'hoog');
+      return meldingen.value.filter(m => m.Prioriteit?.toLowerCase() !== 'hoog');
     });
 
     onMounted(() => {
@@ -201,7 +201,7 @@ export default {
   width: 40px;
 }
 
-.verwijder-btn {
+.verwijderKnop {
   background: none;
   border: none;
   cursor: pointer;
