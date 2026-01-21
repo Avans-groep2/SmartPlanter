@@ -44,22 +44,23 @@ export default {
     const footerStore = useFooterSpan();
     const moestuinStore = useMoestuinStore();
 
-      const isBeheerder = computed(() => {
+    const isBeheerder = computed(() => {
       if (!footerStore.keycloak) return false;
 
       return footerStore.keycloak.hasRealmRole('beheerder') ||
-        footerStore.keycloak.hasResourceRole('beheerder', 'frontend-imme'); 
+        footerStore.keycloak.hasResourceRole('beheerder', 'frontend-imme');
     });
-    return { moestuinStore, isBeheerder, footerStore};
+
+    return { moestuinStore, isBeheerder, footerStore };
   },
 
-  data(){
+  data() {
     return {
       meldingen: [],
       loading: true,
       open: false,
       moestuinen: ['Moestuin 1', 'Moestuin 2', 'Moestuin 3']
-    }
+    };
   },
 
   computed: {
@@ -75,28 +76,28 @@ export default {
 
     selecteerMoestuin(moestuin) {
       this.moestuinStore.setMoestuin(moestuin);
-      this.open = false; 
+      this.open = false;
     },
 
-     handleClickOutside(event) {
+    handleClickOutside(event) {
       if (this.$refs.dropdown && !this.$refs.dropdown.contains(event.target)) {
         this.open = false;
       }
     },
 
     async haalMeldingenOp() {
-  try {
-    const response = await fetch('https://smartplanters.dedyn.io:1880/smartplantdata');
-    const data = await response.json();
-    console.log('API response:', data);
-    this.meldingen = data;
-  } catch (err) {
-    console.error('Fout bij ophalen meldingen', err);
-  } finally {
-    this.loading = false;
-  }
-},
-
+      try {
+        const response = await fetch('https://smartplanters.dedyn.io:1880/smartplantdata');
+        const data = await response.json();
+        console.log('API response:', data);
+        this.meldingen = data;
+      } catch (err) {
+        console.error('Fout bij ophalen meldingen', err);
+      } finally {
+        this.loading = false;
+      }
+    }
+  },
 
   mounted() {
     document.addEventListener("click", this.handleClickOutside);
@@ -106,9 +107,9 @@ export default {
   beforeUnmount() {
     document.removeEventListener("click", this.handleClickOutside);
   }
-}
-}
+};
 </script>
+
 
 
 
