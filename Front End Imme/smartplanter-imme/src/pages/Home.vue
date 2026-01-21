@@ -49,9 +49,15 @@
             <span v-else>+</span>
         </button>
 
-        <div class="testInfo">
-              <p class="testInfoP">Test</p>
+        <div class="testInfo"
+              @mouseenter="hoverInfo = true"
+              @mouseleave="hoverInfo = false">
+              <p class="testInfoP">Informatie</p>
             </div>
+
+        <div v-if="hoverInfo" class="hoverInfo">
+          <p>test hover info</p>
+        </div>
 
         <div
           v-if="openDropdown.buisIndex === buisIndex && openDropdown.slotIndex === slotIndex"
@@ -153,6 +159,7 @@ export default {
 
   data() {
     return {
+      hovverInfo: false,
       searchQuery: '',
       oogstModalOpen: false,
       oogstScore: 5,
@@ -240,10 +247,23 @@ export default {
 </script>
 
 <style scoped>
+.hoverInfo {
+  position: absolute;
+  background: white;
+  color: #2d6a4f;
+  border: 1px solid #2d6a4f;
+  padding: 6px;
+  font-size: 12px;
+  border-radius: 6px;
+  z-index: 3000;
+}
+
 .testInfo{
-  background-color: black;
-  max-width: 25px;
-  max-height: 15px;
+  background-color: #2d6a4f;
+  max-width: 65px;
+  border-radius: 25%;
+  max-height: 20px;
+  padding: 3px;
 }
 
 .testInfoP{
