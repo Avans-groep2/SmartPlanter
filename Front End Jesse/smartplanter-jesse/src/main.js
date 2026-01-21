@@ -81,7 +81,7 @@ function createDevAuth() {
     user: {
       username: 'dev',
       fullName: 'Developer Mode',
-      roles: ['admin'],
+      roles: ['beheerder'],
       id: 'tester'       // ook hier ID toevoegen voor dev mode
     },
     logout() {},

@@ -4,7 +4,10 @@
   <div class="Notification">
     <header>
       <WelcomeMessage />
-      <PlantSelector @change="selectedDeviceID = $event" :includeAllOption="true"/>
+      <PlantSelector
+        @change="selectedDeviceID = $event"
+        :includeAllOption="true"
+      />
     </header>
 
     <!-- ================== Belangrijke Meldingen ================== -->
@@ -16,6 +19,7 @@
           <tr>
             <th>Planter</th>
             <th>Bericht</th>
+            <th class="actionCol"></th>
           </tr>
         </thead>
 
@@ -23,13 +27,25 @@
           <tr
             v-for="(melding, index) in belangrijkeMeldingen"
             :key="index"
+            :class="{ softDeleted: melding._deleted }"
           >
             <td>{{ getPlanterNaam(melding.DeviceID) }}</td>
             <td>{{ melding.Bericht }}</td>
+            <td class="actionCol">
+              <button
+                class="deleteBtn"
+                title="Verwijderen"
+                @click="softDelete(melding)"
+              >
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </td>
           </tr>
 
           <tr v-if="belangrijkeMeldingen.length === 0">
-            <td colspan="2">Geen belangrijke meldingen</td>
+            <td colspan="3" class="emptyRow">
+              Geen belangrijke meldingen
+            </td>
           </tr>
         </tbody>
       </table>
@@ -44,6 +60,7 @@
           <tr>
             <th>Planter</th>
             <th>Bericht</th>
+            <th class="actionCol"></th>
           </tr>
         </thead>
 
@@ -51,19 +68,32 @@
           <tr
             v-for="(melding, index) in overigeMeldingen"
             :key="index"
+            :class="{ softDeleted: melding._deleted }"
           >
             <td>{{ getPlanterNaam(melding.DeviceID) }}</td>
             <td>{{ melding.Bericht }}</td>
+            <td class="actionCol">
+              <button
+                class="deleteBtn"
+                title="Verwijderen"
+                @click="softDelete(melding)"
+              >
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </td>
           </tr>
 
           <tr v-if="overigeMeldingen.length === 0">
-            <td colspan="2">Geen overige meldingen</td>
+            <td colspan="3" class="emptyRow">
+              Geen overige meldingen
+            </td>
           </tr>
         </tbody>
       </table>
     </div>
   </div>
 </template>
+
 <script>
 import { getCurrentInstance } from 'vue'
 import WelcomeMessage from '@/components/WelcomeMessage.vue'
@@ -82,49 +112,43 @@ export default {
     return {
       meldingen: [],
       planters: [],
-      selectedDeviceID: '' // leeg = alle planters
+      selectedDeviceID: ''
     }
   },
 
   mounted() {
-    // Haal $auth op uit globalProperties
     const { appContext } = getCurrentInstance()
     const $auth = appContext.config.globalProperties.$auth
-    const userId = $auth.user?.id  // of gebruik $auth.user.email als ID niet beschikbaar is
+    const userId = $auth.user?.id
 
-    // Meldingen ophalen en filteren op ingelogde gebruiker
-    fetch(`https://smartplanters.dedyn.io:1880/smartplantdata?table=Meldingen`)
+    fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Meldingen')
       .then(res => res.json())
       .then(data => {
-        // Filter direct op userId
-        this.meldingen = data.filter(m => m.UserID === userId)
+        this.meldingen = data
+          .filter(m => m.UserID === userId)
+          .map(m => ({ ...m, _deleted: false }))
       })
-      .catch(err =>
-        console.error('Fout bij ophalen meldingen:', err)
-      )
 
-    // Planters ophalen
     fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter')
       .then(res => res.json())
       .then(data => {
         this.planters = data
       })
-      .catch(err =>
-        console.error('Fout bij ophalen planters:', err)
-      )
   },
 
   computed: {
     belangrijkeMeldingen() {
       return this.meldingen.filter(m =>
-        m.Prioriteit === 'important' &&
+        m.Prioriteit === 'hoog' &&
+        !m._deleted &&
         (!this.selectedDeviceID || m.DeviceID === this.selectedDeviceID)
       )
     },
 
     overigeMeldingen() {
       return this.meldingen.filter(m =>
-        m.Prioriteit === 'normal' &&
+        m.Prioriteit === 'normaal' &&
+        !m._deleted &&
         (!this.selectedDeviceID || m.DeviceID === this.selectedDeviceID)
       )
     }
@@ -134,11 +158,14 @@ export default {
     getPlanterNaam(deviceId) {
       const planter = this.planters.find(p => p.DeviceID === deviceId)
       return planter ? planter.DeviceNaam : 'Onbekende planter'
+    },
+
+    softDelete(melding) {
+      melding._deleted = true
     }
   }
 }
 </script>
-
 
 <style scoped>
 .Notification {
@@ -152,7 +179,7 @@ header {
   align-items: center;
 }
 
-/* Container */
+/* ================= Containers ================= */
 .notificationContainer {
   background: var(--light);
   width: 90%;
@@ -161,17 +188,23 @@ header {
   padding: 1rem;
 }
 
-/* Titel */
+/* ================= Titles ================= */
 .notificationTitle {
-  margin-bottom: 0.8rem;
-  font-size: 1.2rem;
+  margin: 0 0 0.8rem 0;
+  font-size: 2rem;
   font-weight: 600;
 }
 
-/* Tables */
+/* ================= Tables ================= */
 .deviceTable {
   width: 100%;
   border-collapse: collapse;
+}
+
+.deviceTable thead {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
 }
 
 .deviceTable thead th {
@@ -181,8 +214,67 @@ header {
   border-bottom: 1px solid var(--icon);
 }
 
+/* Scrollbare body */
+.deviceTable tbody {
+  display: block;
+  min-height: 11rem;
+  max-height: 11rem;
+  overflow-y: auto;
+}
+
+/* Rows */
+.deviceTable tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+  transition: background 0.2s ease, opacity 0.3s ease;
+}
+
+/* Hover row */
+.deviceTable tbody tr:hover {
+  background: var(--primary);
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* Cells */
 .deviceTable tbody td {
   padding: 0.6rem;
   border: none;
+}
+
+/* Actie kolom */
+.actionCol {
+  width: 3rem;
+  text-align: center;
+}
+
+/* Delete knop (verborgen standaard) */
+.deleteBtn {
+  opacity: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: var(--text);
+  transition: opacity 0.2s ease;
+}
+
+/* Toon prullenbak alleen bij hover van rij */
+.deviceTable tbody tr:hover .deleteBtn {
+  opacity: 1;
+}
+
+/* Soft delete animatie */
+.softDeleted {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Empty state */
+.emptyRow {
+  text-align: center;
+  color: var(--icon);
+  font-style: italic;
 }
 </style>

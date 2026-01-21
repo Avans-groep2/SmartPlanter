@@ -76,7 +76,7 @@ export default {
   name: "PlantCard",
   props: {
     name: String,
-    position: String,      // Als je "01", "02" wilt tonen
+    position: Number,      // Als je "01", "02" wilt tonen
     plantDate: String,     // in ISO formaat YYYY-MM-DD
     harvestDate: String,   // in ISO formaat YYYY-MM-DD
   },
@@ -137,14 +137,7 @@ export default {
 </script>
 
 <style>
-/*========== Plants Container =========*/
-.plants-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 16px;
-  padding: 20px 20px 0 20px;
-  cursor: default;
-}
+/*========== 
 
 /* Card styling */
 .plants-position {
@@ -154,6 +147,7 @@ export default {
   padding: 0.5rem 0 0 0;
   border-radius: 25px;
 }
+
 
 /* Overlay */
 .overlay {

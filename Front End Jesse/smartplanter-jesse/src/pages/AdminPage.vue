@@ -24,16 +24,15 @@
           </tr>
 
           <tr v-if="devices.length === 0">
-            <td>Geen devices gevonden</td>
+            <td class="emptyRow">Geen devices gevonden</td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <!-- ================== Planters Tabel met Dropdowns ================== -->
+    <!-- ================== Planters Tabel ================== -->
     <div class="adminContainer">
       <div class="adminTitle">
-        <!-- Dropdowns zonder lege optie -->
         <select v-model="selectedUserID">
           <option v-for="user in uniqueUserIDs" :key="user" :value="user">
             {{ user }}
@@ -41,7 +40,11 @@
         </select>
 
         <select v-model="selectedDeviceID">
-          <option v-for="device in devices" :key="device.TtnDeviceID" :value="device.TtnDeviceID">
+          <option
+            v-for="device in devices"
+            :key="device.TtnDeviceID"
+            :value="device.TtnDeviceID"
+          >
             {{ device.TtnDeviceID }}
           </option>
         </select>
@@ -68,7 +71,9 @@
           </tr>
 
           <tr v-if="planters.length === 0">
-            <td colspan="4">Geen planters gevonden</td>
+            <td colspan="4" class="emptyRow">
+              Geen planters gevonden
+            </td>
           </tr>
         </tbody>
       </table>
@@ -86,32 +91,26 @@ export default {
 
   data() {
     return {
-      // Devices tabel
       devices: [],
       newDeviceId: '',
 
-      // Planters tabel
       planters: [],
       selectedUserID: '',
       selectedDeviceID: '',
 
-      // Koppelingen (frontend only)
       koppelingen: []
     }
   },
 
   mounted() {
-    // Haal Devices op
     fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Devices')
       .then(res => res.json())
       .then(data => {
         this.devices = data
-        // Init dropdowns op eerste waarde automatisch
         if (data.length) this.selectedDeviceID = data[0].TtnDeviceID
       })
       .catch(err => console.error('Fout bij ophalen devices:', err))
 
-    // Haal Planters op
     fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter')
       .then(res => res.json())
       .then(data => {
@@ -123,8 +122,7 @@ export default {
 
   computed: {
     uniqueUserIDs() {
-      const ids = this.planters.map(p => p.UserID)
-      return [...new Set(ids)]
+      return [...new Set(this.planters.map(p => p.UserID))]
     }
   },
 
@@ -133,17 +131,13 @@ export default {
       if (!this.newDeviceId) return
 
       this.devices.push({ TtnDeviceID: this.newDeviceId })
-
-      // Optioneel: selecteer automatisch nieuwe device in dropdown
       this.selectedDeviceID = this.newDeviceId
-
       this.newDeviceId = ''
     },
 
     koppel() {
       if (!this.selectedUserID || !this.selectedDeviceID) return
 
-      // Voeg toe aan koppelingen (frontend only)
       this.koppelingen.push({
         UserID: this.selectedUserID,
         DeviceID: this.selectedDeviceID
@@ -161,7 +155,7 @@ export default {
   color: var(--text);
 }
 
-/* Container */
+/* ================= Containers ================= */
 .adminContainer {
   background: var(--light);
   width: 90%;
@@ -170,7 +164,7 @@ export default {
   padding: 1rem;
 }
 
-/* Input + button + dropdown */
+/* ================= Controls ================= */
 .adminTitle {
   display: flex;
   align-items: center;
@@ -196,14 +190,19 @@ button {
   cursor: pointer;
 }
 
-/* Tables */
+/* ================= Tables ================= */
 .deviceTable {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 1rem;
 }
 
-/* Alleen lijn onder header */
+/* Header */
+.deviceTable thead {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
 .deviceTable thead th {
   padding: 0.6rem;
   text-align: left;
@@ -211,10 +210,30 @@ button {
   border-bottom: 1px solid var(--icon);
 }
 
-/* Geen lijnen tussen rows */
+/* Body – voorkomt verspringen */
+.deviceTable tbody {
+  display: block;
+  min-height: 11rem;
+  max-height: 11rem;     
+  overflow-y: auto;      
+}
+
+/* Rows */
+.deviceTable tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
 .deviceTable tbody td {
   padding: 0.6rem;
-  text-align: left;
   border: none;
+}
+
+/* Empty state */
+.emptyRow {
+  text-align: center;
+  color: var(--icon);
+  font-style: italic;
 }
 </style>

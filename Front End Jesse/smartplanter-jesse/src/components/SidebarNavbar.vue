@@ -15,7 +15,7 @@ async function fetchNotifications() {
   try {
     if (!$auth.user) return
 
-    // Haal alle meldingen op (zonder userId in URL)
+    // Haal alle meldingen op
     const url = `https://smartplanters.dedyn.io:1880/smartplantdata?table=Meldingen`
 
     const response = await fetch(url)
@@ -41,7 +41,6 @@ onMounted(() => {
 })
 </script>
 
-
 <template>
   <div class="sidebar">
     <!-- LOGO -->
@@ -65,7 +64,13 @@ onMounted(() => {
             <i class="fa-solid fa-bell"></i>
             <span class="label">Meldingen</span>
           </router-link>
-          <p class="notificationCount" v-if="notificationCount > 0">{{ notificationCount }}</p>
+          <!-- Badge altijd zichtbaar -->
+          <p 
+            class="notificationCount" 
+            :class="{ 'has-meldingen': notificationCount > 0 }"
+          >
+            {{ notificationCount }}
+          </p>
         </li>
 
         <li>
@@ -220,13 +225,17 @@ li {
   justify-content: center;
   width: 1.5rem;
   height: 1.5rem;
-  background: var(--danger);
   border-radius: 50%;
   font-weight: 600;
   margin-left: 0.5rem;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  color: white;
+  background-color: var(--light); /* standaard neutraal */
+  color: var(--light);
+  transition: all 0.3s ease;
+}
+
+.notificationCount.has-meldingen {
+  background-color: var(--danger); /* rood bij meldingen */
+  color: var(--text);
 }
 
 /* ================= PROFIEL ================= */
