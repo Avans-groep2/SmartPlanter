@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
+import { ref, onMounted, onBeforeUnmount, computed, markRaw } from 'vue'
 import { Chart } from 'chart.js/auto'
 import { useFooterSpan } from '../stores/footerSpan';
 import { useMoestuinStore } from '../stores/moestuinScherm';
@@ -153,7 +153,7 @@ export default {
       if (!ctx) return;
 
     if (!sensor.chart) {
-    sensor.chart = new Chart(ctx, {
+    sensor.chart = markRaw(new Chart(ctx, {
       type: 'line',
       data: {
         labels,
@@ -191,7 +191,7 @@ export default {
             }
           }
         }
-        }); 
+        })); 
   } else {
     sensor.chart.data.labels = labels
     sensor.chart.data.datasets[0].data = values
