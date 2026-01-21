@@ -32,7 +32,7 @@ export const useMoestuinStore = defineStore('moestuin', {
         actieveMoestuin: 'Moestuin 1',
         moestuinen: {
             'Moestuin 1': createLayout(),
-            'Moestuin 2': createLsayout(),
+            'Moestuin 2': createLayout(),
             'Moestuin 3': createLayout()
         }
       }

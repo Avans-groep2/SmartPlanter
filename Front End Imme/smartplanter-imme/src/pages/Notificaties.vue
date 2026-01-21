@@ -94,12 +94,12 @@ export default {
       try{
         loading.value = true;
         const response = await fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Meldingen');
-        if(!response.ok) throw new Error('Netwerk response was niet ok')
         const data = await response.json();
+        moestuinStore.setMeldingen(data);
+
         meldingen.value = Array.isArray(data) ? data : [];
-        console.log("Opgehaalde meldingen:", meldingen.value);
       } catch (error) {
-        console.error("Er konden geen meldingen opgehaald worden:", error);
+        console.error(error);
         meldingen.value = [];
       } finally {
         loading.value = false;

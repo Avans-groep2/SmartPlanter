@@ -63,9 +63,11 @@ export default {
   padding: 2px 6px;
   border-radius: 50%;
   min-width: 12px;
+  height: 18px;
+  display: flex;
   text-align: center;
   box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-  /* Geen filter: invert nodig hier! */
+  z-index: 99;
 }
 
 /* Zorg dat het bolletje niet verdwijnt bij hover */
