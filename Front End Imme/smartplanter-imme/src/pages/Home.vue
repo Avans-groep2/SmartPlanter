@@ -50,13 +50,21 @@
         </button>
 
         <div class="testInfo"
-              @mouseenter="hoverInfo = true"
-              @mouseleave="hoverInfo = false">
+              @mouseenter="hoverInfo = {buisIndex, slotIndex}"
+              @mouseleave="hoverInfo = {buisIndex: null, slotIndex: null}">
               <p class="testInfoP">Informatie</p>
             </div>
 
-        <div v-if="hoverInfo" class="hoverInfo">
-          <p>test hover info</p>
+        <div v-if="hoverInfo.buisIndex === buisIndex && hoverInfo.slotIndex === slotIndex" 
+            class="hoverInfo">
+          <p v-if="slot.plant">{{slot.plant.naam}} <br>
+            Geplant op: <br>
+            Kan geoogst worden op:
+          </p>
+          <p v-else>
+            Leeg slot <br>
+            Voeg een plant toe.
+          </p>
         </div>
 
         <div
@@ -159,7 +167,10 @@ export default {
 
   data() {
     return {
-      hoverInfo: false,
+      hoverInfo: {
+        buisIndex:null,
+        slotIndex:null
+      },
       searchQuery: '',
       oogstModalOpen: false,
       oogstScore: 5,
@@ -247,22 +258,29 @@ export default {
 </script>
 
 <style scoped>
+.info-wrapper {
+  position: relative;
+}
+
 .hoverInfo {
   position: absolute;
+  top: 25px;
+  left: 0;
   background: white;
   color: #2d6a4f;
   border: 1px solid #2d6a4f;
-  padding: 6px;
+  padding: 6px 8px;
   font-size: 12px;
   border-radius: 6px;
   z-index: 3000;
+  width: max-content;
 }
 
 .testInfo{
   margin-top: 3px;
   background-color: #2d6a4f;
   max-width: 65px;
-  border-radius: 50%;
+  border-radius: 50px;
   max-height: 20px;
   padding: 3px;
   align-items: center;
