@@ -47,6 +47,11 @@
               class="plant-image"
             />
             <span v-else>+</span>
+
+            <div class="testInfo">
+              <p class="testInfoP">Test</p>
+            </div>
+
         </button>
 
         <div
@@ -236,6 +241,16 @@ export default {
 </script>
 
 <style scoped>
+.testInfo{
+  background-color: black;
+  max-width: 15px;
+  max-height: 5px;
+}
+
+.testInfoP{
+  color: white;
+}
+
 
 .dropdown-menu.open {
   display: block;

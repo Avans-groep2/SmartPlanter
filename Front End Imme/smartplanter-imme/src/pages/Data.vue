@@ -163,7 +163,7 @@ export default {
           borderColor: '#2d6a4f',
           backgroundColor: '#3c803c33',
           fill: true,
-          pointRadius: 2,
+          pointRadius: 3,
           pointHoverRadius: 4
         }]
       },
