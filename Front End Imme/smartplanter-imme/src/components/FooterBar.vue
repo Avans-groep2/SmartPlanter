@@ -7,10 +7,18 @@
     </div>
 
     <div class="links">
-      <button class="logoutButton" @click="doLogout"><img src="../assets/logout.png" class="footerIcoon" alt="logout"/></button>
+  <button class="logoutButton" @click="doLogout">
+    <img src="../assets/logout.png" class="footerIcoon" alt="logout"/>
+  </button>
 
-      <a href="mailto:ima.piels@student.avans.nl">
-        <img src="../assets/mail.png" class="footerIcoon" alt="mail"></img></a>
+  <div class="badge-container">
+    <a href="mailto:ima.piels@student.avans.nl">
+      <img src="../assets/mail.png" class="footerIcoon" alt="mail">
+    </a>
+    <span v-if="userStore.meldingenCount > 0" class="notification-badge">
+      {{ userStore.meldingenCount }}
+    </span>
+  </div>
         
       <router-link to="/account" class="nav-item-settings"><img src="../assets/setting.png" class="footerIcoon" alt="settings"/></router-link>
       <router-link v-if="isBeheerder" to="/bradmin" class="nav-item-admin"><img src="../assets/security.png" class="footerIcoon" alt="admin"/></router-link>
@@ -49,6 +57,32 @@ export default {
 </script>
 
 <style>
+.badge-container {
+  position: relative;
+  display: inline-block;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -8px;
+  background-color: #ff4d4d; /* Fel rood */
+  color: white;
+  font-size: 11px;
+  font-weight: bold;
+  padding: 2px 5px;
+  border-radius: 10px;
+  min-width: 14px;
+  text-align: center;
+  border: 2px solid #1f4936; /* Zelfde kleur als footer achtergrond */
+  
+  /* Omdat .links invert(1) heeft, moeten we dit bolletje TERUG inverting geven 
+     zodat het rood blijft in plaats van cyaan/blauw te worden */
+  filter: invert(1); 
+  z-index: 10;
+}
+
+
 .footer {
   display: flex;
   justify-content: space-between;

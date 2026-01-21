@@ -7,7 +7,8 @@ export const useFooterSpan = defineStore('footerSpan', {
     lastName: '',
     email: '',
     keycloak: null,
-    intervalId: null
+    intervalId: null, 
+    meldingenCount: 0
   }),
   getters: {
     fullName: (state) => {
@@ -21,8 +22,21 @@ export const useFooterSpan = defineStore('footerSpan', {
         this.keycloak = kc
         if (kc){
           this.fetchProfile();
+          this.fetchMeldingenCount();
           this.startAutoFetch();
         } 
+    },
+
+    async fetchMeldingenCount() {
+      try{
+        const response = await fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Meldingen');
+        if(response.ok) {
+          const data = await response.json();
+          this.meldingenCount = Array.isArray(data) ? data.length : 0;
+        }
+      } catch (err) {
+        console.error('Kon meldingen voor telling niet ophalen', err);
+      }
     },
 
     async fetchProfile() {
@@ -46,7 +60,8 @@ export const useFooterSpan = defineStore('footerSpan', {
     startAutoFetch() {
         if (this.intervalId) clearInterval(this.intervalId)
         this.intervalId = setInterval(() => {
-            this.fetchProfile()
+            this.fetchProfile();
+            this.fetchMeldingenCount();
     }, 3000)    
     }
   }

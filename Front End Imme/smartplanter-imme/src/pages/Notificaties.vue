@@ -9,7 +9,6 @@
         <tr>
           <th>Moestuin</th>
           <th>Melding</th>
-          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -18,8 +17,6 @@
         class="prioriteit-hoog">
           <td>{{ melding.DeviceID }}</td>
           <td>{{ melding.Bericht }}</td>
-          <td class="verwijder-cel">
-            <button class="verwijderKnop">Verwijderen</button></td>
         </tr>
       </tbody>
     </table>
@@ -35,7 +32,6 @@
         <tr>
           <th>Moestuin</th>
           <th>Melding</th>
-          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -43,8 +39,6 @@
         :key="melding.MeldingID">
           <td>{{ melding.DeviceID }}</td>
           <td>{{ melding.Bericht }}</td>
-          <td class="verwijder-cel">
-            <button class="verwijderKnop">Verwijderen</button></td>
         </tr>
       </tbody>
     </table>
@@ -177,7 +171,6 @@ export default {
 
 
 <style>
-/* Tabel styling om te lijken op de foto */
 .meldingen-tabel {
   width: 100%;
   border-collapse: collapse;
@@ -187,31 +180,13 @@ export default {
 .meldingen-tabel th {
   text-align: left;
   padding: 8px;
-  border-bottom: 2px solid #ddd;
+  border-bottom: 2px solid #a7d3bf;
   font-weight: 600;
 }
 
 .meldingen-tabel td {
   padding: 10px 8px;
-  border-bottom: 1px solid #eee;
-}
-
-/* Groene rij voor belangrijke meldingen zoals op foto */
-.prioriteit-hoog {
-  background-color: #2d6a4f;
-  color: white;
-}
-
-.verwijder-cel {
-  text-align: right;
-  width: 40px;
-}
-
-.verwijderKnop {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 1.2rem;
+  border-bottom: 1px solid #a2ebbc;
 }
 
 .geen-meldingen {
@@ -220,9 +195,8 @@ export default {
   font-style: italic;
 }
 
-/* Behoud je bestaande styles voor de containers... */
 .belangrijke_meldingen, .overige_meldingen {
-  overflow-y: auto; /* Zorg dat je kunt scrollen als er veel meldingen zijn */
+  overflow-y: auto; 
 }
 
 
