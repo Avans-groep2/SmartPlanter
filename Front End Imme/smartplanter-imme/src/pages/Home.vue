@@ -159,7 +159,7 @@ export default {
 
   data() {
     return {
-      hovverInfo: false,
+      hoverInfo: false,
       searchQuery: '',
       oogstModalOpen: false,
       oogstScore: 5,
@@ -259,11 +259,13 @@ export default {
 }
 
 .testInfo{
+  margin-top: 3px;
   background-color: #2d6a4f;
   max-width: 65px;
-  border-radius: 25%;
+  border-radius: 50%;
   max-height: 20px;
   padding: 3px;
+  align-items: center;
 }
 
 .testInfoP{
