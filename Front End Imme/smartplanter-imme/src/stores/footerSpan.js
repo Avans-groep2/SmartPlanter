@@ -24,15 +24,16 @@ export const useFooterSpan = defineStore('footerSpan', {
     },
 
     async fetchProfile() {
-    if (!this.keycloak || !this.keycloak.authenticated) return;
+    if (this.keycloak && this.keycloak.authenticated){
     try {
         const profile = await this.keycloak.loadUserProfile()
         this.firstName = profile.firstName || ''
         this.lastName = profile.lastName || ''
         this.email = profile.email || ''
+        console.log("Profiel gegevens goed geladen");
     } catch (err) {
         console.warn('Gegevens laden is niet gelukt, terug naar token data', err);
-        console.error('Gebruiker kan niet geladen worden', err);
+
         const token = this.keycloak.tokenParsed;
         if (token) {
           this.firstName = token.given_name || '';
@@ -41,5 +42,6 @@ export const useFooterSpan = defineStore('footerSpan', {
         }
     }  
     }
+  }
   }
 })

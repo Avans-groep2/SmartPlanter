@@ -8,6 +8,7 @@ import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import Keycloak from 'keycloak-js'
 import { useFooterSpan } from './stores/footerSpan';
+import { allowedVariants } from 'vuetify/lib/labs/VVideo/VVideoControls';
 
 const vuetify = createVuetify({
   components,
@@ -35,17 +36,37 @@ keycloak.init({ onLoad: 'login-required', checkLoginFrame: false })
       window.$keycloak = keycloak;
       const footerSpan = useFooterSpan()
       footerSpan.setKeycloak(keycloak)
+      console.log("Authenticated");
+      footerSpan.fetchProfile();
 
-      // Ververs token automatisch als deze bijna verloopt
-      keycloak.onTokenExpired = () => {
-        keycloak.updateToken(70).then((refreshed) => {
+      const verversGegevens = async () => {
+        try{
+          const refreshed = await keycloak.updateToken(-1);
+          await footerSpan.fetchProfile();
           if (refreshed) {
-            footerSpan.fetchProfile(); // Update de store met nieuwe token data
+            console.log("Token vernieuwd met vernieuwde keycloak gegevens")
           }
-        }).catch(() => {
-          console.error('Sessie verlopen');
-        });
+          await footerSpan.fetchProfile();
+        } catch (error) {
+          console.error("Kon profiel gegevens niet verversen", error)
+        }
       };
+
+      window.addEventListener('focus', () => {
+        verversGegevens();
+      });
+
+      keycloak.onTokenExpired = () => {
+        verversGegevens();
+      };
+
+      setInterval(() => {
+        keycloak.updateToken(30).then((refreshed) => {
+          if (refreshed) {
+            footerSpan.fetchProfile();
+          }
+        });
+      }, 20000);
 
       router.isReady().then(() => app.mount('#app'))
     }

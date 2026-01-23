@@ -265,13 +265,15 @@ export default {
 .hoverInfo {
   position: absolute;
   top: 25px;
-  left: 0;
+  left: 15%;
   background: white;
   color: #2d6a4f;
   border: 1px solid #2d6a4f;
   padding: 6px 8px;
   font-size: 12px;
   border-radius: 6px;
+  max-width: auto;
+  min-height: 100px;
   z-index: 3000;
   width: max-content;
 }
