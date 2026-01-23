@@ -29,13 +29,25 @@ const keycloak = new Keycloak({
 })
 app.config.globalProperties.$keycloak = keycloak
 
-keycloak.init({ onLoad: 'login-required' })
-  .then(() => {
-    window.$keycloak = keycloak;
-    app.config.globalProperties.$keycloak = keycloak;
-    console.log("Authenticated")
-    const footerSpan = useFooterSpan()
-    footerSpan.setKeycloak(keycloak) // ✅ start automatisch realtime updates
-    router.isReady().then(() => app.mount('#app'))
+keycloak.init({ onLoad: 'login-required', checkLoginFrame: false })
+  .then((authenticated) => {
+    if (authenticated) {
+      window.$keycloak = keycloak;
+      const footerSpan = useFooterSpan()
+      footerSpan.setKeycloak(keycloak)
+
+      // Ververs token automatisch als deze bijna verloopt
+      keycloak.onTokenExpired = () => {
+        keycloak.updateToken(70).then((refreshed) => {
+          if (refreshed) {
+            footerSpan.fetchProfile(); // Update de store met nieuwe token data
+          }
+        }).catch(() => {
+          console.error('Sessie verlopen');
+        });
+      };
+
+      router.isReady().then(() => app.mount('#app'))
+    }
   })
   .catch(err => console.error("Authentication Failed", err))

@@ -7,21 +7,19 @@ export const useFooterSpan = defineStore('footerSpan', {
     lastName: '',
     email: '',
     keycloak: null,
-    intervalId: null
   }),
   getters: {
     fullName: (state) => {
       const first = state.firstName || ''
       const last = state.lastName || ''
-      return (first || last) ? `${first} ${last}`.trim() : 'Onbekend'
+      return (first || last) ? `${first} ${last}`.trim() : 'Laden...'
     }
   },
   actions: {
     setKeycloak(kc) {
         this.keycloak = kc
-        if (kc){
+        if (kc && kc.authenticated){
           this.fetchProfile();
-          this.startAutoFetch();
         } 
     },
 
@@ -33,7 +31,7 @@ export const useFooterSpan = defineStore('footerSpan', {
         this.lastName = profile.lastName || ''
         this.email = profile.email || ''
     } catch (err) {
-        console.warn('Gegevens laden is neit gelukt, terug naar token data', err);
+        console.warn('Gegevens laden is niet gelukt, terug naar token data', err);
         console.error('Gebruiker kan niet geladen worden', err);
         const token = this.keycloak.tokenParsed;
         if (token) {
@@ -41,13 +39,7 @@ export const useFooterSpan = defineStore('footerSpan', {
           this.lastName = token.family_name || '';
           this.email = token.email || '';
         }
-    }
-    },
-    startAutoFetch() {
-        if (this.intervalId) clearInterval(this.intervalId)
-        this.intervalId = setInterval(() => {
-            this.fetchProfile()
-    }, 3000)    
+    }  
     }
   }
 })
