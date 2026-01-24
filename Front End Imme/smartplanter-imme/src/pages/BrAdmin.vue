@@ -79,7 +79,7 @@
         <table v-else class="koppelsTabel">
           <thead>
             <tr>
-              <th>UseID</th>
+              <th>UserID</th>
               <th>DeviceID</th>
               <th>PlantenTeller</th>
               <th>DeviceNaam</th>
@@ -99,7 +99,7 @@
 </template>
 
 <script>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, onBeforeUnmount } from 'vue';
 
 export default {
   name: 'AccountBeheerder',
@@ -151,30 +151,26 @@ const insertNieuwDevice = async () => {
 
   const url = new URL('https://smartplanters.dedyn.io:1880/smartplantedit');
   url.searchParams.append('table', 'Planter');
-  url.searchParams.append('deviceid', deviceIdKeuze.value); // Kleine letters geprobeerd
+  url.searchParams.append('deviceid', deviceIdKeuze.value);
   url.searchParams.append('userid', 'Systeem'); 
   url.searchParams.append('plantenteller', '0');
   url.searchParams.append('devicenaam', 'Nieuw Device');
 
   try {
     const res = await fetch(url.toString());
-    const result = await res.json();
 
     if (!res.ok) {
-      // Als het device al bestaat (ER_DUP_ENTRY), geef dan een vriendelijke melding
-      if (result.code === "ER_DUP_ENTRY") {
-        return alert("Dit Device ID bestaat al! Gebruik de koppel-sectie hieronder.");
-      }
-      throw new Error(result.code || "Onbekende fout");
+      throw new Error("Device bestaat mogelijk al");
     }
-    
+
     alert("Device succesvol aangemaakt!");
-    deviceIdKeuze.value = ""; 
-    await fetchPlanterData(); 
+    deviceIdKeuze.value = "";
+    await fetchPlanterData();
   } catch (err) {
     alert("Fout bij aanmaken: " + err.message);
   }
 };
+
 
 // Functie 2: Koppeling maken (Ook hier kleine letters)
 const opslaanKoppeling = async () => {
@@ -191,7 +187,10 @@ const opslaanKoppeling = async () => {
 
   try {
     const res = await fetch(url.toString());
-    if (!res.ok) throw new Error("Koppelen mislukt. Controleer of het device bestaat.");
+
+    if (!res.ok) {
+      throw new Error("Device aanmaken mislukt");
+    }
 
     alert("Koppeling succesvol!");
     gekozenUserId.value = "";
@@ -224,13 +223,36 @@ const opslaanKoppeling = async () => {
       deviceDropdownOpen.value = false;
     };
 
-    onMounted(fetchPlanterData);
+    const userDropdown = ref(null);
+    const deviceDropdown = ref(null);
+
+    const handleClickOutside = (event) => {
+      if (
+        userDropdown.value &&
+        !userDropdown.value.contains(event.target) &&
+        deviceDropdown.value &&
+        !deviceDropdown.value.contains(event.target)
+      ) {
+        userDropdownOpen.value = false;
+        deviceDropdownOpen.value = false;
+      }
+    };
+
+    onMounted(() => {
+      document.addEventListener('click', handleClickOutside);
+      fetchPlanterData();
+    });
+
+    onBeforeUnmount(() => {
+      document.removeEventListener('click', handleClickOutside);
+    });
 
     return {
       planterData, loading, deviceIdKeuze, gekozenUserId, gekozenDeviceID, 
       uniekeDevices, uniekeUsers, plantenTellerKeuze, deviceNaamKeuze,
       insertNieuwDevice, opslaanKoppeling, userDropdownOpen, deviceDropdownOpen,
-      toggleUserDropdown, toggleDeviceDropdown, selecteerUser, selecteerDevice
+      toggleUserDropdown, toggleDeviceDropdown, selecteerUser, selecteerDevice,
+      userDropdown, deviceDropdown
     };
   }
 }
