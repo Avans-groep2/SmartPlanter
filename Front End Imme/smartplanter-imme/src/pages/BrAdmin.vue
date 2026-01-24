@@ -143,59 +143,66 @@ export default {
       return [...new Set(devices)];
     });
 
-    // Functie 1: Device aanmaken
-    const insertNieuwDevice = async () => {
-      if (!deviceIdKeuze.value) return alert("Vul een Device ID in");
+    // VERVANG DE BESTAANDE FUNCTIES IN JE SETUP() DOOR DEZE:
 
-      const url = new URL('https://smartplanters.dedyn.io:1880/smartplantedit');
-      url.searchParams.append('table', 'Planter');
-      url.searchParams.append('deviceID', deviceIdKeuze.value);
-      url.searchParams.append('userID', 'Systeem');
-      url.searchParams.append('plantenTeller', '0');
-      url.searchParams.append('deviceNaam', 'Nieuw Device');
+// Functie 1: Device aanmaken (Nu met kleine letters voor parameters)
+const insertNieuwDevice = async () => {
+  if (!deviceIdKeuze.value) return alert("Vul een Device ID in");
 
-      try {
-        const res = await fetch(url.toString());
-        if (!res.ok) throw new Error("Server weigert verzoek");
-        
-        alert("Device succesvol aangemaakt!");
-        deviceIdKeuze.value = ""; // Veld leegmaken
-        await fetchPlanterData(); // Vernieuw tabel en dropdowns
-      } catch (err) {
-        alert("Fout: " + err.message);
+  const url = new URL('https://smartplanters.dedyn.io:1880/smartplantedit');
+  url.searchParams.append('table', 'Planter');
+  url.searchParams.append('deviceid', deviceIdKeuze.value); // Kleine letters geprobeerd
+  url.searchParams.append('userid', 'Systeem'); 
+  url.searchParams.append('plantenteller', '0');
+  url.searchParams.append('devicenaam', 'Nieuw Device');
+
+  try {
+    const res = await fetch(url.toString());
+    const result = await res.json();
+
+    if (!res.ok) {
+      // Als het device al bestaat (ER_DUP_ENTRY), geef dan een vriendelijke melding
+      if (result.code === "ER_DUP_ENTRY") {
+        return alert("Dit Device ID bestaat al! Gebruik de koppel-sectie hieronder.");
       }
-    };
+      throw new Error(result.code || "Onbekende fout");
+    }
+    
+    alert("Device succesvol aangemaakt!");
+    deviceIdKeuze.value = ""; 
+    await fetchPlanterData(); 
+  } catch (err) {
+    alert("Fout bij aanmaken: " + err.message);
+  }
+};
 
-    // Functie 2: Koppeling maken/updaten
-    const opslaanKoppeling = async () => {
-      if (!gekozenUserId.value || !gekozenDeviceID.value || !deviceNaamKeuze.value) {
-        return alert("Vul alle velden in");
-      }
+// Functie 2: Koppeling maken (Ook hier kleine letters)
+const opslaanKoppeling = async () => {
+  if (!gekozenUserId.value || !gekozenDeviceID.value || !deviceNaamKeuze.value) {
+    return alert("Vul alle velden in");
+  }
 
-      const url = new URL('https://smartplanters.dedyn.io:1880/smartplantedit');
-      url.searchParams.append('table', 'Planter');
-      url.searchParams.append('userID', gekozenUserId.value);
-      url.searchParams.append('deviceID', gekozenDeviceID.value);
-      url.searchParams.append('plantenTeller', plantenTellerKeuze.value);
-      url.searchParams.append('deviceNaam', deviceNaamKeuze.value);
+  const url = new URL('https://smartplanters.dedyn.io:1880/smartplantedit');
+  url.searchParams.append('table', 'Planter');
+  url.searchParams.append('userid', gekozenUserId.value);
+  url.searchParams.append('deviceid', gekozenDeviceID.value);
+  url.searchParams.append('plantenteller', plantenTellerKeuze.value.toString());
+  url.searchParams.append('devicenaam', deviceNaamKeuze.value);
 
-      try {
-        const res = await fetch(url.toString());
-        if (!res.ok) throw new Error("Koppelen mislukt");
+  try {
+    const res = await fetch(url.toString());
+    if (!res.ok) throw new Error("Koppelen mislukt. Controleer of het device bestaat.");
 
-        alert("Koppeling succesvol!");
-        
-        // Alle velden leegmaken
-        gekozenUserId.value = "";
-        gekozenDeviceID.value = "";
-        plantenTellerKeuze.value = 0;
-        deviceNaamKeuze.value = "";
-        
-        await fetchPlanterData();
-      } catch (err) {
-        alert("Fout: " + err.message);
-      }
-    };
+    alert("Koppeling succesvol!");
+    gekozenUserId.value = "";
+    gekozenDeviceID.value = "";
+    plantenTellerKeuze.value = 0;
+    deviceNaamKeuze.value = "";
+    await fetchPlanterData();
+  } catch (err) {
+    alert("Fout bij koppelen: " + err.message);
+  }
+};
 
     const toggleUserDropdown = () => {
       userDropdownOpen.value = !userDropdownOpen.value;
