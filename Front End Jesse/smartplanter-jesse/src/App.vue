@@ -49,7 +49,7 @@ export default {
     async addUserIfNotExists() {
       if (!this.userID) return;
 
-      const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Users&userID=${encodeURIComponent(this.userID)}`;
+      const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Users&userID=${this.userID}`;
 
       try {
         const res = await fetch(url);

@@ -115,31 +115,49 @@ if (authDisabled) {
   app.config.globalProperties.$auth = createDevAuth()
   app.use(router)
   app.mount('#app')
-} else {
-  keycloak
-    .init({
-      onLoad: 'login-required',
-      pkceMethod: 'S256'
-    })
-    .then((authenticated) => {
-      if (!authenticated) {
-        console.warn('⚠️ Keycloak authentication failed or canceled.')
-        return
-      }
+} keycloak
+  .init({
+    onLoad: 'login-required',
+    pkceMethod: 'S256'
+  })
+  .then((authenticated) => {
+    if (!authenticated) {
+      console.warn('⚠️ Keycloak authentication failed or canceled.')
+      return
+    }
 
-      console.log('✅ Authenticated')
+    console.log('✅ Authenticated')
 
-      const app = createApp(App)
-      app.config.globalProperties.$auth = auth
-      app.use(router)
-      app.mount('#app')
+    // 🚀 Voeg userID toe bij login
+    const userID = keycloak.tokenParsed?.sub
+    if (userID) {
+      const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Users&userID=${encodeURIComponent(userID)}`
 
-      startTokenRefresh()
-    })
-    .catch((error) => {
-      console.error('❌ Authentication Failed', error)
-    })
-}
+      fetch(url)
+        .then((res) => {
+          if (res.ok) {
+            console.log(`✅ UserID "${userID}" is toegevoegd of bestaat al`)
+          } else {
+            console.error(`❌ Fout bij toevoegen UserID: ${res.statusText}`)
+          }
+        })
+        .catch((err) => {
+          console.error('Fout bij fetch:', err)
+        })
+    } else {
+      console.error('❌ Geen userID beschikbaar')
+    }
+
+    const app = createApp(App)
+    app.config.globalProperties.$auth = auth
+    app.use(router)
+    app.mount('#app')
+
+    startTokenRefresh()
+  })
+  .catch((error) => {
+    console.error('❌ Authentication Failed', error)
+  })
 
 /* ======================================================
    TOKEN AUTO REFRESH
