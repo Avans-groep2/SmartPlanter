@@ -128,13 +128,15 @@ if (authDisabled) {
 
     console.log('✅ Authenticated')
 
-// 🚀 Voeg userID toe bij login
+// 🚀 Voeg user toe bij login met alle vereiste velden
 const userID = keycloak.tokenParsed?.sub;
-console.log("Debug: userID uit Keycloak:", userID);
+const username = keycloak.tokenParsed?.preferred_username;
+const rights = 'read';
 
-if (userID) {
-  const encodedUserID = encodeURIComponent(userID);
-  const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Users&userID=${encodedUserID}`;
+console.log("Debug: userID:", userID, "username:", username, "rights:", rights);
+
+if (userID && username) {
+  const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Users&userID=${encodeURIComponent(userID)}&Username=${encodeURIComponent(username)}&Rights=${encodeURIComponent(rights)}`;
   
   console.log("Debug: URL die wordt opgevraagd:", url);
 
@@ -142,20 +144,20 @@ if (userID) {
     .then(res => {
       console.log("Debug: fetch voltooid, response status:", res.status, res.statusText);
       if (!res.ok) {
-        // lees de response body als de server iets terugstuurt
         return res.text().then(text => {
           console.error(`❌ Fout bij toevoegen UserID: ${res.statusText}`, text);
         });
       } else {
-        console.log(`✅ UserID "${userID}" is toegevoegd of bestaat al`);
+        console.log(`✅ UserID "${userID}" met username "${username}" en rights "${rights}" is toegevoegd of bestaat al`);
       }
     })
     .catch(err => {
       console.error("Fout bij fetch:", err);
     });
 } else {
-  console.error("❌ Geen userID beschikbaar");
+  console.error("❌ Geen userID of username beschikbaar");
 }
+
 
 
     const app = createApp(App)
