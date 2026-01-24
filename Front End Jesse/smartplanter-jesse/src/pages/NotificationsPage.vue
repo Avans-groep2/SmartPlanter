@@ -4,8 +4,8 @@
   <div class="Notification">
     <header>
       <WelcomeMessage />
-      <PlantSelector
-        @change="selectedDeviceID = $event"
+      <PlantSelector 
+        v-model="selectedDeviceID" 
         :includeAllOption="true"
       />
     </header>
@@ -27,10 +27,9 @@
           <tr
             v-for="(melding, index) in belangrijkeMeldingen"
             :key="index"
-            :class="{ softDeleted: melding._deleted }"
           >
             <td>{{ getPlanterNaam(melding.DeviceID) }}</td>
-            <td>{{ melding.Bericht }}</td>
+            <td>{{ getBericht(melding.Berichtcode) }}</td>
             <td class="actionCol">
               <button
                 class="deleteBtn"
@@ -68,10 +67,9 @@
           <tr
             v-for="(melding, index) in overigeMeldingen"
             :key="index"
-            :class="{ softDeleted: melding._deleted }"
           >
             <td>{{ getPlanterNaam(melding.DeviceID) }}</td>
-            <td>{{ melding.Bericht }}</td>
+            <td>{{ getBericht(melding.Berichtcode) }}</td>
             <td class="actionCol">
               <button
                 class="deleteBtn"
@@ -112,35 +110,21 @@ export default {
     return {
       meldingen: [],
       planters: [],
+      meldingBerichten: [],
       selectedDeviceID: ''
     }
   },
 
   mounted() {
-    const { appContext } = getCurrentInstance()
-    const $auth = appContext.config.globalProperties.$auth
-    const userId = $auth.user?.id
-
-    fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Meldingen')
-      .then(res => res.json())
-      .then(data => {
-        this.meldingen = data
-          .filter(m => m.UserID === userId)
-          .map(m => ({ ...m, _deleted: false }))
-      })
-
-    fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter')
-      .then(res => res.json())
-      .then(data => {
-        this.planters = data
-      })
+    this.fetchMeldingen()
+    this.fetchPlanters()
+    this.fetchMeldingBerichten()
   },
 
   computed: {
     belangrijkeMeldingen() {
       return this.meldingen.filter(m =>
         m.Prioriteit === 'hoog' &&
-        !m._deleted &&
         (!this.selectedDeviceID || m.DeviceID === this.selectedDeviceID)
       )
     },
@@ -148,22 +132,75 @@ export default {
     overigeMeldingen() {
       return this.meldingen.filter(m =>
         m.Prioriteit === 'normaal' &&
-        !m._deleted &&
         (!this.selectedDeviceID || m.DeviceID === this.selectedDeviceID)
       )
     }
   },
 
   methods: {
+    async fetchMeldingen() {
+      const { appContext } = getCurrentInstance()
+      const $auth = appContext.config.globalProperties.$auth
+      const userId = $auth.user?.id
+
+      try {
+        const res = await fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Meldingen')
+        const data = await res.json()
+        this.meldingen = data.filter(m => m.UserID === userId)
+      } catch (error) {
+        console.error('Fout bij ophalen meldingen:', error)
+      }
+    },
+
+    async fetchPlanters() {
+      try {
+        const res = await fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter')
+        this.planters = await res.json()
+      } catch (error) {
+        console.error('Fout bij ophalen planters:', error)
+      }
+    },
+
+    async fetchMeldingBerichten() {
+      try {
+        const res = await fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=MeldingBericht')
+        this.meldingBerichten = await res.json()
+      } catch (error) {
+        console.error('Fout bij ophalen meldingBerichten:', error)
+      }
+    },
+
     getPlanterNaam(deviceId) {
       const planter = this.planters.find(p => p.DeviceID === deviceId)
       return planter ? planter.DeviceNaam : 'Onbekende planter'
     },
 
-    softDelete(melding) {
-      melding._deleted = true
+    getBericht(berichtcode) {
+      const berichtObj = this.meldingBerichten.find(b => b.Berichtcode === berichtcode)
+      return berichtObj ? berichtObj.Bericht : 'Onbekend bericht'
+    },
+
+    async softDelete(melding) {
+    try {
+      const meldingID = melding.MeldingID;
+      if (!meldingID) throw new Error('MeldingID is undefined');
+
+      // Verwijder melding direct uit de lokale array
+      this.meldingen = this.meldingen.filter(m => m.MeldingID !== meldingID);
+
+      fetch(
+        `https://smartplanters.dedyn.io:1880/cleardata?table=Meldingen&meldingID=${meldingID}`,
+        { method: 'GET' }
+      ).catch(err => {
+        console.warn('Fetch faalde, maar melding is waarschijnlijk verwijderd:', err);
+      });
+
+    } catch (error) {
+      console.error('Fout bij verwijderen melding:', error);
+      alert('Verwijderen mislukt. Probeer opnieuw.');
     }
   }
+}
 }
 </script>
 

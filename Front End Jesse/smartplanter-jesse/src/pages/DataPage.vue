@@ -4,7 +4,7 @@
   <div class="Data">
     <header>
       <WelcomeMessage />
-      <PlantSelector @change="selectedDeviceId = $event" />
+      <PlantSelector v-model="selectedDeviceId" />
     </header>
 
     <div class="chartContainer">

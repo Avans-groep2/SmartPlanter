@@ -46,7 +46,6 @@
 
     <!-- Oogst modal -->
     <div v-if="showHarvestScreen" class="harvest-screen">
-
       <h2>Hoe was de oogst?</h2>
 
       <!-- Rating -->
@@ -76,70 +75,91 @@ export default {
   name: "PlantCard",
   props: {
     name: String,
-    position: Number,      // Als je "01", "02" wilt tonen
-    plantDate: String,     // in ISO formaat YYYY-MM-DD
-    harvestDate: String,   // in ISO formaat YYYY-MM-DD
+    position: Number,
+    plantDate: String, // ISO YYYY-MM-DD
   },
   data() {
     return {
       showHarvestScreen: false,
       rating: 3,
-      hoverRatingValue: null
+      hoverRatingValue: null,
+      groeitijd: null // aantal dagen tot oogst
     }
   },
   computed: {
     displayRating() {
-      return this.hoverRatingValue ?? this.rating
+      return this.hoverRatingValue ?? this.rating;
     },
-    // Automatisch berekende dagen tot oogst
     daysToHarvest() {
-      if (!this.harvestDate) return ''
-      const today = new Date()
-      const harvest = new Date(this.harvestDate)
-      const diffTime = harvest - today
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-      return diffDays > 0 ? `${diffDays} dagen tot oogst` : "Kan geoogst worden!"
+      if (!this.plantDate || this.groeitijd === null) return '';
+      
+      const plantDate = new Date(this.plantDate);
+      const harvestDate = new Date(plantDate);
+      harvestDate.setDate(harvestDate.getDate() + this.groeitijd);
+
+      const today = new Date();
+      const diffTime = harvestDate - today;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      return diffDays > 0 ? `${diffDays} dagen tot oogst` : "Kan geoogst worden!";
     },
-    // Frontend weergave DD-MM-YYYY
     displayPlantDate() {
-      if (!this.plantDate) return ''
-      const date = new Date(this.plantDate)
-      const day = String(date.getDate()).padStart(2, '0')
-      const month = String(date.getMonth() + 1).padStart(2, '0')
-      const year = date.getFullYear()
-      return `${day}-${month}-${year}`
+      if (!this.plantDate) return '';
+      const date = new Date(this.plantDate);
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}-${month}-${year}`;
     },
     displayHarvestDate() {
-      if (!this.harvestDate) return ''
-      const date = new Date(this.harvestDate)
-      const day = String(date.getDate()).padStart(2, '0')
-      const month = String(date.getMonth() + 1).padStart(2, '0')
-      const year = date.getFullYear()
-      return `${day}-${month}-${year}`
+      if (!this.plantDate || this.groeitijd === null) return '';
+      const plantDate = new Date(this.plantDate);
+      const harvestDate = new Date(plantDate);
+      harvestDate.setDate(harvestDate.getDate() + this.groeitijd);
+
+      const day = String(harvestDate.getDate()).padStart(2, '0');
+      const month = String(harvestDate.getMonth() + 1).padStart(2, '0');
+      const year = harvestDate.getFullYear();
+      return `${day}-${month}-${year}`;
     }
   },
+  mounted() {
+    // Haal de plantgegevens op
+    fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Planten')
+      .then(res => res.json())
+      .then(data => {
+        const plant = data.find(p => p.Plantsoort === this.name);
+        if (plant) {
+          this.groeitijd = plant.Groeitijd;
+        }
+      });
+  },
   methods: {
-    setRating(star) {
-      this.rating = star
-    },
-    hoverStar(star) {
-      this.hoverRatingValue = star
-    },
-    leaveStar() {
-      this.hoverRatingValue = null
-    },
+    setRating(star) { this.rating = star },
+    hoverStar(star) { this.hoverRatingValue = star },
+    leaveStar() { this.hoverRatingValue = null },
     confirmHarvest() {
-      console.log('Geoogst met score:', this.rating)
-      this.showHarvestScreen = false
+      const today = new Date();
+      const day = String(today.getDate()).padStart(2, '0');
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const year = today.getFullYear();
+      const oogstDatum = `${year}-${month}-${day}`;
+      const currentDeviceID = localStorage.getItem('chosenDeviceId');
+      const plantpositie = Number(this.position);
+      const oogstResultaat = Number(this.rating);
+
+      const url = `https://smartplanters.dedyn.io:1880/harvest?table=PlantPositie&oogstDatum=${oogstDatum}&oogstResultaat=${oogstResultaat}&plantpositie=${plantpositie}&deviceID=${currentDeviceID}`;
+
+      fetch(url)
+
+      this.$emit('plant-harvested', this.position);
+      
+        }
     }
   }
-}
 </script>
 
 <style>
-/*========== 
-
-/* Card styling */
 .plants-position {
   position: relative; 
   flex-direction: column;
@@ -148,8 +168,6 @@ export default {
   border-radius: 25px;
 }
 
-
-/* Overlay */
 .overlay {
   display: flex;
   position: absolute;
@@ -171,7 +189,6 @@ export default {
   opacity: 0;
 }
 
-/* Header styling */
 .plants-title {
   display: flex;
   justify-content: space-between;
@@ -193,7 +210,6 @@ export default {
   color: var(--text);
 }
 
-/* Plant position badge */
 .plant-position {
   display: flex;
   justify-content: center;   
@@ -214,7 +230,6 @@ export default {
   line-height: 1;          
 }
 
-/* Plant info */
 .daysToOogst {
   font-size: 1.5rem;
   text-align: center; 
@@ -238,7 +253,6 @@ export default {
   margin: 0; 
 }
 
-/* Button styling */
 .btnOogst {
   background: var(--primary);
   color: var(--text);
@@ -252,7 +266,6 @@ export default {
   cursor: pointer;
 }
 
-/*========== Oogst Modal =========*/
 .harvest-screen {
   position: absolute;
   inset: 0;
@@ -270,7 +283,6 @@ export default {
   color: var(--text);
 }
 
-/* Rating */
 .rating {
   display: flex;
   align-items: center;
@@ -283,14 +295,13 @@ export default {
 }
 
 .rating .full {
-    color: var(--primary);
+  color: var(--primary);
 }
 
 .rating .empty {
   color: var(--primary);
 }
 
-/* Buttons in modal */
 .harvest-actions {
   display: flex;
   gap: 1rem;

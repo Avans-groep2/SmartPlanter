@@ -1,110 +1,140 @@
-  <template>
-    <SidebarNavbar/>
-    <div class="Dashboard">
-      <header>
-        <WelcomeMessage/>
-        <PlantSelector @change="selectedDeviceId = $event" />
-      </header>
+<template>
+  <SidebarNavbar />
 
-      <div class="plants-container">
-  <PlantCard
-          v-for="plant in filteredPlants" 
-          :key="plant.PlantenTeller"
-          :name="plant.Plantsoort"
-          :position="plant.Plantpositie"
-          :plant-date="plant.PlantDatum"
-          :harvest-date="plant.OogstDatum"
-        />
-      <AddPlantCard/>
-      </div>
+  <div class="Dashboard">
+    <header>
+      <WelcomeMessage />
+      <PlantSelector v-model="selectedDeviceId"/>
+    </header>
+
+    <div class="plants-container">
+      <PlantCard
+        v-for="plant in filteredPlants"
+        :key="plant.Plantpositie"
+        :name="plant.Plantsoort"
+        :position="plant.Plantpositie"
+        :plant-date="plant.PlantDatum"
+        :harvest-date="plant.OogstDatum"
+        @plant-harvested="removePlant"
+      />
+
+      <AddPlantCard
+        v-if="selectedDeviceId"
+        :deviceID="selectedDeviceId"
+        @plant-added="reloadPlantPositions"/>
     </div>
-    
-    
-  </template>
+  </div>
+</template>
 
-  <script setup>
-  import { ref, computed, onMounted } from 'vue'
+<script setup>
+import { ref, computed, onMounted } from 'vue'
 
-  import SidebarNavbar from '@/components/SidebarNavbar.vue'
-  import WelcomeMessage from '@/components/WelcomeMessage.vue'
-  import PlantCard from '@/components/PlantCard.vue'
-  import PlantSelector from '@/components/PlantSelector.vue'
-  import AddPlantCard from '@/components/AddPlantCard.vue'
+import SidebarNavbar from '@/components/SidebarNavbar.vue'
+import WelcomeMessage from '@/components/WelcomeMessage.vue'
+import PlantCard from '@/components/PlantCard.vue'
+import PlantSelector from '@/components/PlantSelector.vue'
+import AddPlantCard from '@/components/AddPlantCard.vue'
 
-  // state
-  const selectedDeviceId = ref(null) // huidige geselecteerde device
-  const plants = ref([])             // Plantgegevens
-  const plantPositions = ref([])     // Posities van planten
-  const planters = ref([])           // Devices/planters
+/* --------------------
+   State
+-------------------- */
+const selectedDeviceId = ref(null)
+const planters = ref([])
+const plants = ref([])
+const plantPositions = ref([])
 
-  // fetch data bij mount
-  onMounted(async () => {
-    await fetchPlanters()
-    await fetchPlants()
-    await fetchPlantPositions()
-  })
+/* --------------------
+   Lifecycle
+-------------------- */
+onMounted(async () => {
+  await fetchAllData()
+})
 
-  // fetch functies
-  async function fetchPlanters() {
-    const res = await fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter')
-    planters.value = await res.json()
-  }
+/* --------------------
+   Fetch functies
+-------------------- */
+async function fetchAllData() {
+  await Promise.all([fetchPlanters(), fetchPlants(), fetchPlantPositions()])
+}
 
-  async function fetchPlants() {
-    const res = await fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Planten')
-    plants.value = await res.json()
-  }
+async function fetchPlanters() {
+  const res = await fetch(
+    'https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter'
+  )
+  planters.value = await res.json()
+}
 
-  async function fetchPlantPositions() {
-    const res = await fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=PlantPositie')
-    plantPositions.value = await res.json()
-  }
+async function fetchPlants() {
+  const res = await fetch(
+    'https://smartplanters.dedyn.io:1880/smartplantdata?table=Planten'
+  )
+  plants.value = await res.json()
+}
 
-  // gefilterde planten per geselecteerd device
-  const filteredPlants = computed(() => {
-    if (!selectedDeviceId.value) return []
+async function fetchPlantPositions() {
+  const res = await fetch(
+    'https://smartplanters.dedyn.io:1880/smartplantdata?table=PlantPositie'
+  )
+  plantPositions.value = await res.json()
+}
 
-    // selecteer posities van het geselecteerde device
-    const devicePositions = planters.value
-      .filter(d => d.DeviceID === selectedDeviceId.value)
-      .flatMap(d => plantPositions.value.filter(p => p.PlantenTeller === d.PlantenTeller))
+/* --------------------
+   Herladen na toevoegen
+-------------------- */
+async function reloadPlantPositions() {
+  console.log('🔄 Herladen plantposities...')
+  await fetchPlantPositions()
+}
 
-    // voeg plantgegevens toe aan posities
-    return devicePositions.map(p => {
-      const plantData = plants.value.find(pl => pl.PlantID === p.PlantID)
-      return {
-        ...p,
-        Plantsoort: plantData ? plantData.Plantsoort : 'Onbekend'
-      }
-    })
-  })
-  </script>
+function removePlant(position) {
+  // Filter de plantpositie uit de lijst
+  plantPositions.value = plantPositions.value.filter(
+    p => p.Plantpositie !== position
+  )
+}
 
-  <style>
+/* --------------------
+   Computed properties
+-------------------- */
+const filteredPlants = computed(() => {
+  if (!selectedDeviceId.value) return []
 
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-right: 1rem;
+  // Filter plantposities op DeviceID en dat er een Plantpositie is
+  const positions = plantPositions.value.filter(
+    p =>
+      p.DeviceID === selectedDeviceId.value &&
+      p.Plantpositie !== null &&
+      p.Plantpositie !== ''
+  )
+
+  // Voeg plantgegevens toe
+  return positions.map(p => {
+    const plantData = plants.value.find(pl => pl.PlantID === p.PlantID)
+    return {
+      ...p,
+      Plantsoort: plantData ? plantData.Plantsoort : 'Onbekend'
     }
+  })
+})
+</script>
 
-    .Dashboard {
-      min-height: 100vh;
-      width: auto;
-      margin-left: 5rem;
-      overflow-y: hidden;
-      overflow-x: hidden;
-    }
+<style>
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-right: 1rem;
+}
+
+.Dashboard {
+  min-height: 100vh;
+  margin-left: 5rem;
+}
 
 .plants-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 400px)); /* minimaal 250px breed, groei tot 1fr */
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 325px));
+  gap: 20px;
   padding: 20px;
-  width: 100%;
-  box-sizing: border-box;
 }
-
-
-  </style>
+</style>

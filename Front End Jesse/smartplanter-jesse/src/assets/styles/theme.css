@@ -8,6 +8,7 @@
   --text: #262626;
   --icon: #262626;
   --danger: #FF4A4A;
+  --inputbg: #e5e5e5;
 }
 
 .dark {
@@ -16,8 +17,9 @@
   --bg: #000;
   --hover: #202020;
   --blur: rgba(0, 0, 0, 0.2);
-  --light: #141414;
+  --light: #0a0a0a;
   --text: #fff;
   --icon: #fff;
   --danger: #FF4A4A;
-}
+  --inputbg: #151515;
+} 

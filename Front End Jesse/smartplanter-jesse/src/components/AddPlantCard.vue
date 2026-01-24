@@ -1,22 +1,25 @@
 <template>
   <article class="plants-card">
-
-    <!-- Knop om modal te openen -->
     <button class="btnPlantToevoegen" @click="showAddPlantScreen = true">
       <i class="fa-solid fa-plus"></i> Plant Toevoegen
     </button>
 
-    <!-- Modal -->
     <div v-if="showAddPlantScreen" class="harvest-screen">
       <h2>Plant Informatie</h2>
 
-      <!-- Plant positie -->
-      <input type="number" placeholder="Plant Positie" v-model="newPlant.position" class="form-input">
+      <input
+        type="number"
+        placeholder="Plant Positie"
+        v-model="newPlant.position"
+        class="form-input"
+      />
 
-      <!-- Plant datum -->
-      <input type="date" v-model="newPlant.plantDate" class="form-input">
+      <input
+        type="date"
+        v-model="newPlant.plantDate"
+        class="form-input"
+      />
 
-      <!-- Dropdown plantsoorten -->
       <select v-model="newPlant.plantID" class="form-input">
         <option disabled value="">Kies een plantsoort</option>
         <option
@@ -28,59 +31,88 @@
         </option>
       </select>
 
-      <!-- Actieknop -->
       <div class="harvest-actions">
         <button @click="addPlant" class="btnPlantToevoegen">
           Plant Toevoegen
         </button>
       </div>
     </div>
-
   </article>
 </template>
 
 <script>
 export default {
   name: "AddPlantCard",
+
   props: {
-    name: String,
-    position: Number,
-    plantDate: String,
-    harvestDate: String,
-  },
+  deviceID: {
+    type: [String, Number], // niet null
+    required: true
+  }
+},
+
+  emits: ['plant-added'],
+
   data() {
     return {
       showAddPlantScreen: false,
       plantOptions: [],
       newPlant: {
-        position: null,
-        plantDate: "",
-        plantID: "", // geselecteerde plant
-      },
-    };
+        position: '',
+        plantDate: '',
+        plantID: ''
+      }
+    }
   },
+
   mounted() {
-    this.fetchPlantOptions();
+    this.fetchPlantOptions()
   },
+
   methods: {
     async fetchPlantOptions() {
-      try {
-        const response = await fetch(
-          "https://smartplanters.dedyn.io:1880/smartplantdata?table=Planten"
-        );
-        const data = await response.json();
-        this.plantOptions = data;
-      } catch (error) {
-        console.error("Fout bij ophalen plantsoorten:", error);
-      }
+      const res = await fetch(
+        "https://smartplanters.dedyn.io:1880/smartplantdata?table=Planten"
+      )
+      this.plantOptions = await res.json()
     },
-    addPlant() {
-      console.log("Nieuwe plant:", this.newPlant);
-      this.showAddPlantScreen = false;
-      // Hier kun je de nieuwe plant opslaan of versturen naar je backend
-    },
-  },
-};
+
+      addPlant() {
+    console.log("➡️ addPlant gestart")
+    console.log("📟 DeviceID:", this.deviceID)
+
+    if (!this.deviceID) {
+      alert("Selecteer eerst een planter")
+      return
+    }
+
+    if (!this.newPlant.plantID || !this.newPlant.position) {
+      alert("Vul alle velden in")
+      return
+    }
+
+    const url =
+      `https://smartplanters.dedyn.io:1880/smartplantedit?table=PlantPositie` +
+      `&deviceID=${this.deviceID}` +
+      `&plantID=${this.newPlant.plantID}` +
+      `&plantDatum=${this.newPlant.plantDate}` +
+      `&plantpositie=${this.newPlant.position}`
+
+    fetch(url)
+      .then(res => {
+        if (!res.ok) throw new Error("Toevoegen mislukt")
+
+        this.showAddPlantScreen = false
+        // this.newPlant = { position: '', plantDate: '', plantID: '' }
+        this.$emit('plant-added')
+      })
+      .catch(() => {
+        alert("Plant kon niet worden toegevoegd")
+      })
+  }
+
+  }
+}
 </script>
 
 <style>
@@ -105,7 +137,7 @@ export default {
   border-radius: 25px;
   height: auto;
   border: none;
-  width: 90%;
+  width: 100%;
   margin: 1rem 0;
   font-size: 1.8rem;
   font-weight: 600;
@@ -156,7 +188,7 @@ export default {
   padding: 0.4rem 0.8rem;
   font-size: 1rem;
   border-radius: 10px;
-  background: var(--bg);
+  background: var(--inputbg);
   color: var(--text);
   border: none;
   box-sizing: border-box;

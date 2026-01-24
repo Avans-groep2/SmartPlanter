@@ -1,6 +1,6 @@
 <template>
   <div class="dropdown">
-    <button @click="open = !open" class="dropdown-btn">
+    <button @click="toggleDropdown" class="dropdown-btn">
       {{ selected?.label || 'Selecteer een plant' }}
     </button>
 
@@ -18,131 +18,126 @@
   </div>
 </template>
 
-<script setup>
-import {
-  ref,
-  computed,
-  onMounted,
-  onBeforeUnmount,
-  watch,
-  getCurrentInstance,
-  defineProps,
-  defineEmits
-} from 'vue'
-
-const props = defineProps({
-  includeAllOption: { type: Boolean, default: false } // voeg optie “Alle planters” toe
-})
-
-const emit = defineEmits(['change'])
-
-const open = ref(false)
-const selected = ref(null)
-const options = ref([])
-
-// haal $auth op
-const { appContext } = getCurrentInstance()
-const $auth = appContext.config.globalProperties.$auth
-
-const user = computed(() => $auth.user)
-const currentUserID = computed(() => user.value?.id)
-
-// Fetch planters
-async function loadPlanters() {
-  if (!currentUserID.value) return
-
-  try {
-    const res = await fetch(
-      'https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter'
-    )
-    if (!res.ok) throw new Error(res.status)
-
-    const data = await res.json()
-
-    const userPlanters = data.filter(
-      item => item.UserID === currentUserID.value
-    )
-
-    options.value = userPlanters.map(p => ({
-      label: p.DeviceNaam,
-      deviceId: p.DeviceID
-    }))
-
-    // Voeg “Alle planters” optie toe bovenaan indien prop true
-    if (props.includeAllOption) {
-      options.value.unshift({ label: 'Alle planters', deviceId: '' })
+<script>
+export default {
+  name: "PlantSelector",
+  props: {
+    modelValue: {
+      type: [Number, String, null],
+      default: null
+    },
+    includeAllOption: {
+      type: Boolean,
+      default: false
     }
+  },
 
-    // Selecteer opgeslagen device of eerste optie
-    if (options.value.length > 0) {
-  const savedDevice = localStorage.getItem('chosenDevice')
+  data() {
+    return {
+      open: false,
+      selected: null,
+      options: []
+    }
+  },
 
-  if (props.includeAllOption) {
-    // probeer “Alle planters” te selecteren
-    selected.value =
-      options.value.find(o => o.deviceId === '') ??
-      options.value.find(o => o.deviceId === savedDevice) ??
-      options.value[0]
-  } else {
-    selected.value =
-      options.value.find(o => o.deviceId === savedDevice) ??
-      options.value[0]
+  computed: {
+    user() {
+      return this.$auth.user
+    },
+    currentUserID() {
+      return this.user?.id
+    }
+  },
+
+  watch: {
+    modelValue(value) {
+      if (!value || !this.options.length) return
+      this.selected = this.options.find(o => o.deviceId === value) || this.selected
+    },
+    user(u) {
+      if (u) this.loadPlanters()
+    }
+  },
+
+  mounted() {
+    if (this.user) this.loadPlanters()
+    document.addEventListener('click', this.handleClickOutside)
+  },
+
+  beforeUnmount() {
+    document.removeEventListener('click', this.handleClickOutside)
+  },
+
+  methods: {
+    toggleDropdown() {
+      this.open = !this.open
+    },
+
+    async loadPlanters() {
+      if (!this.currentUserID) return
+
+      try {
+        const res = await fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter')
+        const data = await res.json()
+
+        const userPlanters = data.filter(p => p.UserID === this.currentUserID)
+
+        this.options = userPlanters.map(p => ({
+          label: p.DeviceNaam,
+          deviceId: p.DeviceID
+        }))
+
+        if (this.includeAllOption) {
+          this.options.unshift({
+            label: 'Alle planters',
+            deviceId: null
+          })
+        }
+
+        const savedId = localStorage.getItem('chosenDeviceId')
+        if (savedId) {
+          this.selected = this.options.find(o => String(o.deviceId) === savedId) || this.options[0]
+        } else if (this.options.length) {
+          this.selected = this.options[0]
+          localStorage.setItem('chosenDeviceId', this.selected.deviceId)
+          localStorage.setItem('chosenDeviceName', this.selected.label)
+        }
+
+        if (this.selected) {
+          this.$emit('update:modelValue', this.selected.deviceId)
+        }
+      } catch (err) {
+        console.error('Fout bij ophalen van planters:', err)
+      }
+    },
+
+    select(option) {
+      this.selected = option
+      this.open = false
+
+      localStorage.setItem('chosenDeviceId', option.deviceId)
+      localStorage.setItem('chosenDeviceName', option.label)
+
+      this.$emit('update:modelValue', option.deviceId)
+    },
+
+    handleClickOutside(e) {
+      const dropdown = this.$el
+      if (dropdown && !dropdown.contains(e.target)) {
+        this.open = false
+      }
+    }
   }
-
-  emit('change', selected.value.deviceId)
 }
-
-  } catch (err) {
-    console.error('Fout bij ophalen van planters:', err)
-  }
-}
-
-// dropdown helpers
-function select(option) {
-  selected.value = option
-  open.value = false
-}
-
-// klik buiten dropdown sluiten
-function handleClickOutside(event) {
-  const dropdown = document.querySelector('.dropdown')
-  if (dropdown && !dropdown.contains(event.target)) {
-    open.value = false
-  }
-}
-
-// lifecycle
-onMounted(() => {
-  if (user.value) loadPlanters()
-  document.addEventListener('click', handleClickOutside)
-})
-
-onBeforeUnmount(() => {
-  document.removeEventListener('click', handleClickOutside)
-})
-
-// herlaad als user beschikbaar wordt
-watch(user, (u) => {
-  if (u) loadPlanters()
-})
-
-// opslag & emit
-watch(selected, (value) => {
-  if (!value) return
-  localStorage.setItem('chosenDevice', value.deviceId)
-  emit('change', value.deviceId)
-})
 </script>
 
 <style>
-/* Dropdown container */
 .dropdown {
-  position: relative;  
+  position: relative;
   width: 200px;
   z-index: 999;
 }
 
-/* Button styling */
 .dropdown-btn {
   width: 100%;
   padding: 8px;
@@ -155,30 +150,30 @@ watch(selected, (value) => {
   border-radius: 15px;
 }
 
-/* Dropdown menu */
 .dropdown-menu {
   position: absolute;
   top: 100%;
   left: 0;
-  width: 100%;
-  margin: 0.5rem 0 0 0;
+  max-width: 165px;
+  width: 165px;
+  margin-top: 0.5rem;
   padding: 0;
   list-style: none;
   border: 1px solid var(--light);
   background: var(--light);
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  overflow: hidden;
-  transform-origin: top center;
 }
 
-/* Menu items */
 .dropdown-menu li {
   padding: 8px;
   cursor: pointer;
-  background: var(--light);
   color: var(--text);
-  transition: background 0.2s, color 0.2s;
+  
+  /* tekst laten wrappen */
+  white-space: normal;      /* in plaats van nowrap */
+  word-break: break-word;   /* lange woorden afbreken als nodig */
+  overflow-wrap: anywhere;  /* extra zekerheid voor lange woorden */
 }
 
 .dropdown-menu li:hover {
@@ -186,7 +181,6 @@ watch(selected, (value) => {
   font-weight: 600;
 }
 
-/* Fade + slide animation */
 .fade-slide-enter-active,
 .fade-slide-leave-active {
   transition: all 0.25s ease;
@@ -196,11 +190,5 @@ watch(selected, (value) => {
 .fade-slide-leave-to {
   opacity: 0;
   transform: translateY(-10px);
-}
-
-.fade-slide-enter-to,
-.fade-slide-leave-from {
-  opacity: 1;
-  transform: translateY(0);
 }
 </style>

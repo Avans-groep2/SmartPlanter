@@ -38,7 +38,6 @@
             {{ user }}
           </option>
         </select>
-
         <select v-model="selectedDeviceID">
           <option
             v-for="device in devices"
@@ -48,6 +47,9 @@
             {{ device.TtnDeviceID }}
           </option>
         </select>
+        <input v-model="selectedPlantenTeller" placeholder="PlantenTeller" type="number"/>
+        <input v-model="selectedDeviceNaam" placeholder="Device Naam" />
+
 
         <button @click="koppel">Koppelen</button>
       </div>
@@ -97,6 +99,8 @@ export default {
       planters: [],
       selectedUserID: '',
       selectedDeviceID: '',
+      selectedPlantenTeller: '',
+      selectedDeviceNaam: '',
 
       koppelingen: []
     }
@@ -128,23 +132,59 @@ export default {
 
   methods: {
     addDevice() {
-      if (!this.newDeviceId) return
+  if (!this.newDeviceId.trim()) return
 
-      this.devices.push({ TtnDeviceID: this.newDeviceId })
-      this.selectedDeviceID = this.newDeviceId
+  const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Devices&ttnDeviceID=${this.newDeviceId}`
+
+  fetch(url) 
+    .then(res => {
+      if (!res.ok) throw new Error('Fout bij toevoegen device')
+
+      // leegmaken van het inputveld
       this.newDeviceId = ''
-    },
+
+      // tabel herladen
+      return fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Devices')
+    })
+    .then(res => res.json())
+    .then(data => {
+      this.devices = data
+      if (data.length) this.selectedDeviceID = data[0].TtnDeviceID
+    })
+    .catch(err => {
+      console.error(err)
+      alert('Device kon niet worden toegevoegd')
+    })
+},
 
     koppel() {
-      if (!this.selectedUserID || !this.selectedDeviceID) return
+  if (!this.selectedUserID || !this.selectedDeviceID) return
 
-      this.koppelingen.push({
-        UserID: this.selectedUserID,
-        DeviceID: this.selectedDeviceID
-      })
+  const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Planter` +
+              `&userID=${this.selectedUserID}` +
+              `&deviceID=${this.selectedDeviceID}` +
+              `&plantenTeller=${this.selectedPlantenTeller}` +
+              `&deviceNaam=${this.selectedDeviceNaam}`
 
-      alert(`Gekoppeld: ${this.selectedUserID} → ${this.selectedDeviceID}`)
-    }
+  fetch(url)
+    .then(res => {
+      if (!res.ok) throw new Error('Fout bij toevoegen planter')
+
+      // reset velden
+
+      // tabel herladen
+      return fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter')
+    })
+    .then(res => res.json())
+    .then(data => {
+      this.planters = data
+      if (data.length) this.selectedUserID = data[0].UserID
+    })
+    .catch(err => {
+      console.error(err)
+      alert('Planter kon niet worden toegevoegd')
+    })
+}
   }
 }
 </script>
