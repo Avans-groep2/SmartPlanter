@@ -1,4 +1,5 @@
-<template class="admin">
+<template>
+  <div class="admin">
   <div class="deviceIdAanmaken">
     <h1 class="adminH1">Device Id kiezen:</h1>
     <div class="deviceKeuze">
@@ -54,7 +55,7 @@
           <div
             v-for="device in uniekeDevices"
             :key="device"
-            class="dropddownKeuze"
+            class="dropdownKeuze"
             @click="selecteerDevice(device)"
           >{{ device }}</div>
         </div>
@@ -93,6 +94,7 @@
             </tr>
         </tbody>
       </table>
+    </div>
     </div>
 </template>
 
@@ -173,7 +175,7 @@ export default {
       if(!this.deviceIdKeuze) 
         return alert("Vul eerst een DeviceID in");
 
-      const nieuwDevice = {
+      const payload = {
         DeviceID: this.deviceIdKeuze,
         UserID: "Nieuw",
         PlantenTeller: 0,
@@ -184,7 +186,7 @@ export default {
         const response = await fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify(nieuwDevice)
+          body: JSON.stringify(payload)
       });
 
         if (response.ok) {
@@ -201,7 +203,7 @@ export default {
       if (!this.gekozenUserId || !this.gekozenDeviceID) {
         return alert("Selecteer een gebruiker en een device");
       }
-      const koppeling = {
+      const payload = {
         UserID: this.gekozenUserId,
         DeviceID: this.gekozenDeviceID,
         PlantenTeller: this.plantenTellerKeuze,
@@ -212,12 +214,12 @@ export default {
         const response = await fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(koppeling)
+          body: JSON.stringify(payload)
         });
 
         if (response.ok) {
           alert("Koppeling succesvol opgeslagen!");
-          this.fetchPlanterData(); 
+          await this.fetchPlanterData(); 
         }
       } catch (error) {
         console.error("Fout bij koppelen:", error);
@@ -225,10 +227,13 @@ export default {
     },
 
     handleClickOutside(event) {
-      const uDrop = this.$refs.userDropdown;
-      const dDrop = this.$refs.deviceDropdown;
+      const userRef = this.$refs.userDropdown;
+      const deviceRef = this.$refs.deviceDropdown;
 
-      if (uDrop && !uDrop.contains(event.target) && dDrop && !dDrop.contains(event.target)) {
+      const isOutsideUser = !userRef || !userRef.contains(event.target);
+      const isOutsideDevice = !deviceRef || !deviceRef.contains(event.target);
+
+      if (isOutsideUser && isOutsideDevice) {
         this.userDropdownOpen = false;
         this.deviceDropdownOpen = false;
       }
