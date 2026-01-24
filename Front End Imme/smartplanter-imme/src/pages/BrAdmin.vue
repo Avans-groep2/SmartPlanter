@@ -183,7 +183,7 @@ export default {
       };
 
       try{ 
-        const response = await fetch('https://smartplanters.dedyn.io:1880/smartplantedit?table=Planter&DeviceID=3', {
+        const response = await fetch('https://smartplanters.dedyn.io:1880/smartplantedit?table=Planter&deviceID=3', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify(payload)
@@ -211,7 +211,7 @@ export default {
       };
 
       try {
-        const response = await fetch('https://smartplanters.dedyn.io:1880/smartplantedit?table=Planter&DeviceID=2&UserID=Imme&PlantenTellen=20%DeviceNaam=SmartPlanter', {
+        const response = await fetch('https://smartplanters.dedyn.io:1880/smartplantedit?table=Planter&deviceID=2&userID=Imme&plantenTeller=20%deviceNaam=SmartPlanter', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
