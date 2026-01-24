@@ -119,47 +119,44 @@ export default {
     const userDropdownOpen = ref(false);
     const deviceDropdownOpen = ref(false);
 
-    const fetchPlanterData = async () => {
-      try {
-        loading.value = true;
-        const response = await fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter');
-        const data = await response.json();
-        planterData.value = Array.isArray(data) ? data : [];
-      } catch (error) {
-        console.error("Fout bij ophalen:", error);
-      } finally {
-        loading.value = false;
-      }
-    };
+    // 1. Ophalen van data
+const fetchPlanterData = async () => {
+  try {
+    loading.value = true;
+    const response = await fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter');
+    const data = await response.json();
+    
+    // We zorgen dat planterData altijd een array is
+    planterData.value = Array.isArray(data) ? data : [];
+    
+    // Log de data zodat je in de console (F12) kunt zien of de kolomnamen kloppen
+    console.log("Opgehaalde data:", planterData.value);
+  } catch (error) {
+    console.error("Fout bij ophalen:", error);
+  } finally {
+    loading.value = false;
+  }
+};
 
-    // Computed properties zorgen dat de lijstjes en dropdowns direct up-to-date zijn
-    const uniekeUsers = computed(() => {
-      const users = planterData.value.map(p => p.UserID).filter(u => u && u !== 'Systeem');
-      return [...new Set(users)];
-    });
-
-    const uniekeDevices = computed(() => {
-      const devices = planterData.value.map(p => p.DeviceID).filter(d => d);
-      return [...new Set(devices)];
-    });
-
+// 2. Nieuw Device aanmaken (Met de juiste kolomnaam: TtnDeviceID)
 const insertNieuwDevice = async () => {
   if (!deviceIdKeuze.value) return alert("Vul een Device ID in");
 
   const url = new URL('https://smartplanters.dedyn.io:1880/smartplantedit');
-  url.searchParams.append('table', 'Devices'); // Tabel 'Devices' gebruiken
-  url.searchParams.append('TinDeviceID', deviceIdKeuze.value.trim()); // EXACTE naam uit student code
+  url.searchParams.append('table', 'Devices'); 
+  // Gebruik exact TtnDeviceID met twee t's
+  url.searchParams.append('TtnDeviceID', deviceIdKeuze.value.trim()); 
 
   try {
     const res = await fetch(url.toString());
-    
+    const data = await res.json();
+
     if (!res.ok) {
-      const errorData = await res.json();
-      if (errorData.code === "ER_DUP_ENTRY") throw new Error("ID bestaat al!");
-      throw new Error("Server fout: " + res.status);
+      if (data.code === "ER_DUP_ENTRY") throw new Error("Dit Device ID bestaat al!");
+      throw new Error(data.code || "Server fout");
     }
-    
-    alert("Device succesvol aangemaakt in tabel Devices!");
+
+    alert("Device succesvol aangemaakt!");
     deviceIdKeuze.value = ""; 
     await fetchPlanterData(); 
   } catch (err) {
@@ -167,7 +164,7 @@ const insertNieuwDevice = async () => {
   }
 };
 
-// Functie 2: Koppeling maken (Gebruikt exact de CamelCase parameters)
+// 3. Koppeling maken
 const opslaanKoppeling = async () => {
   if (!gekozenUserId.value || !gekozenDeviceID.value || !deviceNaamKeuze.value) {
     return alert("Vul alle velden in");
@@ -182,16 +179,12 @@ const opslaanKoppeling = async () => {
 
   try {
     const res = await fetch(url.toString());
-    
-    if (!res.ok) {
-      const errorData = await res.json();
-      // Als hij hier ER_DUP_ENTRY geeft, bestaat deze USER-DEVICE combinatie al
-      throw new Error(errorData.code || "Koppelen mislukt");
-    }
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(data.code || "Koppelen mislukt");
 
     alert("Koppeling succesvol!");
-    
-    // Velden legen
+    // Reset velden
     gekozenUserId.value = "";
     gekozenDeviceID.value = "";
     plantenTellerKeuze.value = 0;
@@ -199,7 +192,7 @@ const opslaanKoppeling = async () => {
     
     await fetchPlanterData();
   } catch (err) {
-    alert("Koppel fout: " + err.message);
+    alert("Fout: " + err.message);
   }
 };
 
