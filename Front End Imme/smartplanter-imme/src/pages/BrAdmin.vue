@@ -176,61 +176,73 @@ export default {
     return alert("Vul eerst een DeviceID in");
   }
 
-  const url = new URL(
-    'https://smartplanters.dedyn.io:1880/smartplantedit'
-  );
+  // Debug: check wat je verstuurt
+  console.log("Nieuw device aanmaken:", this.deviceIdKeuze);
 
-  url.searchParams.append('table', 'Planter');
+  const url = new URL('https://smartplanters.dedyn.io:1880/smartplantedit');
+  
+  // LET OP: Controleer of de tabelnaam hier 'Planter' moet zijn of bijv. 'Devices'
+  url.searchParams.append('table', 'Planter'); 
   url.searchParams.append('DeviceID', this.deviceIdKeuze);
-  url.searchParams.append('UserID', 'Nieuw');
-  url.searchParams.append('PlantenTeller', 0);
+  
+  // Gebruik een geldige waarde voor UserID. 
+  // Als de database een getal verwacht, verander '0' naar een integer.
+  url.searchParams.append('UserID', '0'); 
+  url.searchParams.append('PlantenTeller', '0');
   url.searchParams.append('DeviceNaam', 'Nieuw Device');
 
   try {
-    const response = await fetch(url.toString(), {
-      method: 'GET'
-    });
+    const response = await fetch(url.toString(), { method: 'GET' });
 
-    if (!response.ok) throw new Error();
+    if (!response.ok) {
+      // Probeer de foutmelding van de server te lezen
+      const errorData = await response.text();
+      throw new Error(`Server fout: ${response.status} - ${errorData}`);
+    }
 
-    alert("Device ID opgeslagen!");
+    alert("Device ID succesvol aangemaakt!");
     this.deviceIdKeuze = "";
-    this.fetchPlanterData();
+    await this.fetchPlanterData(); // Vernieuw de lijst
   } catch (err) {
-    console.error(err);
-    alert("Opslaan mislukt");
+    console.error("Fetch error:", err);
+    alert("Opslaan mislukt: " + err.message);
   }
 },
 
-    async opslaanKoppeling() {
-      if (!this.gekozenUserId || !this.gekozenDeviceID) {
-          return alert("Selecteer een gebruiker en een device");
-        }
+async opslaanKoppeling() {
+  // Validatie: check of alles is ingevuld
+  if (!this.gekozenUserId || !this.gekozenDeviceID || !this.deviceNaamKeuze) {
+    return alert("Vul alle velden in (Gebruiker, Device en Naam)");
+  }
 
-        const url = new URL(
-          'https://smartplanters.dedyn.io:1880/smartplantedit'
-        );
+  const url = new URL('https://smartplanters.dedyn.io:1880/smartplantedit');
+  
+  url.searchParams.append('table', 'Planter');
+  url.searchParams.append('UserID', this.gekozenUserId);
+  url.searchParams.append('DeviceID', this.gekozenDeviceID);
+  url.searchParams.append('PlantenTeller', this.plantenTellerKeuze || 0);
+  url.searchParams.append('DeviceNaam', this.deviceNaamKeuze);
 
-        url.searchParams.append('table', 'Planter');
-        url.searchParams.append('UserID', this.gekozenUserId);
-        url.searchParams.append('DeviceID', this.gekozenDeviceID);
-        url.searchParams.append('PlantenTeller', this.plantenTellerKeuze);
-        url.searchParams.append('DeviceNaam', this.deviceNaamKeuze);
+  try {
+    const response = await fetch(url.toString(), { method: 'GET' });
 
-        try {
-          const response = await fetch(url.toString(), {
-            method: 'GET'
-          });
+    if (!response.ok) {
+      const errorData = await response.text();
+      throw new Error(`Server fout: ${response.status} - ${errorData}`);
+    }
 
-          if (!response.ok) throw new Error();
-
-          alert("Koppeling opgeslagen!");
-          this.fetchPlanterData();
-        } catch (err) {
-          console.error(err);
-          alert("Koppelen mislukt");
-        }
-      },
+    alert("Koppeling succesvol opgeslagen!");
+    
+    // Reset velden na succes
+    this.deviceNaamKeuze = "";
+    this.plantenTellerKeuze = 0;
+    
+    await this.fetchPlanterData();
+  } catch (err) {
+    console.error("Koppel error:", err);
+    alert("Koppelen mislukt: " + err.message);
+  }
+},
 
     handleClickOutside(event) {
       const userRef = this.$refs.userDropdown;
