@@ -136,7 +136,7 @@ const rights = 'read';
 console.log("Debug: userID:", userID, "username:", username, "rights:", rights);
 
 if (userID && username) {
-  const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Users&userID=${encodeURIComponent(userID)}&Username=${encodeURIComponent(username)}&Rights=${encodeURIComponent(rights)}`;
+  const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Users&userID=${encodeURIComponent(userID)}&username=${username}&rights=${rights}`;
   
   console.log("Debug: URL die wordt opgevraagd:", url);
 
