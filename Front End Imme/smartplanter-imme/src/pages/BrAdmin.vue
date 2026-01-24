@@ -143,36 +143,31 @@ export default {
       return [...new Set(devices)];
     });
 
-    // VERVANG DE BESTAANDE FUNCTIES IN JE SETUP() DOOR DEZE:
-
-// Functie 1: Device aanmaken (Nu met kleine letters voor parameters)
 const insertNieuwDevice = async () => {
   if (!deviceIdKeuze.value) return alert("Vul een Device ID in");
 
   const url = new URL('https://smartplanters.dedyn.io:1880/smartplantedit');
-  url.searchParams.append('table', 'Planter');
-  url.searchParams.append('deviceid', deviceIdKeuze.value);
-  url.searchParams.append('userid', 'Systeem'); 
-  url.searchParams.append('plantenteller', '0');
-  url.searchParams.append('devicenaam', 'Nieuw Device');
+  url.searchParams.append('table', 'Devices'); // Tabel 'Devices' gebruiken
+  url.searchParams.append('TinDeviceID', deviceIdKeuze.value.trim()); // EXACTE naam uit student code
 
   try {
     const res = await fetch(url.toString());
-
+    
     if (!res.ok) {
-      throw new Error("Device bestaat mogelijk al");
+      const errorData = await res.json();
+      if (errorData.code === "ER_DUP_ENTRY") throw new Error("ID bestaat al!");
+      throw new Error("Server fout: " + res.status);
     }
-
-    alert("Device succesvol aangemaakt!");
-    deviceIdKeuze.value = "";
-    await fetchPlanterData();
+    
+    alert("Device succesvol aangemaakt in tabel Devices!");
+    deviceIdKeuze.value = ""; 
+    await fetchPlanterData(); 
   } catch (err) {
     alert("Fout bij aanmaken: " + err.message);
   }
 };
 
-
-// Functie 2: Koppeling maken (Ook hier kleine letters)
+// Functie 2: Koppeling maken (Gebruikt exact de CamelCase parameters)
 const opslaanKoppeling = async () => {
   if (!gekozenUserId.value || !gekozenDeviceID.value || !deviceNaamKeuze.value) {
     return alert("Vul alle velden in");
@@ -180,26 +175,31 @@ const opslaanKoppeling = async () => {
 
   const url = new URL('https://smartplanters.dedyn.io:1880/smartplantedit');
   url.searchParams.append('table', 'Planter');
-  url.searchParams.append('userid', gekozenUserId.value);
-  url.searchParams.append('deviceid', gekozenDeviceID.value);
-  url.searchParams.append('plantenteller', plantenTellerKeuze.value.toString());
-  url.searchParams.append('devicenaam', deviceNaamKeuze.value);
+  url.searchParams.append('UserID', gekozenUserId.value);
+  url.searchParams.append('DeviceID', gekozenDeviceID.value);
+  url.searchParams.append('PlantenTeller', plantenTellerKeuze.value.toString());
+  url.searchParams.append('DeviceNaam', deviceNaamKeuze.value);
 
   try {
     const res = await fetch(url.toString());
-
+    
     if (!res.ok) {
-      throw new Error("Device aanmaken mislukt");
+      const errorData = await res.json();
+      // Als hij hier ER_DUP_ENTRY geeft, bestaat deze USER-DEVICE combinatie al
+      throw new Error(errorData.code || "Koppelen mislukt");
     }
 
     alert("Koppeling succesvol!");
+    
+    // Velden legen
     gekozenUserId.value = "";
     gekozenDeviceID.value = "";
     plantenTellerKeuze.value = 0;
     deviceNaamKeuze.value = "";
+    
     await fetchPlanterData();
   } catch (err) {
-    alert("Fout bij koppelen: " + err.message);
+    alert("Koppel fout: " + err.message);
   }
 };
 
