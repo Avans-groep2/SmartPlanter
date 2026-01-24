@@ -99,51 +99,49 @@
 </template>
 
 <script>
+import { ref, onMounted, computed } from 'vue';
 
-import {ref, onMounted, computed} from 'vue';
+const API_URL = 'https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter';
 
 export default {
   name: 'AccountBeheerder',
-  
+
   setup() {
     const planterData = ref([]);
-    const loading = ref(true);
+    const loading = ref(false);
 
-    const deviceIdKeuze = ref("");
+    const deviceIdKeuze = ref('');
     const plantenTellerKeuze = ref(0);
-    const deviceNaamKeuze = ref("");
-    const gekozenDeviceID = ref("");
-    const gekozenUserId = ref("");
+    const deviceNaamKeuze = ref('');
+    const gekozenDeviceID = ref('');
+    const gekozenUserId = ref('');
 
     const fetchPlanterData = async () => {
-      try{
-        loading.value = true;
-        const response = await fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter');
-        const data = await response.json();
-        planterData.value = Array.isArray(data) ? data : [];
-      } catch (error){
-        console.error("Fout bij het ophalen van planterData", error);
+      loading.value = true;
+      try {
+        const response = await fetch(API_URL);
+        if (!response.ok) throw new Error('Fetch mislukt');
+        planterData.value = await response.json();
+      } catch (err) {
+        console.error('Ophalen mislukt:', err);
       } finally {
         loading.value = false;
       }
     };
 
-    const uniekeUsers = computed(() => {
-      return[...new Set(planterData.value.map(p =>p.UserID))];
-    });
+    const uniekeUsers = computed(() =>
+      [...new Set(planterData.value.map(p => p.UserID))]
+    );
 
-    const uniekeDevices = computed(() => {
-      return [...new Set(planterData.value.map(p => p.DeviceID))];
-    });
+    const uniekeDevices = computed(() =>
+      [...new Set(planterData.value.map(p => p.DeviceID))]
+    );
 
-    onMounted(() => {
-      fetchPlanterData();
-    });
+    onMounted(fetchPlanterData);
 
     return {
-      planterData, loading, deviceIdKeuze, gekozenUserId, gekozenDeviceID, 
-      uniekeDevices, uniekeUsers, fetchPlanterData, plantenTellerKeuze, 
-      deviceNaamKeuze
+      planterData, loading, deviceIdKeuze, plantenTellerKeuze, deviceNaamKeuze, gekozenDeviceID, gekozenUserId, uniekeUsers,
+      uniekeDevices, fetchPlanterData
     };
   },
 
@@ -153,56 +151,65 @@ export default {
       deviceDropdownOpen: false
     };
   },
+
   methods: {
     toggleUserDropdown() {
       this.userDropdownOpen = !this.userDropdownOpen;
       this.deviceDropdownOpen = false;
     },
-    toggleDeviceDropdown(){
+
+    toggleDeviceDropdown() {
       this.deviceDropdownOpen = !this.deviceDropdownOpen;
       this.userDropdownOpen = false;
     },
+
     selecteerUser(user) {
       this.gekozenUserId = user;
       this.userDropdownOpen = false;
     },
-    selecteerDevice(device){
+
+    selecteerDevice(device) {
       this.gekozenDeviceID = device;
       this.deviceDropdownOpen = false;
     },
 
-    async insertNieuwDevice(){
-      if(!this.deviceIdKeuze) 
-        return alert("Vul eerst een DeviceID in");
+    async insertNieuwDevice() {
+      if (!this.deviceIdKeuze) {
+        alert('Vul eerst een DeviceID in');
+        return;
+      }
 
       const payload = {
         DeviceID: this.deviceIdKeuze,
-        UserID: "Nieuw",
+        UserID: 'Nieuw',
         PlantenTeller: 0,
-        DeviceNaam: "Nieuw Device"
+        DeviceNaam: 'Nieuw Device'
       };
 
-      try{ 
-        const response = await fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter', {
+      try {
+        const response = await fetch(API_URL, {
           method: 'POST',
-          headers: {'Content-Type': 'application/json'},
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
-      });
+        });
 
-        if (response.ok) {
-          alert("Device ID opgeslagen om database!");
-          this.deviceIdKeuze = "";
-          this.fetchPlanterData();
-        }
-      } catch (error) {
-        console.error("Het DeviceID is niet opgeslagen", error);
+        if (!response.ok) throw new Error('Insert mislukt');
+
+        this.deviceIdKeuze = '';
+        await this.fetchPlanterData();
+        alert('Device opgeslagen');
+      } catch (err) {
+        console.error(err);
+        alert('Opslaan mislukt');
       }
     },
 
     async opslaanKoppeling() {
       if (!this.gekozenUserId || !this.gekozenDeviceID) {
-        return alert("Selecteer een gebruiker en een device");
+        alert('Selecteer gebruiker en device');
+        return;
       }
+
       const payload = {
         UserID: this.gekozenUserId,
         DeviceID: this.gekozenDeviceID,
@@ -211,45 +218,45 @@ export default {
       };
 
       try {
-        const response = await fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter', {
+        const response = await fetch(API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
 
-        if (response.ok) {
-          alert("Koppeling succesvol opgeslagen!");
-          await this.fetchPlanterData(); 
-        }
-      } catch (error) {
-        console.error("Fout bij koppelen:", error);
+        if (!response.ok) throw new Error('Koppeling mislukt');
+
+        await this.fetchPlanterData();
+        alert('Koppeling van deviceID en gebruiker opgeslagen');
+      } catch (err) {
+        console.error(err);
+        alert('Koppeling mislukt');
       }
     },
 
     handleClickOutside(event) {
-      const userRef = this.$refs.userDropdown;
-      const deviceRef = this.$refs.deviceDropdown;
-
-      const isOutsideUser = !userRef || !userRef.contains(event.target);
-      const isOutsideDevice = !deviceRef || !deviceRef.contains(event.target);
-
-      if (isOutsideUser && isOutsideDevice) {
+      const u = this.$refs.userDropdown;
+      const d = this.$refs.deviceDropdown;
+      if (
+        (!u || !u.contains(event.target)) &&
+        (!d || !d.contains(event.target))
+      ) {
         this.userDropdownOpen = false;
         this.deviceDropdownOpen = false;
       }
     }
   },
 
-    mounted() {
-      document.addEventListener("click", this.handleClickOutside);
-    },
+  mounted() {
+    document.addEventListener('click', this.handleClickOutside);
+  },
 
-    beforeUnmount() {
-      document.removeEventListener("click", this.handleClickOutside);
-    }
-}
-
+  beforeUnmount() {
+    document.removeEventListener('click', this.handleClickOutside);
+  }
+};
 </script>
+
 
 <style>
 .koppelMaken {
