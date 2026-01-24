@@ -1,78 +1,188 @@
 <template class="admin">
-  <div class="deviceId">
+  <div class="deviceIdAanmaken">
     <h1 class="adminH1">Device Id kiezen:</h1>
     <div class="deviceKeuze">
         <input
         type="text"
         v-model="deviceIdKeuze"
         placeholder="Vul de device Id in..."
+        class="admin-input"
         />
-        <button class="deviceKeuzenKnop" @click="bevestigNaam">Kies</button>
-    </div>
+        <button class="deviceKeuzenKnop" @click="bevestigDeviceId">Aanmaken</button>
     </div>
 
-    <div class="accountKoppelen">
-        <h1 class="adminH1">Selecteer Moestuin:</h1>
-        <div class="moestuinKeuzeDropDown" ref="dropdown">
-            <div class="dropdown-selected" @click="toggleDropdown">
-                {{ gekozenMoestuin || 'Moestuin' }}
-                <span class="dropDown">▼</span>
-            </div>
-            <div v-if="open" class="dropdownKeuzes">
-                <div
-                    v-for="moestuin in moestuinen"
-                    :key="moestuin"
-                    class="dropdownKeuze"
-                    @click="selecteerMoestuin(moestuin)"
-                    >{{ moestuin }}</div>
-            </div>
+    <table class="deviceId-tabel">
+      <thead>
+        <tr>
+          <th>Device ID</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="device in uniekeDevices"
+            :key="device">
+          <td>{{ device }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="UserIdKoppels">
+    <h1 class="adminH1">Koppel hier de gebruiker met de deviceId</h1>
+
+    <div class="koppelMaken">
+      <div class="koppelsDropdown" ref="userDropdown">
+        <div class="dropdown-selected" @click.stop="toggleUserDropdown">
+          {{ gekozenUserId || 'Selecteer gebruiker' }}
+          <span class="dropDown">▼</span>
         </div>
+        <div v-if="userDropdownOpen" class="dropdownKeuzes">
+          <div
+            v-for="user in uniekeUsers"
+            :key="user"
+            class="dropdownKeuze"
+            @click="selecteerUser(user)"
+          >{{ user }}</div>
+        </div>
+      </div>
+
+      <div class="koppelsDropdown" ref="deviceDropdown">
+        <div class="dropdown-selected" @click.stop="toggleDeviceDropdown">
+          {{ gekozenDeviceID || 'Selecteer Device' }}
+          <span class="dropDown">▼</span>
+        </div>
+        <div v-if="deviceDropdownOpen" class="dropdownKeuzes">
+          <div
+            v-for="device in uniekeDevices"
+            :key="device"
+            class="dropddownKeuze"
+            @click="selecteerDevice(device)"
+          >{{ device }}</div>
+        </div>
+      </div>
+        <button class="koppelMakenKnop" @click="koppelDevice">Koppel</button>
+      </div>
+        <p v-if="loading" class="koppelsLaden">Koppels worden geladen...</p>
+
+        <table v-else class="koppelsTabel">
+          <thead>
+            <tr>
+              <th>UseID</th>
+              <th>DeviceID</th>
+              <th>PlantenTeller</th>
+              <th>DeviceNaam</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(planter, index) in planterData" :key="index">
+              <td>{{ planter.userID }}</td>
+              <td>{{ planter.DeviceID }}</td>
+              <td>{{ planter.PlanterTeller }}</td>
+              <td>{{ planter.DeviceNaam }}</td>
+            </tr>
+        </tbody>
+      </table>
     </div>
 
 </template>
 
 <script>
 
+import {ref, onMounted, computed} from 'vue';
+
 export default {
   name: 'AccountBeheerder',
-  components: {},
+  
+  setup() {
+    const planterData = ref([]);
+    const loading = ref(true);
+    const deviceIdKeuze = ref("");
+
+    const gekozenDeviceID = ref("");
+    const gekozenUserId = ref("");
+
+    const fetchPlanterData = async () => {
+      try{
+        loading.value = true;
+        const response = await fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter');
+        const data = await response.json();
+        planterData.value = Array.isArray(data) ? data : [];
+      } catch (error){
+        console.error("Fout bij het ophalen van planterData", error);
+      } finally {
+        loading.value = false;
+      }
+    };
+
+    const uniekeUsers = computed(() => {
+      return[...new Set(planterData.value.map(p =>p.UserID))];
+    });
+
+    const uniekeDevices = computed(() => {
+      return [...new Set(planterData.value.map(p => p.DeviceID))];
+    });
+
+    onMounted(() => {
+      fetchPlanterData();
+    });
+
+    return {
+      planterData, loading, deviceIdKeuze, gekozenUserId, gekozenDeviceID, 
+      uniekeDevices, uniekeUsers, fetchPlanterData
+    };
+  },
+
   data() {
     return {
-        deviceIdKeuze: "",
-        gekozenMoestuin: "",
-        open: false,
-        moestuinen: ["Moestuin 1", "Moestuin 2", "Moestuin 3"]
+      userDropdownOpen: false,
+      deviceDropdownOpen: false
     };
   },
   methods: {
-    bevestigDeviceId(){
-      this.deviceIdKeuze = ""
+    toggleUserDropdown() {
+      this.userDropdownOpen = !this.userDropdownOpen;
+      this.deviceDropdownOpen = false;
     },
-
-    toggleDropdown() {
-        this.open = !this.open;
+    toggleDeviceDropdown(){
+      this.deviceDropdownOpen = !this.deviceDropdownOpen;
+      this.userDropdownOpen = false;
     },
-
-    selecteerMoestuin(moestuin) {
-        this.gekozenMoestuin = moestuin;
-        this.moestuinStore.setMoestuin(moestuin);
-        this.open = false;
+    selecteerUser(user) {
+      this.gekozenUserId = user;
+      this.userDropdownOpen = false;
     },
+    selecteerDevice(device){
+      this.gekozenDeviceID = device;
+      this.deviceDropdownOpen = false;
+    },
+    bevestigDeviceId() {
+      if(this.deviceIdKeuze) {
+        alert("Nieuw Device ID aangemaakt: " + this.deviceIdKeuze);
+        this.deviceIdKeuze = "";
+      }
+    },
+    koppelDevice() {
+      if (this.gekozenUserId && this.gekozenDeviceID) {
+        alert(`Gekoppeld: ${this.gekozenUserId} aan ${this.gekozenDeviceID}`);
 
+      }
+    },
     handleClickOutside(event) {
-        if (this.$refs.dropdown && !this.$refs.dropdown.contains(event.target)) {
-            this.open = false;
-        }
+      if(this.$refs.userDropdown && !this.$refs.userDropdown.contains(event.target) &&
+         this.$refs.deviceDropdown && !this.deviceDropdown.contains(event.target)) {
+        this.userDropdownOpen = false;
+        this.deviceDropdownOpen = false;
+         }
+      }
     },
-  },
+    mounted() {
+      document.addEventListener("click", this.handleClickOutside);
+    },
 
-  mounted() {
-    document.addEventListener("click", this.handleClickOutside);
-  },
-  beforeUnmount() {
-    document.removeEventListener("click", this.handleClickOutside);
-  }
-};
+    beforeUnmount() {
+      document.removeEventListener("click", this.handleClickOutside);
+    }
+  
+}
 
 </script>
 
@@ -87,96 +197,106 @@ export default {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; 
 }
 
-.deviceId {
+.adminH1{
+  font-size: 22px;
+  font-weight: 500;
+  margin-bottom: 1rem;
+  color: black;
+}
+
+.deviceIdAanmaken, .UserIdKoppels {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.deviceKeuze, .koppelMaken {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 12px;
-  max-width: 350px;
-  min-height: 255px;
-  background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow:0 2px 8px rgba(0,0,0,0.25);
+  gap: 15px;
+  margin-bottom: 20px;
+  align-items: center;
 }
 
-.adminH1 {
-  font-size: 30px;
-  font-weight: 450;
+.admin-input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 250px;
 }
 
-.deviceKeuzenKnop {
+.koppelMakenKnop {
   background-color: #2d6a4f;
   color: white;
-  font-size: 15px;
-  padding: 8px 15px; 
   border: none;
-  border-radius: 8px;
+  padding: 10px 20px;
+  border-radius: 5px;
   cursor: pointer;
-  transition: 0.2s ease;
-  width: auto; 
-  height: 3rem;
-  box-shadow:0 2px 8px rgba(0,0,0,0.25)  ;
+  font-weight: bold;
 }
 
-.deviceKeuzenKnop:hover{
-  filter: brightness(0.5);
-  background-color: #2d6a4f;
+.koppelMakenKnop:hover {
+  background-color: #1b4332;
 }
 
-.accountKoppelen {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 12px;
-  max-width: 350px;
-  min-height: 255px;
+.koppelsTabel {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
 
-  background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow:0 2px 8px rgba(0,0,0,0.25);
+.koppelsTabel th {
+  text-align: left;
+  padding: 12px 8px;
+  border-bottom: 2px solid #a7d3bf;
+}
+
+.koppelsTabel td {
+  padding: 12px 8px;
+  border-bottom: 1px solid #eee;
 }
 
 .moestuinKeuzeDropDown {
   position: relative;
-  width: 180px;
-  margin-bottom: 25px;
+  width: 220px;
 }
 
 .dropdown-selected {
-  background-color: rgba(255, 255, 255, 0);
-  border: 1px solid #2d6a4f;
+  border: 1px solid #ccc;
   border-radius: 5px;
-  padding: 10px;
-  font-size: 18px;
-  color: #2d6a4f;
+  padding: 8px 12px;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  background: white;
 }
 
 .dropdownKeuzes {
-  text-align: left;
   position: absolute;
-  top: 105%;   
+  top: 105%;
   width: 100%;
-  border: 1px solid #2d6a4f;
+  border: 1px solid #ccc;
+  background: white;
+  z-index: 10;
   border-radius: 5px;
-  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 .dropdownKeuze {
   padding: 10px;
-  font-size: 18px;
-  color: #2d6a4f;
   cursor: pointer;
-  background-color: white;
-  transition: 0.15s ease;
 }
 
 .dropdownKeuze:hover {
   background-color: #2d6a4f;
   color: white;
 }
+
+.koppelsLaden {
+  font-style: italic;
+  color: #888;
+}
+
 
 </style>

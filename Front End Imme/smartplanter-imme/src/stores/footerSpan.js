@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import keycloak from 'keycloak-js'
+/*import keycloak from 'keycloak-js'*/
 
 export const useFooterSpan = defineStore('footerSpan', {
   state: () => ({
@@ -30,10 +30,8 @@ export const useFooterSpan = defineStore('footerSpan', {
         this.firstName = profile.firstName || ''
         this.lastName = profile.lastName || ''
         this.email = profile.email || ''
-        console.log("Profiel gegevens goed geladen");
     } catch (err) {
         console.warn('Gegevens laden is niet gelukt, terug naar token data', err);
-
         const token = this.keycloak.tokenParsed;
         if (token) {
           this.firstName = token.given_name || '';
