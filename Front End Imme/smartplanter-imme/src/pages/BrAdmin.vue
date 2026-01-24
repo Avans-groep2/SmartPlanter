@@ -94,7 +94,6 @@
         </tbody>
       </table>
     </div>
-
 </template>
 
 <script>
@@ -226,13 +225,15 @@ export default {
     },
 
     handleClickOutside(event) {
-      if(this.$refs.userDropdown && !this.$refs.userDropdown.contains(event.target) &&
-         this.$refs.deviceDropdown && !this.$refs.deviceDropdown.contains(event.target)) {
+      const uDrop = this.$refs.userDropdown;
+      const dDrop = this.$refs.deviceDropdown;
+
+      if (uDrop && !uDrop.contains(event.target) && dDrop && !dDrop.contains(event.target)) {
         this.userDropdownOpen = false;
         this.deviceDropdownOpen = false;
-        }
       }
-    },
+    }
+  },
 
     mounted() {
       document.addEventListener("click", this.handleClickOutside);
@@ -310,24 +311,24 @@ export default {
   background-color: #1b4332;
 }
 
-.koppelsTabel {
+.koppelsTabel, .deviceId-tabel {
   width: 100%;
   border-collapse: collapse;
   margin-top: 10px;
 }
 
-.koppelsTabel th {
+.koppelsTabel th, .deviceId-tabel th {
   text-align: left;
   padding: 12px 8px;
   border-bottom: 2px solid #a7d3bf;
 }
 
-.koppelsTabel td {
+.koppelsTabel td, .deviceId-tabel td {
   padding: 12px 8px;
   border-bottom: 1px solid #eee;
 }
 
-.moestuinKeuzeDropDown {
+.koppelsDropdown {
   position: relative;
   width: 220px;
 }
