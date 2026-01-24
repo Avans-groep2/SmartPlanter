@@ -8,7 +8,7 @@
         placeholder="Vul de device Id in..."
         class="admin-input"
         />
-        <button class="deviceKeuzenKnop" @click="bevestigDeviceId">Aanmaken</button>
+        <button class="deviceKeuzenKnop" @click="insertNieuwDevice">Aanmaken</button>
     </div>
 
     <table class="deviceId-tabel">
@@ -59,7 +59,19 @@
           >{{ device }}</div>
         </div>
       </div>
-        <button class="koppelMakenKnop" @click="koppelDevice">Koppel</button>
+
+      <input
+        type="number"
+        v-model="plantenTellerKeuze"
+        placeholder="Aantal planten"
+        class="admin-input klein"/>
+      <input 
+        type="text"
+        v-model="deviceNaamKeuze"
+        placeholder="Naam van device"
+        class="admin-input"/>  
+
+        <button class="koppelMakenKnop" @click="opslaanKoppeling">Koppel</button>
       </div>
         <p v-if="loading" class="koppelsLaden">Koppels worden geladen...</p>
 
@@ -74,9 +86,9 @@
           </thead>
           <tbody>
             <tr v-for="(planter, index) in planterData" :key="index">
-              <td>{{ planter.userID }}</td>
+              <td>{{ planter.UserID }}</td>
               <td>{{ planter.DeviceID }}</td>
-              <td>{{ planter.PlanterTeller }}</td>
+              <td>{{ planter.PlantenTeller }}</td>
               <td>{{ planter.DeviceNaam }}</td>
             </tr>
         </tbody>
@@ -95,8 +107,10 @@ export default {
   setup() {
     const planterData = ref([]);
     const loading = ref(true);
-    const deviceIdKeuze = ref("");
 
+    const deviceIdKeuze = ref("");
+    const plantenTellerKeuze = ref(0);
+    const deviceNaamKeuze = ref("");
     const gekozenDeviceID = ref("");
     const gekozenUserId = ref("");
 
@@ -127,7 +141,8 @@ export default {
 
     return {
       planterData, loading, deviceIdKeuze, gekozenUserId, gekozenDeviceID, 
-      uniekeDevices, uniekeUsers, fetchPlanterData
+      uniekeDevices, uniekeUsers, fetchPlanterData, plantenTellerKeuze, 
+      deviceNaamKeuze
     };
   },
 
@@ -154,26 +169,71 @@ export default {
       this.gekozenDeviceID = device;
       this.deviceDropdownOpen = false;
     },
-    bevestigDeviceId() {
-      if(this.deviceIdKeuze) {
-        alert("Nieuw Device ID aangemaakt: " + this.deviceIdKeuze);
-        this.deviceIdKeuze = "";
-      }
-    },
-    koppelDevice() {
-      if (this.gekozenUserId && this.gekozenDeviceID) {
-        alert(`Gekoppeld: ${this.gekozenUserId} aan ${this.gekozenDeviceID}`);
 
+    async insertNieuwDevice(){
+      if(!this.deviceIdKeuze) 
+        return alert("Vul eerst een DeviceID in");
+
+      const nieuwDevice = {
+        DeviceID: this.deviceIdKeuze,
+        UserID: "Nieuw",
+        PlantenTeller: 0,
+        DeviceNaam: "Nieuw Device"
+      };
+
+      try{ 
+        const response = await fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(nieuwDevice)
+      });
+
+        if (response.ok) {
+          alert("Device ID opgeslagen om database!");
+          this.deviceIdKeuze = "";
+          this.fetchPlanterData();
+        }
+      } catch (error) {
+        console.error("Het DeviceID is niet opgeslagen", error);
       }
     },
+
+    async opslaanKoppeling() {
+      if (!this.gekozenUserId || !this.gekozenDeviceID) {
+        return alert("Selecteer een gebruiker en een device");
+      }
+      const koppeling = {
+        UserID: this.gekozenUserId,
+        DeviceID: this.gekozenDeviceID,
+        PlantenTeller: this.plantenTellerKeuze,
+        DeviceNaam: this.deviceNaamKeuze
+      };
+
+      try {
+        const response = await fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(koppeling)
+        });
+
+        if (response.ok) {
+          alert("Koppeling succesvol opgeslagen!");
+          this.fetchPlanterData(); 
+        }
+      } catch (error) {
+        console.error("Fout bij koppelen:", error);
+      }
+    },
+
     handleClickOutside(event) {
       if(this.$refs.userDropdown && !this.$refs.userDropdown.contains(event.target) &&
-         this.$refs.deviceDropdown && !this.deviceDropdown.contains(event.target)) {
+         this.$refs.deviceDropdown && !this.$refs.deviceDropdown.contains(event.target)) {
         this.userDropdownOpen = false;
         this.deviceDropdownOpen = false;
-         }
+        }
       }
     },
+
     mounted() {
       document.addEventListener("click", this.handleClickOutside);
     },
@@ -181,12 +241,22 @@ export default {
     beforeUnmount() {
       document.removeEventListener("click", this.handleClickOutside);
     }
-  
 }
 
 </script>
 
 <style>
+.koppelMaken {
+  display: flex;
+  flex-wrap: wrap; /* Zorgt dat het netjes blijft op kleine schermen */
+  gap: 10px;
+  align-items: center;
+}
+
+.admin-input.klein {
+  width: 120px;
+}
+
 .admin {
   display: flex;
   flex-direction: column;
@@ -226,7 +296,7 @@ export default {
   width: 250px;
 }
 
-.koppelMakenKnop {
+.koppelMakenKnop, .deviceKeuzenKnop {
   background-color: #2d6a4f;
   color: white;
   border: none;
