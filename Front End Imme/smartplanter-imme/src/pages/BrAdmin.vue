@@ -183,13 +183,11 @@ export default {
   
   // LET OP: Controleer of de tabelnaam hier 'Planter' moet zijn of bijv. 'Devices'
   url.searchParams.append('table', 'Planter'); 
-  url.searchParams.append('DeviceID', this.deviceIdKeuze);
+  url.searchParams.append('deviceID', this.deviceIdKeuze);
   
   // Gebruik een geldige waarde voor UserID. 
   // Als de database een getal verwacht, verander '0' naar een integer.
-  url.searchParams.append('UserID', '0'); 
-  url.searchParams.append('PlantenTeller', '0');
-  url.searchParams.append('DeviceNaam', 'Nieuw Device');
+  url.searchParams.append('deviceNaam', 'Nieuw Device');
 
   try {
     const response = await fetch(url.toString(), { method: 'GET' });
@@ -218,10 +216,10 @@ async opslaanKoppeling() {
   const url = new URL('https://smartplanters.dedyn.io:1880/smartplantedit');
   
   url.searchParams.append('table', 'Planter');
-  url.searchParams.append('UserID', this.gekozenUserId);
-  url.searchParams.append('DeviceID', this.gekozenDeviceID);
-  url.searchParams.append('PlantenTeller', this.plantenTellerKeuze || 0);
-  url.searchParams.append('DeviceNaam', this.deviceNaamKeuze);
+  url.searchParams.append('userID', this.gekozenUserId);
+  url.searchParams.append('deviceID', this.gekozenDeviceID);
+  url.searchParams.append('plantenTeller', this.plantenTellerKeuze || 0);
+  url.searchParams.append('deviceNaam', this.deviceNaamKeuze);
 
   try {
     const response = await fetch(url.toString(), { method: 'GET' });
