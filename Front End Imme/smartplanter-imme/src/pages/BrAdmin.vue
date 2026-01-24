@@ -1,100 +1,92 @@
 <template>
   <div class="admin">
-  <div class="deviceIdAanmaken">
-    <h1 class="adminH1">Device Id kiezen:</h1>
-    <div class="deviceKeuze">
+    <div class="deviceIdAanmaken">
+      <h1 class="adminH1">Device Id kiezen:</h1>
+      <div class="deviceKeuze">
         <input
-        type="text"
-        v-model="deviceIdKeuze"
-        placeholder="Vul de device Id in..."
-        class="admin-input"
+          type="text"
+          v-model="deviceIdKeuze"
+          placeholder="Vul de device Id in..."
+          class="admin-input"
         />
         <button class="deviceKeuzenKnop" @click="insertNieuwDevice">Aanmaken</button>
-    </div>
+      </div>
 
-    <table class="deviceId-tabel">
-      <thead>
-        <tr>
-          <th>Device ID</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(id, index) in opgeschoondeDevices"
-            :key="index">
+      <table class="deviceId-tabel">
+        <thead>
+          <tr>
+            <th>Device ID</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(id, index) in opgeschoondeDevices" :key="index">
             <td>{{ id }}</td>
           </tr>
           <tr v-if="opgeschoondeDevices.length === 0 && !loading">
             <td>Geen devices gevonden in de database.</td>
           </tr>
-       </tbody>
-    </table>
-  </div>
+        </tbody>
+      </table>
+    </div>
 
-  <div class="UserIdKoppels">
-    <h1 class="adminH1">Koppel hier de gebruiker met de deviceId</h1>
+    <div class="UserIdKoppels">
+      <h1 class="adminH1">Koppel hier de gebruiker met de deviceId</h1>
 
-    <div class="koppelMaken">
-      <div class="koppelsDropdown" ref="userDropdown">
-        <div class="dropdown-selected" @click.stop="toggleUserDropdown">
-          {{ gekozenUserId || 'Selecteer gebruiker' }}
-          <span class="dropDown">▼</span>
+      <div class="koppelMaken">
+        <div class="koppelsDropdown" ref="userDropdown">
+          <div class="dropdown-selected" @click.stop="toggleUserDropdown">
+            {{ gekozenUserId || 'Selecteer gebruiker' }}
+            <span class="dropDown">▼</span>
+          </div>
+          <div v-if="userDropdownOpen" class="dropdownKeuzes">
+            <div
+              v-for="user in uniekeUsers"
+              :key="user"
+              class="dropdownKeuze"
+              @click="selecteerUser(user)"
+            >{{ user }}</div>
+          </div>
         </div>
-        <div v-if="userDropdownOpen" class="dropdownKeuzes">
-          <div
-            v-for="user in uniekeUsers"
-            :key="user"
-            class="dropdownKeuze"
-            @click="selecteerUser(user)"
-          >{{ user }}</div>
-        </div>
-      </div>
 
-      <div class="koppelsDropdown" ref="deviceDropdown">
-        <div class="dropdown-selected" @click.stop="toggleDeviceDropdown">
-          {{ gekozenDeviceID || 'Selecteer Device' }}
-          <span class="dropDown">▼</span>
+        <div class="koppelsDropdown" ref="deviceDropdown">
+          <div class="dropdown-selected" @click.stop="toggleDeviceDropdown">
+            {{ gekozenDeviceID || 'Selecteer Device' }}
+            <span class="dropDown">▼</span>
+          </div>
+          <div v-if="deviceDropdownOpen" class="dropdownKeuzes">
+            <div
+              v-for="id in opgeschoondeDevices"
+              :key="id"
+              class="dropdownKeuze"
+              @click="selecteerDevice(id)"
+            >{{ id }}</div>
+          </div>
         </div>
-        <div v-if="deviceDropdownOpen" class="dropdownKeuzes">
-          <div
-            v-for="id in opgeschoondeDevices"
-            :key="id"
-            class="dropdownKeuze"
-            @click="selecteerDevice(id)"
-          >{{ id }}</div>
-        </div>
-      </div>
 
-      <input
-        type="number"
-        v-model="plantenTellerKeuze"
-        placeholder="Planten"
-        class="admin-input klein"/>
-      <input 
-        type="text"
-        v-model="deviceNaamKeuze"
-        placeholder="Naam van device"
-        class="admin-input"/>  
+        <input type="number" v-model="plantenTellerKeuze" placeholder="Planten" class="admin-input klein"/>
+        <input type="text" v-model="deviceNaamKeuze" placeholder="Naam van device" class="admin-input"/> 
 
         <button class="koppelMakenKnop" @click="opslaanKoppeling">Koppel</button>
       </div>
-        <p v-if="loading" class="koppelsLaden">Koppels worden geladen...</p>
 
-        <table v-else class="koppelsTabel">
-          <thead>
-            <tr>
-              <th>UserID</th>
-              <th>DeviceID</th>
-              <th>PlantenTeller</th>
-              <th>DeviceNaam</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(planter, index) in planterData" :key="index">
-              <td>{{ planter.UserID }}</td>
-              <td>{{ planter.DeviceID }}</td>
-              <td>{{ planter.PlantenTeller }}</td>
-              <td>{{ planter.DeviceNaam }}</td>
-            </tr>
+      <p v-if="loading" class="koppelsLaden">Koppels worden geladen...</p>
+
+      <table v-else class="koppelsTabel">
+        <thead>
+          <tr>
+            <th>UserID</th>
+            <th>DeviceID</th>
+            <th>PlantenTeller</th>
+            <th>DeviceNaam</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(planter, index) in planterData" :key="index">
+            <td>{{ planter.UserID }}</td>
+            <td>{{ planter.DeviceID }}</td>
+            <td>{{ planter.PlantenTeller }}</td>
+            <td>{{ planter.DeviceNaam }}</td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -112,18 +104,15 @@ export default {
     const devicesRaw = ref([]);
     const loading = ref(true);
 
-    // Input velden
     const deviceIdKeuze = ref("");
     const plantenTellerKeuze = ref(0);
     const deviceNaamKeuze = ref("");
     const gekozenDeviceID = ref("");
     const gekozenUserId = ref("");
 
-    // Dropdown states
     const userDropdownOpen = ref(false);
     const deviceDropdownOpen = ref(false);
 
-   // Haal data op uit beide tabellen zoals in de code van je medestudent
     const fetchAllData = async () => {
       try {
         loading.value = true;
@@ -133,7 +122,6 @@ export default {
         ]);
         planterDataRaw.value = await resPlanter.json();
         devicesRaw.value = await resDevices.json();
-        console.log("Devices Raw:", devicesRaw.value); // Check dit in je console!
       } catch (error) {
         console.error("Fetch error:", error);
       } finally {
@@ -141,71 +129,61 @@ export default {
       }
     };
 
-    // Deze functie haalt de ID's uit de geplakte API-tekst
+    // LOGICA VOOR DEVICES TABEL
     const opgeschoondeDevices = computed(() => {
       if (!Array.isArray(devicesRaw.value)) return [];
-      
       return devicesRaw.value.map(obj => {
-        // Pak de eerste key (bijv. "TtnDeviceIDdevice-1")
-        const rawString = Object.keys(obj)[0];
-        if (!rawString) return null;
-        
-        // Haal "TtnDeviceID" weg zodat alleen de waarde overblijft
-        return rawString.replace('TtnDeviceID', '').trim();
-      }).filter(id => id); // Verwijder lege waarden
+        const key = Object.keys(obj)[0];
+        return key ? key.replace('TtnDeviceID', '').trim() : null;
+      }).filter(id => id);
     });
 
+    // LOGICA VOOR PLANTER TABEL
     const planterData = computed(() => {
       if (!Array.isArray(planterDataRaw.value)) return [];
-      
       return planterDataRaw.value.map(obj => {
-        const rawKeys = Object.keys(obj);
-        let cleaned = { UserID: '', DeviceID: '', PlantenTeller: obj.PlantenTeller || 0, DeviceNaam: obj.DeviceNaam || '' };
-        
-        rawKeys.forEach(key => {
-          // Haal waarden uit geplakte keys in de Planter tabel
-          if (key.includes('UserID')) cleaned.UserID = key.replace('UserID', '').split('DeviceID')[0];
-          if (key.includes('DeviceID')) cleaned.DeviceID = key.split('DeviceID')[1];
+        let cleaned = { UserID: '?', DeviceID: '?', PlantenTeller: obj.PlantenTeller || 0, DeviceNaam: '' };
+        Object.keys(obj).forEach(key => {
+          if (key.includes('UserID')) {
+            const split = key.replace('UserID', '').split('DeviceID');
+            cleaned.UserID = split[0];
+            cleaned.DeviceID = split[1] || cleaned.DeviceID;
+          }
+          if (key.includes('DeviceNaam')) {
+            cleaned.DeviceNaam = key.replace('DeviceNaam', '');
+          }
         });
         return cleaned;
       });
     });
 
     const uniekeUsers = computed(() => {
-      const users = planterData.value.map(p => p.UserID).filter(u => u && u !== 'Systeem');
+      const users = planterData.value.map(p => p.UserID).filter(u => u && u !== '?');
       return [...new Set(users)];
     });
 
-    // Nieuw device aanmaken in de Devices tabel met TtnDeviceID
     const insertNieuwDevice = async () => {
-      if (!deviceIdKeuze.value) return alert("Vul een Device ID in");
-      
+      if (!deviceIdKeuze.value) return alert("Vul een ID in");
+      // Gebruik TtnDeviceID conform database screenshot
       const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Devices&TtnDeviceID=${encodeURIComponent(deviceIdKeuze.value.trim())}`;
-      
       try {
         const res = await fetch(url);
         if (!res.ok) throw new Error("Fout bij aanmaken");
-        alert("Device succesvol aangemaakt!");
+        alert("Device aangemaakt!");
         deviceIdKeuze.value = "";
         await fetchAllData();
-      } catch (err) {
-        alert("Fout: " + err.message);
-      }
+      } catch (err) { alert(err.message); }
     };
 
     const opslaanKoppeling = async () => {
-      if (!gekozenUserId.value || !gekozenDeviceID.value) return alert("Kies een gebruiker en device");
-      
+      if (!gekozenUserId.value || !gekozenDeviceID.value) return alert("Kies user en device");
       const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Planter&UserID=${gekozenUserId.value}&DeviceID=${gekozenDeviceID.value}&PlantenTeller=${plantenTellerKeuze.value}&DeviceNaam=${encodeURIComponent(deviceNaamKeuze.value)}`;
-      
       try {
         const res = await fetch(url);
-        if (!res.ok) throw new Error("Koppelen mislukt");
+        if (!res.ok) throw new Error("Koppel fout");
         alert("Succesvol gekoppeld!");
         await fetchAllData();
-      } catch (err) {
-        alert("Fout: " + err.message);
-      }
+      } catch (err) { alert(err.message); }
     };
 
     const toggleUserDropdown = () => { userDropdownOpen.value = !userDropdownOpen.value; deviceDropdownOpen.value = false; };
