@@ -1,235 +1,274 @@
 <template>
-  <div class="admin-page">
-    <SidebarNavbar />
-    
-    <div class="content-container">
-      <WelcomeMessage />
-
-      <div class="admin-card">
-        <div class="input-header">
-          <input 
-            v-model="newDeviceId" 
-            placeholder="Device ID" 
-            class="styled-input"
-          />
-          <button @click="addDevice" class="btn-submit">Aanmaken</button>
-        </div>
-
-        <table class="admin-table">
-          <thead>
-            <tr>
-              <th>Device ID</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(device, index) in devices" :key="index">
-              <td>{{ device.TtnDeviceID }}</td>
-            </tr>
-            <tr v-if="devices.length === 0">
-              <td class="empty-row">Geen devices gevonden...</td>
-            </tr>
-          </tbody>
-        </table>
+  <div class="admin">
+    <div class="deviceIdAanmaken admin-card">
+      <h1 class="adminH1">Device Id kiezen:</h1>
+      <div class="deviceKeuze">
+        <input
+          type="text"
+          v-model="deviceIdKeuze"
+          placeholder="Vul de device Id in..."
+          class="admin-input"
+        />
+        <button class="deviceKeuzenKnop" @click="insertNieuwDevice">Aanmaken</button>
       </div>
 
-      <div class="admin-card">
-        <div class="input-header multi-input">
-          <select v-model="selectedUserID" class="styled-input">
-            <option value="" disabled>Selecteer User</option>
-            <option v-for="user in uniqueUserIDs" :key="user" :value="user">
-              {{ user }}
-            </option>
-          </select>
+      <table class="deviceId-tabel">
+        <thead>
+          <tr>
+            <th>Device ID</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(id, index) in opgeschoondeDevices" :key="index">
+            <td>{{ id }}</td>
+          </tr>
+          <tr v-if="opgeschoondeDevices.length === 0 && !loading">
+            <td>Geen devices gevonden in de database.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-          <select v-model="selectedDeviceID" class="styled-input">
-            <option value="" disabled>Selecteer Device</option>
-            <option v-for="device in devices" :key="device.TtnDeviceID" :value="device.TtnDeviceID">
-              {{ device.TtnDeviceID }}
-            </option>
-          </select>
+    <div class="UserIdKoppels admin-card">
+      <h1 class="adminH1">Koppel hier de gebruiker met de deviceId</h1>
 
-          <input v-model="selectedPlantenTeller" type="number" placeholder="PlantenTeller" class="styled-input" />
-          <input v-model="selectedDeviceNaam" placeholder="Device Naam" class="styled-input" />
-          
-          <button @click="koppel" class="btn-submit">Koppelen</button>
+      <div class="koppelMaken">
+        <div class="koppelsDropdown" ref="userDropdown">
+          <div class="dropdown-selected" @click.stop="toggleUserDropdown">
+            {{ gekozenUserId || 'Selecteer gebruiker' }}
+            <span class="dropDown">▼</span>
+          </div>
+          <div v-if="userDropdownOpen" class="dropdownKeuzes">
+            <div
+              v-for="user in uniekeUsers"
+              :key="user"
+              class="dropdownKeuze"
+              @click="selecteerUser(user)"
+            >{{ user }}</div>
+          </div>
         </div>
 
-        <table class="admin-table">
-          <thead>
-            <tr>
-              <th>UserID</th>
-              <th>DeviceID</th>
-              <th>PlantenTeller</th>
-              <th>DeviceNaam</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(planter, index) in planters" :key="index">
-              <td>{{ planter.UserID }}</td>
-              <td>{{ planter.DeviceID }}</td>
-              <td>{{ planter.PlantenTeller }}</td>
-              <td>{{ planter.DeviceNaam }}</td>
-            </tr>
-            <tr v-if="planters.length === 0">
-              <td colspan="4" class="empty-row">Geen planters gevonden</td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="koppelsDropdown" ref="deviceDropdown">
+          <div class="dropdown-selected" @click.stop="toggleDeviceDropdown">
+            {{ gekozenDeviceID || 'Selecteer Device' }}
+            <span class="dropDown">▼</span>
+          </div>
+          <div v-if="deviceDropdownOpen" class="dropdownKeuzes">
+            <div
+              v-for="id in opgeschoondeDevices"
+              :key="id"
+              class="dropdownKeuze"
+              @click="selecteerDevice(id)"
+            >{{ id }}</div>
+          </div>
+        </div>
+
+        <input type="number" v-model="plantenTellerKeuze" placeholder="Planten" class="admin-input klein"/>
+        <input type="text" v-model="deviceNaamKeuze" placeholder="Naam van device" class="admin-input"/> 
+
+        <button class="koppelMakenKnop" @click="opslaanKoppeling">Koppel</button>
       </div>
+
+      <p v-if="loading" class="koppelsLaden">Koppels worden geladen...</p>
+
+      <table v-else class="koppelsTabel">
+        <thead>
+          <tr>
+            <th>UserID</th>
+            <th>DeviceID</th>
+            <th>PlantenTeller</th>
+            <th>DeviceNaam</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(planter, index) in planterData" :key="index">
+            <td>{{ planter.UserID }}</td>
+            <td>{{ planter.DeviceID }}</td>
+            <td>{{ planter.PlantenTeller }}</td>
+            <td>{{ planter.DeviceNaam }}</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </template>
 
 <script>
-import WelcomeMessage from "@/components/WelcomeMessage.vue";
-import SidebarNavbar from "@/components/SidebarNavbar.vue";
-
 export default {
-  name: "AdminPage",
-  components: { SidebarNavbar, WelcomeMessage },
-  
   data() {
     return {
-      devices: [],
-      newDeviceId: "",
-      planters: [],
-      selectedUserID: "",
-      selectedDeviceID: "",
-      selectedPlantenTeller: "",
-      selectedDeviceNaam: ""
+      // Data opslag
+      devicesRaw: [],    // Ruwe data van de API
+      planterData: [],   // Data voor de onderste tabel
+      loading: false,
+
+      // Formulier velden
+      deviceIdKeuze: "",
+      gekozenUserId: "",
+      gekozenDeviceID: "",
+      plantenTellerKeuze: null,
+      deviceNaamKeuze: "",
+
+      // UI State (Dropdowns)
+      userDropdownOpen: false,
+      deviceDropdownOpen: false
     };
   },
 
   computed: {
-    uniqueUserIDs() {
-      // Haalt unieke users uit de planters lijst voor de dropdown
-      return [...new Set(this.planters.map(p => p.UserID))];
+    // Maakt een schone lijst van alleen de IDs voor de bovenste tabel en dropdown
+    opgeschoondeDevices() {
+      return this.devicesRaw.map(d => d.TtnDeviceID).filter(id => id);
+    },
+    // Haalt unieke UserIDs uit de bestaande koppelingen voor de dropdown
+    uniekeUsers() {
+      const users = this.planterData.map(p => p.UserID);
+      return [...new Set(users)].filter(u => u);
     }
   },
 
   mounted() {
-    this.refreshData();
+    this.laadAlleData();
+    // Sluit dropdowns als je buiten de dropdown klikt
+    window.addEventListener('click', () => {
+      this.userDropdownOpen = false;
+      this.deviceDropdownOpen = false;
+    });
   },
 
   methods: {
-    async refreshData() {
+    async laadAlleData() {
+      this.loading = true;
       try {
-        // Ophalen Devices
-        const devRes = await fetch('http://smartplanters.dedyn.io:1880/smartplantdata?table=Devices');
-        this.devices = await devRes.json();
+        // API van je collega ophalen
+        const [resDev, resPlan] = await Promise.all([
+          fetch('http://smartplanters.dedyn.io:1880/smartplantdata?table=Devices'),
+          fetch('http://smartplanters.dedyn.io:1880/smartplantdata?table=Planter')
+        ]);
 
-        // Ophalen Planters
-        const planRes = await fetch('http://smartplanters.dedyn.io:1880/smartplantdata?table=Planter');
-        this.planters = await planRes.json();
+        this.devicesRaw = await resDev.json();
+        this.planterData = await resPlan.json();
       } catch (err) {
-        console.error("Fout bij ophalen data:", err);
+        console.error("Fout bij laden:", err);
+      } finally {
+        this.loading = false;
       }
     },
 
-    async addDevice() {
-      if (!this.newDeviceId.trim()) return;
+    async insertNieuwDevice() {
+      if (!this.deviceIdKeuze.trim()) return;
       
-      const url = `http://smartplanters.dedyn.io:1880/smartplantadd?table=Devices&ttndeviceid=${this.newDeviceId}`;
+      const url = `http://smartplanters.dedyn.io:1880/smartplantadd?table=Devices&ttndeviceid=${this.deviceIdKeuze}`;
       
       try {
         const res = await fetch(url);
-        if (!res.ok) throw new Error('Fout bij toevoegen');
-        
-        this.newDeviceId = ""; // Reset veld
-        await this.refreshData(); // Tabel verversen
+        if (res.ok) {
+          this.deviceIdKeuze = "";
+          await this.laadAlleData(); // Ververs de tabellen
+        }
       } catch (err) {
-        alert("Device kon niet worden toegevoegd");
+        alert("Kon device niet toevoegen");
       }
     },
 
-    async koppel() {
-      if (!this.selectedUserID || !this.selectedDeviceID) return;
+    async opslaanKoppeling() {
+      if (!this.gekozenUserId || !this.gekozenDeviceID) {
+        alert("Selecteer eerst een gebruiker en device");
+        return;
+      }
 
-      const url = `http://smartplanters.dedyn.io:1880/smartplantadd?table=Planter&userid=${this.selectedUserID}&deviceid=${this.selectedDeviceID}&plantenteller=${this.selectedPlantenTeller}&devicenaam=${this.selectedDeviceNaam}`;
+      const url = `http://smartplanters.dedyn.io:1880/smartplantadd?table=Planter&userid=${this.gekozenUserId}&deviceid=${this.gekozenDeviceID}&plantenteller=${this.plantenTellerKeuze}&devicenaam=${this.deviceNaamKeuze}`;
       
       try {
         const res = await fetch(url);
-        if (!res.ok) throw new Error('Fout bij koppelen');
-        
-        await this.refreshData(); // Tabel verversen
+        if (res.ok) {
+          // Reset formulier
+          this.gekozenUserId = "";
+          this.gekozenDeviceID = "";
+          this.plantenTellerKeuze = null;
+          this.deviceNaamKeuze = "";
+          await this.laadAlleData();
+        }
       } catch (err) {
-        alert("Planter kon niet worden toegevoegd");
+        alert("Koppelen mislukt");
       }
+    },
+
+    // UI Functies voor de dropdowns
+    toggleUserDropdown() {
+      this.deviceDropdownOpen = false;
+      this.userDropdownOpen = !this.userDropdownOpen;
+    },
+    toggleDeviceDropdown() {
+      this.userDropdownOpen = false;
+      this.deviceDropdownOpen = !this.deviceDropdownOpen;
+    },
+    selecteerUser(user) {
+      this.gekozenUserId = user;
+      this.userDropdownOpen = false;
+    },
+    selecteerDevice(id) {
+      this.gekozenDeviceID = id;
+      this.deviceDropdownOpen = false;
     }
   }
 };
 </script>
 
 <style scoped>
-.admin-page {
-  background-color: #f9f9f9;
-  min-height: 100vh;
-  display: flex;
+/* Gebruik de styling uit je screenshot */
+.admin { padding: 40px; background-color: #f9f9f9; min-height: 100vh; }
+.admin-card { 
+  background: white; 
+  padding: 30px; 
+  border-radius: 15px; 
+  margin-bottom: 30px; 
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05); 
+}
+.adminH1 { font-size: 24px; margin-bottom: 20px; color: #333; }
+
+/* Tabel styling volgens screenshot 2 */
+table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+th { text-align: left; padding: 12px; border-bottom: 2px solid #333; font-weight: bold; }
+td { padding: 12px; border-bottom: 1px solid #eee; }
+
+/* Inputs & Knoppen */
+.admin-input { 
+  padding: 10px; 
+  border: 1px solid #ccc; 
+  border-radius: 8px; 
+  margin-right: 10px;
+}
+.klein { width: 100px; }
+.deviceKeuzenKnop, .koppelMakenKnop { 
+  background-color: #3e8e53; 
+  color: white; 
+  border: none; 
+  padding: 10px 20px; 
+  border-radius: 8px; 
+  cursor: pointer; 
 }
 
-.content-container {
-  flex: 1;
-  padding: 40px;
+/* Custom Dropdown Styling */
+.koppelsDropdown { position: relative; display: inline-block; margin-right: 10px; cursor: pointer; }
+.dropdown-selected { 
+  background: white; 
+  border: 1px solid #ccc; 
+  padding: 10px 15px; 
+  border-radius: 8px; 
+  min-width: 150px; 
 }
-
-.admin-card {
-  background: white;
-  border-radius: 12px;
-  padding: 24px;
-  margin-bottom: 30px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-}
-
-.input-header {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 25px;
-  align-items: center;
-}
-
-.styled-input {
-  padding: 8px 16px;
-  border: 1px solid #ccc;
+.dropdownKeuzes { 
+  position: absolute; 
+  top: 100%; 
+  left: 0; 
+  width: 100%; 
+  background: white; 
+  border: 1px solid #ccc; 
+  z-index: 10; 
   border-radius: 8px;
-  font-size: 14px;
-  outline: none;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
-
-.btn-submit {
-  background-color: #3e8e53; /* De groene kleur uit je screenshot */
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 500;
-}
-
-.btn-submit:hover {
-  background-color: #347a46;
-}
-
-.admin-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.admin-table th {
-  text-align: left;
-  padding: 12px 10px;
-  border-bottom: 2px solid #333;
-  font-weight: 700;
-}
-
-.admin-table td {
-  padding: 12px 10px;
-  border-bottom: 1px solid #eee;
-  color: #444;
-}
-
-.empty-row {
-  text-align: center;
-  padding: 20px;
-  color: #999;
-}
+.dropdownKeuze { padding: 10px; border-bottom: 1px solid #eee; }
+.dropdownKeuze:hover { background-color: #f0f0f0; }
 </style>
