@@ -165,10 +165,10 @@ export default {
 
       // Parameters moeten EXACT zo heten: UserID, DeviceID, PlantenTeller, DeviceNaam
       const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Planter` +
-                  `&UserID=${encodeURIComponent(gekozenUserId.value)}` +
-                  `&DeviceID=${encodeURIComponent(gekozenDeviceID.value)}` +
-                  `&PlantenTeller=${plantenTellerKeuze.value}` +
-                  `&DeviceNaam=${encodeURIComponent(deviceNaamKeuze.value || 'Nieuwe Planter')}`;
+                  `&userID=${encodeURIComponent(gekozenUserId.value)}` +
+                  `&deviceID=${encodeURIComponent(gekozenDeviceID.value)}` +
+                  `&plantenTeller=${plantenTellerKeuze.value}` +
+                  `&deviceNaam=${encodeURIComponent(deviceNaamKeuze.value || 'Nieuwe Planter')}`;
       
       try {
         const res = await fetch(url);
