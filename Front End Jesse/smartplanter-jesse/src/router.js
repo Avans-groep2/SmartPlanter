@@ -15,7 +15,7 @@ export function setKeycloak(keycloak) {
 
 const routes = [
   {
-    path: '/dashboard',
+    path: '/',
     name: 'dashboard',
     component: DashboardPage
   },
