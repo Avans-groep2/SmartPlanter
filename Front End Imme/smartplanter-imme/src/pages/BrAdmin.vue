@@ -139,13 +139,17 @@ export default {
     };
 
     const opgeschoondeDevices = computed(() => {
-      return devicesRaw.value.map(d => d.TtnDeviceID).filter(id => id);
-    });
+  // Controleer of devicesRaw.value bestaat en een array is
+  if (!devicesRaw.value || !Array.isArray(devicesRaw.value)) return [];
+  return devicesRaw.value.map(d => d.TtnDeviceID).filter(id => id);
+});
 
-    const uniekeUsers = computed(() => {
-      const users = planterData.value.map(p => p.UserID);
-      return [...new Set(users)].filter(u => u);
-    });
+const uniekeUsers = computed(() => {
+  // Controleer of planterData.value bestaat en een array is
+  if (!planterData.value || !Array.isArray(planterData.value)) return [];
+  const users = planterData.value.map(p => p.UserID);
+  return [...new Set(users)].filter(u => u);
+});
 
 const insertNieuwDevice = async () => {
   if (!deviceIdKeuze.value.trim()) return alert("Vul een Device ID in");
@@ -173,7 +177,6 @@ const insertNieuwDevice = async () => {
     return alert("Selecteer eerst een gebruiker en device");
   }
 
-  // Controleer goed of je API 'userID' (hoofdletter I) of 'userid' verwacht
   const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Planter` +
               `&UserID=${encodeURIComponent(gekozenUserId.value)}` +
               `&DeviceID=${encodeURIComponent(gekozenDeviceID.value)}` +
@@ -182,8 +185,6 @@ const insertNieuwDevice = async () => {
 
   try {
     const res = await fetch(url);
-    // Als de API alleen 'OK' stuurt en geen JSON, gaat res.json() stuk.
-    // We checken eerst of de response wel ok is.
     if (res.ok) {
       alert("Koppeling succesvol!");
       gekozenUserId.value = "";
@@ -218,6 +219,24 @@ const verwijderDevice = async (ttnID) => {
     alert("Netwerkfout bij verwijderen");
   }
 };
+
+const verwijderKoppeling = async (uID, dID) => {
+      if (!uID || !dID || !confirm("Weet je zeker dat je deze koppeling wilt verwijderen?")) return;
+
+      const url = `https://smartplanters.dedyn.io:1880/cleardata?table=Planter&UserID=${encodeURIComponent(uID)}&DeviceID=${encodeURIComponent(dID)}`;
+
+      try {
+        const res = await fetch(url);
+        if (res.ok) {
+          alert("Koppeling succesvol verwijderd");
+          await laadAlleData();
+        } else {
+          alert("Server kon koppeling niet verwijderen");
+        }
+      } catch (err) {
+        alert("Netwerkfout bij verwijderen koppeling");
+      }
+    };
 
     const toggleUserDropdown = () => {
       deviceDropdownOpen.value = false;
