@@ -146,45 +146,43 @@ export default {
     });
 
     const insertNieuwDevice = async () => {
-      if (!deviceIdKeuze.value.trim()) return alert("Vul een Device ID in");
-      
-      // Tabel=Devices verwacht TtnDeviceID
-      const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Devices&TtnDeviceID=${encodeURIComponent(deviceIdKeuze.value.trim())}`;
-      
-      try {
-        const res = await fetch(url);
-        const data = await res.json();
-        if (data.error) throw new Error(data.code);
-        
-        deviceIdKeuze.value = "";
-        await laadAlleData();
-        alert("Device succesvol toegevoegd!");
-      } catch (err) {
-        alert("Fout bij device aanmaken: " + err.message);
-      }
-    };
+  if (!deviceIdKeuze.value.trim()) return alert("Vul een Device ID in");
+  
+  // Aangepast naar 'deviceId' (kleine d)
+  const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Devices&deviceId=${encodeURIComponent(deviceIdKeuze.value.trim())}`;
+  
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data.error) throw new Error(data.code);
+    
+    deviceIdKeuze.value = "";
+    await laadAlleData();
+    alert("Device succesvol toegevoegd!");
+  } catch (err) {
+    alert("Fout bij device aanmaken: " + err.message);
+  }
+};
 
-    const opslaanKoppeling = async () => {
+   const opslaanKoppeling = async () => {
   if (!gekozenUserId.value || !gekozenDeviceID.value) {
     return alert("Selecteer eerst een gebruiker en device");
   }
 
-  // De API is extreem hoofdlettergevoelig. 
-  // We gebruiken exact de namen die uit de GET-request komen (zie image_99af77.png)
+  // We veranderen de namen naar kleine letters om te matchen met zijn code-logic
   const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Planter` +
-              `&UserID=${encodeURIComponent(gekozenUserId.value)}` +
-              `&DeviceID=${encodeURIComponent(gekozenDeviceID.value)}` +
-              `&PlantenTeller=${plantenTellerKeuze.value}` +
-              `&DeviceNaam=${encodeURIComponent(deviceNaamKeuze.value || 'Nieuwe Planter')}`;
+              `&userID=${encodeURIComponent(gekozenUserId.value)}` +
+              `&deviceID=${encodeURIComponent(gekozenDeviceID.value)}` +
+              `&plantenTeller=${plantenTellerKeuze.value}` +
+              `&deviceName=${encodeURIComponent(deviceNaamKeuze.value || 'Nieuwe Planter')}`;
   
-  console.log("Versturen naar API:", url); // Controleer dit in je console!
+  console.log("Versturen naar API:", url);
 
   try {
     const res = await fetch(url);
     const data = await res.json();
     
     if (data.error) {
-      // Als je hier ER_BAD_NULL_ERROR krijgt, mist er een kolom die verplicht is
       alert("Database Error: " + data.code); 
       console.error("Details:", data);
     } else {
