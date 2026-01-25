@@ -19,7 +19,7 @@
         <i class="fa-solid fa-seedling"></i>
         {{ name }}
       </h2>
-      
+
       <div class="plant-position">
         <i class="fa-solid fa-location-dot"></i>
         <h1>{{ position }}</h1>
@@ -28,7 +28,9 @@
 
     <!-- Plant info -->
     <section class="plant-info">
-      <h1 class="daysToOogst"><strong>{{ daysToHarvest }}</strong></h1>
+      <h1 class="daysToOogst">
+        <strong>{{ daysToHarvest }}</strong>
+      </h1>
       <div class="plantDate">
         <p>Geplant op:</p>
         <p>{{ displayPlantDate }}</p>
@@ -83,16 +85,16 @@ export default {
       showHarvestScreen: false,
       rating: 3,
       hoverRatingValue: null,
-      groeitijd: null // aantal dagen tot oogst
-    }
+      groeitijd: null, // aantal dagen tot oogst
+    };
   },
   computed: {
     displayRating() {
       return this.hoverRatingValue ?? this.rating;
     },
     daysToHarvest() {
-      if (!this.plantDate || this.groeitijd === null) return '';
-      
+      if (!this.plantDate || this.groeitijd === null) return "";
+
       const plantDate = new Date(this.plantDate);
       const harvestDate = new Date(plantDate);
       harvestDate.setDate(harvestDate.getDate() + this.groeitijd);
@@ -101,68 +103,75 @@ export default {
       const diffTime = harvestDate - today;
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-      return diffDays > 0 ? `${diffDays} dagen tot oogst` : "Kan geoogst worden!";
+      return diffDays > 0
+        ? `${diffDays} dagen tot oogst`
+        : "Kan geoogst worden!";
     },
     displayPlantDate() {
-      if (!this.plantDate) return '';
+      if (!this.plantDate) return "";
       const date = new Date(this.plantDate);
-      const day = String(date.getDate()).padStart(2, '0');
-      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, "0");
+      const month = String(date.getMonth() + 1).padStart(2, "0");
       const year = date.getFullYear();
       return `${day}-${month}-${year}`;
     },
     displayHarvestDate() {
-      if (!this.plantDate || this.groeitijd === null) return '';
+      if (!this.plantDate || this.groeitijd === null) return "";
       const plantDate = new Date(this.plantDate);
       const harvestDate = new Date(plantDate);
       harvestDate.setDate(harvestDate.getDate() + this.groeitijd);
 
-      const day = String(harvestDate.getDate()).padStart(2, '0');
-      const month = String(harvestDate.getMonth() + 1).padStart(2, '0');
+      const day = String(harvestDate.getDate()).padStart(2, "0");
+      const month = String(harvestDate.getMonth() + 1).padStart(2, "0");
       const year = harvestDate.getFullYear();
       return `${day}-${month}-${year}`;
-    }
+    },
   },
   mounted() {
     // Haal de plantgegevens op
-    fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Planten')
-      .then(res => res.json())
-      .then(data => {
-        const plant = data.find(p => p.Plantsoort === this.name);
+    fetch("https://smartplanters.dedyn.io:1880/smartplantdata?table=Planten")
+      .then((res) => res.json())
+      .then((data) => {
+        const plant = data.find((p) => p.Plantsoort === this.name);
         if (plant) {
           this.groeitijd = plant.Groeitijd;
         }
       });
   },
   methods: {
-    setRating(star) { this.rating = star },
-    hoverStar(star) { this.hoverRatingValue = star },
-    leaveStar() { this.hoverRatingValue = null },
+    setRating(star) {
+      this.rating = star;
+    },
+    hoverStar(star) {
+      this.hoverRatingValue = star;
+    },
+    leaveStar() {
+      this.hoverRatingValue = null;
+    },
     confirmHarvest() {
       const today = new Date();
-      const day = String(today.getDate()).padStart(2, '0');
-      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const day = String(today.getDate()).padStart(2, "0");
+      const month = String(today.getMonth() + 1).padStart(2, "0");
       const year = today.getFullYear();
       const oogstDatum = `${year}-${month}-${day}`;
-      const currentDeviceID = localStorage.getItem('chosenDeviceId');
+      const currentDeviceID = localStorage.getItem("chosenDeviceId");
       const plantpositie = Number(this.position);
       const oogstResultaat = Number(this.rating);
 
       const url = `https://smartplanters.dedyn.io:1880/harvest?table=PlantPositie&oogstDatum=${oogstDatum}&oogstResultaat=${oogstResultaat}&plantpositie=${plantpositie}&deviceID=${currentDeviceID}`;
 
-      fetch(url)
+      fetch(url);
 
-      this.$emit('plant-harvested', this.position);
-      this.$toast("Plant succesvol geoogst!" , "success")
-      
-        }
-    }
-  }
+      this.$emit("plant-harvested", this.position);
+      this.$toast("Plant succesvol geoogst!", "success");
+    },
+  },
+};
 </script>
 
 <style>
 .plants-position {
-  position: relative; 
+  position: relative;
   flex-direction: column;
   background: var(--light);
   padding: 0.5rem 0 0 0;
@@ -213,37 +222,37 @@ export default {
 
 .plant-position {
   display: flex;
-  justify-content: center;   
-  align-items: center;       
-  min-width: 100px;         
-  height: 2.5rem;            
+  justify-content: center;
+  align-items: center;
+  min-width: 100px;
+  height: 2.5rem;
   background: var(--primary);
   border-radius: 50px;
-  box-sizing: border-box;    
+  box-sizing: border-box;
 }
 
 .plant-position h1,
 .plant-position i {
-  font-size: 2rem;       
+  font-size: 2rem;
   font-weight: 600;
   color: var(--text);
-  margin: 0;               
-  line-height: 1;          
+  margin: 0;
+  line-height: 1;
 }
 
 .daysToOogst {
   font-size: 1.5rem;
-  text-align: center; 
-  padding: 0.5rem 0;  
-  margin-bottom: 0.5rem; 
+  text-align: center;
+  padding: 0.5rem 0;
+  margin-bottom: 0.5rem;
   color: var(--text);
 }
 
 .plantDate,
 .plantOogst {
   display: flex;
-  justify-content: space-between; 
-  gap: 0.5rem; 
+  justify-content: space-between;
+  gap: 0.5rem;
   font-size: 1.2rem;
   margin: 0rem 0.3rem 0rem 0.3rem;
   color: var(--text);
@@ -251,7 +260,7 @@ export default {
 
 .plantDate p,
 .plantOogst p {
-  margin: 0; 
+  margin: 0;
 }
 
 .btnOogst {

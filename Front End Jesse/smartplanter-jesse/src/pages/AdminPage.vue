@@ -7,7 +7,11 @@
     <!-- ================== Devices Tabel ================== -->
     <div class="adminContainer">
       <div class="adminTitle">
-        <input v-model="newDeviceId" placeholder="Device ID" @keyup.enter="addDevice"/>
+        <input
+          v-model="newDeviceId"
+          placeholder="Device ID"
+          @keyup.enter="addDevice"
+        />
         <button @click="addDevice">Aanmaken</button>
       </div>
 
@@ -55,8 +59,17 @@
           </option>
         </select>
 
-        <input v-model="selectedPlantenTeller" placeholder="PlantenTeller" type="number" @keyup.enter="koppel"/>
-        <input v-model="selectedDeviceNaam" placeholder="Device Naam" @keyup.enter="koppel"/>
+        <input
+          v-model="selectedPlantenTeller"
+          placeholder="PlantenTeller"
+          type="number"
+          @keyup.enter="koppel"
+        />
+        <input
+          v-model="selectedDeviceNaam"
+          placeholder="Device Naam"
+          @keyup.enter="koppel"
+        />
 
         <button @click="koppel">Koppelen</button>
       </div>
@@ -80,9 +93,7 @@
           </tr>
 
           <tr v-if="planters.length === 0">
-            <td colspan="4" class="emptyRow">
-              Geen planters gevonden
-            </td>
+            <td colspan="4" class="emptyRow">Geen planters gevonden</td>
           </tr>
         </tbody>
       </table>
@@ -91,130 +102,133 @@
 </template>
 
 <script>
-import WelcomeMessage from '@/components/WelcomeMessage.vue'
-import SidebarNavbar from '@/components/SidebarNavbar.vue'
+import WelcomeMessage from "@/components/WelcomeMessage.vue";
+import SidebarNavbar from "@/components/SidebarNavbar.vue";
 
 export default {
-  name: 'AdminPage',
+  name: "AdminPage",
   components: { SidebarNavbar, WelcomeMessage },
 
   data() {
     return {
       devices: [],
-      newDeviceId: '',
+      newDeviceId: "",
 
       planters: [],
-      selectedDeviceID: '',
-      selectedPlantenTeller: '',
-      selectedDeviceNaam: '',
+      selectedDeviceID: "",
+      selectedPlantenTeller: "",
+      selectedDeviceNaam: "",
 
       users: [],
-      selectedUserID: '' // UserID opgeslagen voor backend
-    }
+      selectedUserID: "", // UserID opgeslagen voor backend
+    };
   },
 
   mounted() {
-    this.loadDevices()
-    this.loadPlanters()
-    this.loadUsers()
+    this.loadDevices();
+    this.loadPlanters();
+    this.loadUsers();
   },
 
   computed: {
     // Alle users alfabetisch op Username
     sortedUsers() {
       return [...this.users].sort((a, b) => {
-        if (a.Username.toLowerCase() < b.Username.toLowerCase()) return -1
-        if (a.Username.toLowerCase() > b.Username.toLowerCase()) return 1
-        return 0
-      })
-    }
+        if (a.Username.toLowerCase() < b.Username.toLowerCase()) return -1;
+        if (a.Username.toLowerCase() > b.Username.toLowerCase()) return 1;
+        return 0;
+      });
+    },
   },
 
   methods: {
     // Devices ophalen
     loadDevices() {
-      fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Devices')
-        .then(res => res.json())
-        .then(data => {
-          this.devices = data
+      fetch("https://smartplanters.dedyn.io:1880/smartplantdata?table=Devices")
+        .then((res) => res.json())
+        .then((data) => {
+          this.devices = data;
           if (!this.selectedDeviceID && data.length) {
-            this.selectedDeviceID = data[data.length - 1].TtnDeviceID
+            this.selectedDeviceID = data[data.length - 1].TtnDeviceID;
           }
         })
-        .catch(err => console.error('Fout bij ophalen devices:', err))
+        .catch((err) => console.error("Fout bij ophalen devices:", err));
     },
 
     // Planters ophalen
     loadPlanters() {
-      fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter')
-        .then(res => res.json())
-        .then(data => { this.planters = data })
-        .catch(err => console.error('Fout bij ophalen planters:', err))
+      fetch("https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter")
+        .then((res) => res.json())
+        .then((data) => {
+          this.planters = data;
+        })
+        .catch((err) => console.error("Fout bij ophalen planters:", err));
     },
 
     // Users ophalen
     loadUsers() {
-      fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Users')
-        .then(res => res.json())
-        .then(data => {
-          this.users = data
+      fetch("https://smartplanters.dedyn.io:1880/smartplantdata?table=Users")
+        .then((res) => res.json())
+        .then((data) => {
+          this.users = data;
           if (!this.selectedUserID && data.length) {
-            this.selectedUserID = data[0].UserID
+            this.selectedUserID = data[0].UserID;
           }
         })
-        .catch(err => console.error('Fout bij ophalen users:', err))
+        .catch((err) => console.error("Fout bij ophalen users:", err));
     },
 
     // Device toevoegen
     addDevice() {
-      if (!this.newDeviceId.trim()) return
+      if (!this.newDeviceId.trim()) return;
 
-      const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Devices&ttnDeviceID=${this.newDeviceId}`
+      const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Devices&ttnDeviceID=${this.newDeviceId}`;
 
       fetch(url)
-        .then(res => {
-          if (!res.ok) throw new Error('Fout bij toevoegen device')
+        .then((res) => {
+          if (!res.ok) throw new Error("Fout bij toevoegen device");
 
-          this.newDeviceId = ''
-          return this.loadDevices()
+          this.newDeviceId = "";
+          return this.loadDevices();
         })
-        .catch(err => {
-          console.error(err)
-          alert('Device kon niet worden toegevoegd')
-        })
+        .catch((err) => {
+          console.error(err);
+          alert("Device kon niet worden toegevoegd");
+        });
     },
 
     // Koppelen van User → Device
     koppel() {
-      if (!this.selectedUserID || !this.selectedDeviceID) return
+      if (!this.selectedUserID || !this.selectedDeviceID) return;
 
-      const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Planter` +
-                  `&userID=${this.selectedUserID}` +
-                  `&deviceID=${this.selectedDeviceID}` +
-                  `&plantenTeller=${this.selectedPlantenTeller}` +
-                  `&deviceNaam=${this.selectedDeviceNaam}`
+      const url =
+        `https://smartplanters.dedyn.io:1880/smartplantedit?table=Planter` +
+        `&userID=${this.selectedUserID}` +
+        `&deviceID=${this.selectedDeviceID}` +
+        `&plantenTeller=${this.selectedPlantenTeller}` +
+        `&deviceNaam=${this.selectedDeviceNaam}`;
 
       fetch(url)
-        .then(res => {
-          if (!res.ok) throw new Error('Fout bij toevoegen planter')
+        .then((res) => {
+          if (!res.ok) throw new Error("Fout bij toevoegen planter");
 
-          this.selectedPlantenTeller = ''
-          this.selectedDeviceNaam = ''
-          return this.loadPlanters()
+          this.selectedPlantenTeller = "";
+          this.selectedDeviceNaam = "";
+          return this.loadPlanters();
         })
-        .catch(err => {
-          console.error(err)
-          alert('Planter kon niet worden toegevoegd')
-        })
+        .catch((err) => {
+          console.error(err);
+          alert("Planter kon niet worden toegevoegd");
+        });
     },
 
     // Helper: UserID → Username
     getUsername(userID) {
-      const user = this.users.find(u => u.UserID === userID)
-      return user ? user.Username : userID
-    }
-  }
-}
+      const user = this.users.find((u) => u.UserID === userID);
+      return user ? user.Username : userID;
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -277,8 +291,8 @@ button {
 .deviceTable tbody {
   display: block;
   min-height: 11rem;
-  max-height: 11rem;     
-  overflow-y: auto;      
+  max-height: 11rem;
+  overflow-y: auto;
 }
 
 .deviceTable tbody tr {

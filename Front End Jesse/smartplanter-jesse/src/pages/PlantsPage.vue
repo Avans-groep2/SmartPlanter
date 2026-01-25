@@ -304,9 +304,9 @@ deviceTable {
 }
 
 /* Rows */
-.plantsTable tbody tr {   
+.plantsTable tbody tr {
   display: table;
-    width: 100%;
+  width: 100%;
   table-layout: fixed;
   transition: background 0.2s ease, opacity 0.3s ease;
 }

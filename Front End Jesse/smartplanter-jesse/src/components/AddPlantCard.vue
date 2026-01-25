@@ -5,10 +5,12 @@
     </button>
 
     <div v-if="showAddPlantScreen" class="harvest-screen">
-        <div class="title">
-            <button @click="showAddPlantScreen = false"><i class="fa-solid fa-chevron-left"></i></button>
-            <h2>Plant Informatie</h2>
-        </div>
+      <div class="title">
+        <button @click="showAddPlantScreen = false">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <h2>Plant Informatie</h2>
+      </div>
 
       <input
         type="number"
@@ -53,52 +55,59 @@ export default {
   props: {
     deviceID: {
       type: [String, Number],
-      required: true
-    }
+      required: true,
+    },
   },
 
-  emits: ['plant-added'],
+  emits: ["plant-added"],
 
   data() {
     return {
       showAddPlantScreen: false,
       plantOptions: [],
       newPlant: {
-        position: '',
-        plantDate: '',
-        plantID: ''
-      }
-    }
+        position: "",
+        plantDate: "",
+        plantID: "",
+      },
+    };
   },
 
   mounted() {
-    this.fetchPlantOptions()
+    this.fetchPlantOptions();
   },
 
   methods: {
     async fetchPlantOptions() {
       try {
         const res = await fetch(
-          "https://smartplanters.dedyn.io:1880/smartplantdata?table=Planten"
-        )
-        this.plantOptions = await res.json()
+          "https://smartplanters.dedyn.io:1880/smartplantdata?table=Planten",
+        );
+        this.plantOptions = await res.json();
       } catch (err) {
-        console.error("Fout bij ophalen van plantopties:", err)
-        this.$toast("Kan plantopties niet ophalen", "error")
+        console.error("Fout bij ophalen van plantopties:", err);
+        this.$toast("Kan plantopties niet ophalen", "error");
       }
     },
 
     addPlant() {
       // Controleer of deviceID aanwezig is
       if (!this.deviceID) {
-        this.$toast("Selecteer eerst een planter", "error")
-        return
+        this.$toast("Selecteer eerst een planter", "error");
+        return;
       }
 
       // Controleer of alle velden ingevuld zijn
-      if (!this.newPlant.position || !this.newPlant.plantDate || !this.newPlant.plantID) {
-        this.$toast("Vul alle velden in voordat je een plant toevoegt", "warning")
-        return
+      if (
+        !this.newPlant.position ||
+        !this.newPlant.plantDate ||
+        !this.newPlant.plantID
+      ) {
+        this.$toast(
+          "Vul alle velden in voordat je een plant toevoegt",
+          "warning",
+        );
+        return;
       }
 
       const url =
@@ -106,31 +115,31 @@ export default {
         `&deviceID=${this.deviceID}` +
         `&plantID=${this.newPlant.plantID}` +
         `&plantDatum=${this.newPlant.plantDate}` +
-        `&plantpositie=${this.newPlant.position}`
+        `&plantpositie=${this.newPlant.position}`;
 
       fetch(url)
-        .then(res => {
-          if (!res.ok) throw new Error("Toevoegen mislukt")
+        .then((res) => {
+          if (!res.ok) throw new Error("Toevoegen mislukt");
 
-          this.showAddPlantScreen = false
+          this.showAddPlantScreen = false;
           // Reset velden
-          this.newPlant = { position: '', plantDate: '', plantID: '' }
-          this.$emit('plant-added')
-          this.$toast("Plant succesvol toegevoegd!", "success")
+          this.newPlant = { position: "", plantDate: "", plantID: "" };
+          this.$emit("plant-added");
+          this.$toast("Plant succesvol toegevoegd!", "success");
         })
-        .catch(err => {
-          console.error("Fout bij toevoegen plant:", err)
-          this.$toast("Plant toevoegen mislukt", "error")
-        })
-    }
-  }
-}
+        .catch((err) => {
+          console.error("Fout bij toevoegen plant:", err);
+          this.$toast("Plant toevoegen mislukt", "error");
+        });
+    },
+  },
+};
 </script>
 
 <style>
 /* Algemene container styling */
 .plants-card {
-  position: relative; 
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -179,7 +188,7 @@ export default {
 .harvest-screen .title {
   display: flex;
   align-items: center;
-  gap: 1rem; 
+  gap: 1rem;
   width: 100%;
 }
 
@@ -188,8 +197,8 @@ export default {
   color: var(--text);
   border: none;
   border-radius: 10px;
-  height: 2.5rem; 
-  width: 2.5rem; 
+  height: 2.5rem;
+  width: 2.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -228,7 +237,7 @@ export default {
 }
 
 .form-input:hover {
-    background: var(--primary);
+  background: var(--primary);
 }
 
 .form-input option {
@@ -236,14 +245,12 @@ export default {
   color: var(--text);
 }
 
-
-
 .form-input::placeholder {
-    color: var(--text);
+  color: var(--text);
 }
 
 .form-input::selection {
-    background: var(--bg);
-    color: var(--primary);
+  background: var(--bg);
+  color: var(--primary);
 }
 </style>

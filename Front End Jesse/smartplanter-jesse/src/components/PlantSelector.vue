@@ -97,11 +97,12 @@ export default {
           );
         }
 
-        // Unieke planten op basis van deviceId
+        // Unieke planten verwijderen op basis van zowel DeviceID én DeviceNaam
         const uniquePlantersMap = new Map();
         plantersToShow.forEach((p) => {
-          if (!uniquePlantersMap.has(p.DeviceID)) {
-            uniquePlantersMap.set(p.DeviceID, {
+          const key = `${p.DeviceID}-${p.DeviceNaam}`; // combinatie van ID + naam
+          if (!uniquePlantersMap.has(key)) {
+            uniquePlantersMap.set(key, {
               label: p.DeviceNaam,
               deviceId: p.DeviceID,
             });
@@ -110,6 +111,7 @@ export default {
 
         this.options = Array.from(uniquePlantersMap.values());
 
+        // Voeg "Alle planters" toe als includeAllOption true is
         if (this.includeAllOption) {
           this.options.unshift({
             label: "Alle planters",

@@ -4,7 +4,7 @@
   <div class="Dashboard">
     <header>
       <WelcomeMessage />
-      <PlantSelector v-model="selectedDeviceId"/>
+      <PlantSelector v-model="selectedDeviceId" />
     </header>
 
     <div class="plants-container">
@@ -21,101 +21,102 @@
       <AddPlantCard
         v-if="selectedDeviceId"
         :deviceID="selectedDeviceId"
-        @plant-added="reloadPlantPositions"/>
+        @plant-added="reloadPlantPositions"
+      />
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted } from "vue";
 
-import SidebarNavbar from '@/components/SidebarNavbar.vue'
-import WelcomeMessage from '@/components/WelcomeMessage.vue'
-import PlantCard from '@/components/PlantCard.vue'
-import PlantSelector from '@/components/PlantSelector.vue'
-import AddPlantCard from '@/components/AddPlantCard.vue'
+import SidebarNavbar from "@/components/SidebarNavbar.vue";
+import WelcomeMessage from "@/components/WelcomeMessage.vue";
+import PlantCard from "@/components/PlantCard.vue";
+import PlantSelector from "@/components/PlantSelector.vue";
+import AddPlantCard from "@/components/AddPlantCard.vue";
 
 /* --------------------
    State
 -------------------- */
-const selectedDeviceId = ref(null)
-const planters = ref([])
-const plants = ref([])
-const plantPositions = ref([])
+const selectedDeviceId = ref(null);
+const planters = ref([]);
+const plants = ref([]);
+const plantPositions = ref([]);
 
 /* --------------------
    Lifecycle
 -------------------- */
 onMounted(async () => {
-  await fetchAllData()
-})
+  await fetchAllData();
+});
 
 /* --------------------
    Fetch functies
 -------------------- */
 async function fetchAllData() {
-  await Promise.all([fetchPlanters(), fetchPlants(), fetchPlantPositions()])
+  await Promise.all([fetchPlanters(), fetchPlants(), fetchPlantPositions()]);
 }
 
 async function fetchPlanters() {
   const res = await fetch(
-    'https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter'
-  )
-  planters.value = await res.json()
+    "https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter",
+  );
+  planters.value = await res.json();
 }
 
 async function fetchPlants() {
   const res = await fetch(
-    'https://smartplanters.dedyn.io:1880/smartplantdata?table=Planten'
-  )
-  plants.value = await res.json()
+    "https://smartplanters.dedyn.io:1880/smartplantdata?table=Planten",
+  );
+  plants.value = await res.json();
 }
 
 async function fetchPlantPositions() {
   const res = await fetch(
-    'https://smartplanters.dedyn.io:1880/smartplantdata?table=PlantPositie'
-  )
-  plantPositions.value = await res.json()
+    "https://smartplanters.dedyn.io:1880/smartplantdata?table=PlantPositie",
+  );
+  plantPositions.value = await res.json();
 }
 
 /* --------------------
    Herladen na toevoegen
 -------------------- */
 async function reloadPlantPositions() {
-  console.log('🔄 Herladen plantposities...')
-  await fetchPlantPositions()
+  console.log("🔄 Herladen plantposities...");
+  await fetchPlantPositions();
 }
 
 function removePlant(position) {
   // Filter de plantpositie uit de lijst
   plantPositions.value = plantPositions.value.filter(
-    p => p.Plantpositie !== position
-  )
+    (p) => p.Plantpositie !== position,
+  );
 }
 
 /* --------------------
    Computed properties
 -------------------- */
 const filteredPlants = computed(() => {
-  if (!selectedDeviceId.value) return []
+  if (!selectedDeviceId.value) return [];
 
   // Filter plantposities op DeviceID en dat er een Plantpositie is
   const positions = plantPositions.value.filter(
-    p =>
+    (p) =>
       p.DeviceID === selectedDeviceId.value &&
       p.Plantpositie !== null &&
-      p.Plantpositie !== ''
-  )
+      p.Plantpositie !== "",
+  );
 
   // Voeg plantgegevens toe
-  return positions.map(p => {
-    const plantData = plants.value.find(pl => pl.PlantID === p.PlantID)
+  return positions.map((p) => {
+    const plantData = plants.value.find((pl) => pl.PlantID === p.PlantID);
     return {
       ...p,
-      Plantsoort: plantData ? plantData.Plantsoort : 'Onbekend'
-    }
-  })
-})
+      Plantsoort: plantData ? plantData.Plantsoort : "Onbekend",
+    };
+  });
+});
 </script>
 
 <style>

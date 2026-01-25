@@ -1,44 +1,44 @@
 <script setup>
-import { computed, ref, onMounted, getCurrentInstance } from 'vue'
+import { computed, ref, onMounted, getCurrentInstance } from "vue";
 
 // Haal $auth op uit globalProperties
-const { appContext } = getCurrentInstance()
-const $auth = appContext.config.globalProperties.$auth
+const { appContext } = getCurrentInstance();
+const $auth = appContext.config.globalProperties.$auth;
 
 // Check of ingelogde gebruiker beheerder is
-const isBeheerder = computed(() => $auth.user?.roles.includes('beheerder'))
+const isBeheerder = computed(() => $auth.user?.roles.includes("beheerder"));
 
 // Meldingen
-const notificationCount = ref(0)
+const notificationCount = ref(0);
 
 async function fetchNotifications() {
   try {
-    if (!$auth.user) return
+    if (!$auth.user) return;
 
     // Haal alle meldingen op
-    const url = `https://smartplanters.dedyn.io:1880/smartplantdata?table=Meldingen`
+    const url = `https://smartplanters.dedyn.io:1880/smartplantdata?table=Meldingen`;
 
-    const response = await fetch(url)
-    if (!response.ok) throw new Error('Fout bij ophalen meldingen')
+    const response = await fetch(url);
+    if (!response.ok) throw new Error("Fout bij ophalen meldingen");
 
-    const data = await response.json()
+    const data = await response.json();
 
     // Filter op ingelogde gebruiker
-    const userId = $auth.user.id // of $auth.user.email als ID niet beschikbaar is
-    const userMeldingen = data.filter(m => m.UserID === userId)
+    const userId = $auth.user.id; // of $auth.user.email als ID niet beschikbaar is
+    const userMeldingen = data.filter((m) => m.UserID === userId);
 
     // Stel het aantal meldingen in
-    notificationCount.value = userMeldingen.length
+    notificationCount.value = userMeldingen.length;
   } catch (error) {
-    console.error('Kon meldingen niet ophalen:', error)
-    notificationCount.value = 0
+    console.error("Kon meldingen niet ophalen:", error);
+    notificationCount.value = 0;
   }
 }
 
 // Haal meldingen op bij mount
 onMounted(() => {
-  fetchNotifications()
-})
+  fetchNotifications();
+});
 </script>
 
 <template>
@@ -48,7 +48,7 @@ onMounted(() => {
       <i class="fa-solid fa-seedling"></i>
       <h1 class="logo-text">SmartPlanter</h1>
     </div>
-    
+
     <!-- NAVIGATIE -->
     <nav>
       <ul>
@@ -65,8 +65,8 @@ onMounted(() => {
             <span class="label">Meldingen</span>
           </router-link>
           <!-- Badge altijd zichtbaar -->
-          <p 
-            class="notificationCount" 
+          <p
+            class="notificationCount"
             :class="{ 'has-meldingen': notificationCount > 0 }"
           >
             {{ notificationCount }}
@@ -95,7 +95,6 @@ onMounted(() => {
             <span class="label">Admin</span>
           </router-link>
         </li>
-        
       </ul>
 
       <ul>
@@ -107,7 +106,11 @@ onMounted(() => {
         </li>
 
         <li>
-          <button class="nav-item" @click="$auth.logout()" style="padding: 0; margin: 0;">
+          <button
+            class="nav-item"
+            @click="$auth.logout()"
+            style="padding: 0; margin: 0"
+          >
             <i class="fa-solid fa-right-from-bracket"></i>
             <span class="label">Loguit</span>
           </button>
@@ -144,8 +147,8 @@ onMounted(() => {
   overflow: hidden;
   user-select: none;
   z-index: 1000;
-  color: var(--text);  
-  padding: 0; 
+  color: var(--text);
+  padding: 0;
   margin: 0;
 }
 

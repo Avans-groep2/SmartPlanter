@@ -4,10 +4,10 @@
   --bg: #f5f5f5;
   --hover: #f5f5f5;
   --blur: rgba(0, 0, 0, 0.2);
-  --light: #FFFFFF;
+  --light: #ffffff;
   --text: #262626;
   --icon: #262626;
-  --danger: #FF4A4A;
+  --danger: #ff4a4a;
   --inputbg: #e5e5e5;
 }
 
@@ -20,9 +20,9 @@
   --light: #0a0a0a;
   --text: #fff;
   --icon: #fff;
-  --danger: #FF4A4A;
+  --danger: #ff4a4a;
   --inputbg: #151515;
-} 
+}
 
 /* Toast Style */
 /* Toast container */
@@ -41,7 +41,7 @@
   color: white;
   padding: 1rem 1.5rem;
   border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
   font-size: 1rem;
   display: flex;
   align-items: center;
@@ -57,11 +57,21 @@
 
 /* Animations */
 @keyframes slideIn {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 @keyframes fadeOut {
-  from { opacity: 1; }
-  to { opacity: 0; }
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
