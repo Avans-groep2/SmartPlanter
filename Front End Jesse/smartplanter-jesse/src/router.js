@@ -15,7 +15,7 @@ export function setKeycloak(keycloak) {
 
 const routes = [
   {
-    path: '/',
+    path: '/dashboard',
     name: 'dashboard',
     component: DashboardPage
   },
@@ -39,7 +39,7 @@ const routes = [
     name: 'admin',
     component: AdminPage,
     meta: {
-      // requiresRole: 'beheerder'
+      requiresRole: 'beheerder'
     }
   }
 ]
