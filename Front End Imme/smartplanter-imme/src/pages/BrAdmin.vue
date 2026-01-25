@@ -1,6 +1,6 @@
 <template>
   <div class="admin">
-    <div class="deviceIdAanmaken admin-card">
+    <div class="deviceIdAanmaken">
       <h1 class="adminH1">Device Id kiezen:</h1>
       <div class="deviceKeuze">
         <input
@@ -29,7 +29,7 @@
       </table>
     </div>
 
-    <div class="UserIdKoppels admin-card">
+    <div class="UserIdKoppels">
       <h1 class="adminH1">Koppel hier de gebruiker met de deviceId</h1>
 
       <div class="koppelMaken">
@@ -93,182 +93,230 @@
   </div>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      // Data opslag
-      devicesRaw: [],    // Ruwe data van de API
-      planterData: [],   // Data voor de onderste tabel
-      loading: false,
+<script setup>
+import { ref, onMounted, computed } from 'vue';
 
-      // Formulier velden
-      deviceIdKeuze: "",
-      gekozenUserId: "",
-      gekozenDeviceID: "",
-      plantenTellerKeuze: null,
-      deviceNaamKeuze: "",
+// 1. Reactive data
+const devicesRaw = ref([]);
+const planterData = ref([]);
+const loading = ref(false);
 
-      // UI State (Dropdowns)
-      userDropdownOpen: false,
-      deviceDropdownOpen: false
-    };
-  },
+// Formuliervelden
+const deviceIdKeuze = ref("");
+const gekozenUserId = ref("");
+const gekozenDeviceID = ref("");
+const plantenTellerKeuze = ref(null);
+const deviceNaamKeuze = ref("");
 
-  computed: {
-    // Maakt een schone lijst van alleen de IDs voor de bovenste tabel en dropdown
-    opgeschoondeDevices() {
-      return this.devicesRaw.map(d => d.TtnDeviceID).filter(id => id);
-    },
-    // Haalt unieke UserIDs uit de bestaande koppelingen voor de dropdown
-    uniekeUsers() {
-      const users = this.planterData.map(p => p.UserID);
-      return [...new Set(users)].filter(u => u);
-    }
-  },
+// UI State
+const userDropdownOpen = ref(false);
+const deviceDropdownOpen = ref(false);
 
-  mounted() {
-    this.laadAlleData();
-    // Sluit dropdowns als je buiten de dropdown klikt
-    window.addEventListener('click', () => {
-      this.userDropdownOpen = false;
-      this.deviceDropdownOpen = false;
-    });
-  },
+// 2. Data ophalen
+const laadAlleData = async () => {
+  loading.value = true;
+  try {
+    // Gebruik HTTPS om de Mixed Content error te voorkomen!
+    const [resDev, resPlan] = await Promise.all([
+      fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Devices'),
+      fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter')
+    ]);
 
-  methods: {
-    async laadAlleData() {
-      this.loading = true;
-      try {
-        // API van je collega ophalen
-        const [resDev, resPlan] = await Promise.all([
-          fetch('http://smartplanters.dedyn.io:1880/smartplantdata?table=Devices'),
-          fetch('http://smartplanters.dedyn.io:1880/smartplantdata?table=Planter')
-        ]);
-
-        this.devicesRaw = await resDev.json();
-        this.planterData = await resPlan.json();
-      } catch (err) {
-        console.error("Fout bij laden:", err);
-      } finally {
-        this.loading = false;
-      }
-    },
-
-    async insertNieuwDevice() {
-      if (!this.deviceIdKeuze.trim()) return;
-      
-      const url = `http://smartplanters.dedyn.io:1880/smartplantadd?table=Devices&ttndeviceid=${this.deviceIdKeuze}`;
-      
-      try {
-        const res = await fetch(url);
-        if (res.ok) {
-          this.deviceIdKeuze = "";
-          await this.laadAlleData(); // Ververs de tabellen
-        }
-      } catch (err) {
-        alert("Kon device niet toevoegen");
-      }
-    },
-
-    async opslaanKoppeling() {
-      if (!this.gekozenUserId || !this.gekozenDeviceID) {
-        alert("Selecteer eerst een gebruiker en device");
-        return;
-      }
-
-      const url = `http://smartplanters.dedyn.io:1880/smartplantadd?table=Planter&userid=${this.gekozenUserId}&deviceid=${this.gekozenDeviceID}&plantenteller=${this.plantenTellerKeuze}&devicenaam=${this.deviceNaamKeuze}`;
-      
-      try {
-        const res = await fetch(url);
-        if (res.ok) {
-          // Reset formulier
-          this.gekozenUserId = "";
-          this.gekozenDeviceID = "";
-          this.plantenTellerKeuze = null;
-          this.deviceNaamKeuze = "";
-          await this.laadAlleData();
-        }
-      } catch (err) {
-        alert("Koppelen mislukt");
-      }
-    },
-
-    // UI Functies voor de dropdowns
-    toggleUserDropdown() {
-      this.deviceDropdownOpen = false;
-      this.userDropdownOpen = !this.userDropdownOpen;
-    },
-    toggleDeviceDropdown() {
-      this.userDropdownOpen = false;
-      this.deviceDropdownOpen = !this.deviceDropdownOpen;
-    },
-    selecteerUser(user) {
-      this.gekozenUserId = user;
-      this.userDropdownOpen = false;
-    },
-    selecteerDevice(id) {
-      this.gekozenDeviceID = id;
-      this.deviceDropdownOpen = false;
-    }
+    devicesRaw.value = await resDev.json();
+    planterData.value = await resPlan.json();
+  } catch (err) {
+    console.error("Fout bij laden:", err);
+  } finally {
+    loading.value = false;
   }
 };
+
+// 3. Computed properties voor de dropdowns
+const opgeschoondeDevices = computed(() => {
+  // We pakken de TtnDeviceID property uit elk object
+  return devicesRaw.value.map(d => d.TtnDeviceID).filter(id => id);
+});
+
+const uniekeUsers = computed(() => {
+  // We pakken de UserID uit de planter tabel voor de dropdown
+  const users = planterData.value.map(p => p.UserID);
+  return [...new Set(users)].filter(u => u);
+});
+
+// 4. Acties (GET requests voor inserts)
+const insertNieuwDevice = async () => {
+  if (!deviceIdKeuze.value.trim()) return;
+  
+  // URL aanpassen naar smartplantedit zoals je vroeg
+  const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Devices&TtnDeviceID=${encodeURIComponent(deviceIdKeuze.value)}`;
+  
+  try {
+    const res = await fetch(url);
+    if (res.ok) {
+      deviceIdKeuze.value = "";
+      await laadAlleData();
+      alert("Device toegevoegd!");
+    }
+  } catch (err) {
+    alert("Kon device niet toevoegen");
+  }
+};
+
+const opslaanKoppeling = async () => {
+  if (!gekozenUserId.value || !gekozenDeviceID.value) {
+    alert("Selecteer eerst een gebruiker en device");
+    return;
+  }
+
+  const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Planter&UserID=${gekozenUserId.value}&DeviceID=${gekozenDeviceID.value}&PlantenTeller=${plantenTellerKeuze.value}&DeviceNaam=${encodeURIComponent(deviceNaamKeuze.value)}`;
+  
+  try {
+    const res = await fetch(url);
+    if (res.ok) {
+      // Reset
+      gekozenUserId.value = "";
+      gekozenDeviceID.value = "";
+      plantenTellerKeuze.value = null;
+      deviceNaamKeuze.value = "";
+      await laadAlleData();
+      alert("Koppeling succesvol!");
+    }
+  } catch (err) {
+    alert("Koppelen mislukt");
+  }
+};
+
+// Dropdown functies
+const selecteerUser = (u) => { gekozenUserId.value = u; userDropdownOpen.value = false; };
+const selecteerDevice = (d) => { gekozenDeviceID.value = d; deviceDropdownOpen.value = false; };
+
+onMounted(() => {
+  laadAlleData();
+});
 </script>
 
-<style scoped>
-/* Gebruik de styling uit je screenshot */
-.admin { padding: 40px; background-color: #f9f9f9; min-height: 100vh; }
-.admin-card { 
-  background: white; 
-  padding: 30px; 
-  border-radius: 15px; 
-  margin-bottom: 30px; 
-  box-shadow: 0 4px 10px rgba(0,0,0,0.05); 
-}
-.adminH1 { font-size: 24px; margin-bottom: 20px; color: #333; }
-
-/* Tabel styling volgens screenshot 2 */
-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-th { text-align: left; padding: 12px; border-bottom: 2px solid #333; font-weight: bold; }
-td { padding: 12px; border-bottom: 1px solid #eee; }
-
-/* Inputs & Knoppen */
-.admin-input { 
-  padding: 10px; 
-  border: 1px solid #ccc; 
-  border-radius: 8px; 
-  margin-right: 10px;
-}
-.klein { width: 100px; }
-.deviceKeuzenKnop, .koppelMakenKnop { 
-  background-color: #3e8e53; 
-  color: white; 
-  border: none; 
-  padding: 10px 20px; 
-  border-radius: 8px; 
-  cursor: pointer; 
+<style>
+.koppelMaken {
+  display: flex;
+  flex-wrap: wrap; /* Zorgt dat het netjes blijft op kleine schermen */
+  gap: 10px;
+  align-items: center;
 }
 
-/* Custom Dropdown Styling */
-.koppelsDropdown { position: relative; display: inline-block; margin-right: 10px; cursor: pointer; }
-.dropdown-selected { 
-  background: white; 
-  border: 1px solid #ccc; 
-  padding: 10px 15px; 
-  border-radius: 8px; 
-  min-width: 150px; 
+.admin-input.klein {
+  width: 120px;
 }
-.dropdownKeuzes { 
-  position: absolute; 
-  top: 100%; 
-  left: 0; 
-  width: 100%; 
-  background: white; 
-  border: 1px solid #ccc; 
-  z-index: 10; 
-  border-radius: 8px;
+
+.admin {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 1rem;
+  box-sizing: border-box;
+  position: relative;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; 
+}
+
+.adminH1{
+  font-size: 22px;
+  font-weight: 500;
+  margin-bottom: 1rem;
+  color: black;
+}
+
+.deviceIdAanmaken, .UserIdKoppels {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.deviceKeuze, .koppelMaken {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  align-items: center;
+}
+
+.admin-input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 250px;
+}
+
+.koppelMakenKnop, .deviceKeuzenKnop {
+  background-color: #2d6a4f;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.koppelMakenKnop:hover {
+  background-color: #1b4332;
+}
+
+.koppelsTabel, .deviceId-tabel {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.koppelsTabel th, .deviceId-tabel th {
+  text-align: left;
+  padding: 12px 8px;
+  border-bottom: 2px solid #a7d3bf;
+}
+
+.koppelsTabel td, .deviceId-tabel td {
+  padding: 12px 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.koppelsDropdown {
+  position: relative;
+  width: 220px;
+}
+
+.dropdown-selected {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 8px 12px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  background: white;
+}
+
+.dropdownKeuzes {
+  position: absolute;
+  top: 105%;
+  width: 100%;
+  border: 1px solid #ccc;
+  background: white;
+  z-index: 10;
+  border-radius: 5px;
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
-.dropdownKeuze { padding: 10px; border-bottom: 1px solid #eee; }
-.dropdownKeuze:hover { background-color: #f0f0f0; }
+
+.dropdownKeuze {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.dropdownKeuze:hover {
+  background-color: #2d6a4f;
+  color: white;
+}
+
+.koppelsLaden {
+  font-style: italic;
+  color: #888;
+}
+
+
 </style>
