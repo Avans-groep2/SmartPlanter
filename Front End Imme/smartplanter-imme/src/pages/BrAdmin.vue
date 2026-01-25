@@ -249,7 +249,8 @@ const verwijderDevice = async (ttnID) => {
 
     return {
       devicesRaw, planterData, loading, deviceIdKeuze, gekozenUserId, 
-      gekozenDeviceID, plantenTellerKeuze, deviceNaamKeuze,
+      gekozenDeviceID, plantenTellerKeuze, deviceNaamKeuze, verwijderDevice,
+      verwijderKoppeling,
       userDropdownOpen, deviceDropdownOpen, opgeschoondeDevices, 
       uniekeUsers, laadAlleData, insertNieuwDevice, opslaanKoppeling,
       toggleUserDropdown, toggleDeviceDropdown, selecteerUser, selecteerDevice
