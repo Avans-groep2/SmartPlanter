@@ -18,7 +18,7 @@
       </div>
 
       <h2>Accent Kleur</h2>
-      <input type="color" id="colorPicker" v-model="primaryColor" @input="updatePrimaryColor">
+      <input class="colorInput" type="color" id="colorPicker" v-model="primaryColor" @input="updatePrimaryColor">
     </div> 
 
     <div class="settingsContainer">
@@ -201,6 +201,37 @@ header {
     font-size: 1.2rem;
     cursor: pointer;   
 }
+
+.settingsContainer .colorInput {
+  width: 2rem;               /* zelfde als btnTheme */
+  height: 2rem;
+  border-radius: 50%;        /* rond */
+  border: 2px solid var(--primary-dark);
+  padding: 0;                 /* padding reset */
+  cursor: pointer;
+  -webkit-appearance: none;   /* Chrome/Safari */
+  appearance: none;           /* alle browsers */
+  background: none;           /* verwijdert default bg */
+}
+
+/* Chrome, Safari */
+.settingsContainer .colorInput::-webkit-color-swatch-wrapper {
+  padding: 0;                 
+  border-radius: 50%;         
+  border: none;               
+}
+
+.settingsContainer .colorInput::-webkit-color-swatch {
+  border-radius: 50%;         /* rond */
+  border: none;
+}
+
+/* Firefox */
+.settingsContainer .colorInput::-moz-color-swatch {
+  border-radius: 50%;
+  border: none;
+}
+
 
 .divColumn {
     display: flex;
