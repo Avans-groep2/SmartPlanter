@@ -173,78 +173,49 @@ const insertNieuwDevice = async () => {
     return alert("Selecteer eerst een gebruiker en device");
   }
 
+  // Controleer goed of je API 'userID' (hoofdletter I) of 'userid' verwacht
   const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Planter` +
-              `&userID=${encodeURIComponent(gekozenUserId.value)}` +
-              `&deviceID=${encodeURIComponent(gekozenDeviceID.value)}` +
-              `&plantenTeller=${plantenTellerKeuze.value}` +
-              `&deviceNaam=${encodeURIComponent(deviceNaamKeuze.value || 'Nieuwe Planter')}`;
+              `&UserID=${encodeURIComponent(gekozenUserId.value)}` +
+              `&DeviceID=${encodeURIComponent(gekozenDeviceID.value)}` +
+              `&PlantenTeller=${plantenTellerKeuze.value}` +
+              `&DeviceNaam=${encodeURIComponent(deviceNaamKeuze.value || 'Nieuwe Planter')}`;
 
   try {
     const res = await fetch(url);
-    const data = await res.json();
-    
-    if (data.error) {
-      alert("Database Error: " + data.code); 
-    } else {
+    // Als de API alleen 'OK' stuurt en geen JSON, gaat res.json() stuk.
+    // We checken eerst of de response wel ok is.
+    if (res.ok) {
       alert("Koppeling succesvol!");
       gekozenUserId.value = "";
       gekozenDeviceID.value = "";
       plantenTellerKeuze.value = 0;
       deviceNaamKeuze.value = "";
       await laadAlleData();
+    } else {
+      alert("Fout bij opslaan. Server status: " + res.status);
     }
   } catch (err) {
+    console.error(err);
     alert("Netwerkfout bij koppelen");
   }
 };
-
-/*const verwijderDevice = async (ttnID) => {
-  if (!ttnID) return;
-
-  // 1. Verwijder direct uit de lokale lijst (UI update zoals medestudent)
-  devicesRaw.value = devicesRaw.value.filter((d) => d.TtnDeviceID !== ttnID);
-
-  // 2. Stuur verzoek naar de specifieke 'cleardata' API
-  const url = `https://smartplanters.dedyn.io:1880/cleardata?table=Devices&ttnDeviceID=${encodeURIComponent(ttnID)}`;
-  
-  fetch(url, { method: "GET" });
-
-  // 3. Melding aan de gebruiker
-  alert("Device succesvol verwijderd");
-}; */
 
 const verwijderDevice = async (ttnID) => {
   if (!ttnID) return;
   if (!confirm(`Weet je zeker dat je device ${ttnID} wilt verwijderen?`)) return;
 
-  const url = `https://smartplanters.dedyn.io:1880/cleardata?table=Devices&ttnDeviceID=${encodeURIComponent(ttnID)}`;
+  const url = `https://smartplanters.dedyn.io:1880/cleardata?table=Devices&deviceID=${encodeURIComponent(ttnID)}`;
   
   try {
-    const res = await fetch(url, { method: "GET" });
+    const res = await fetch(url);
     if (res.ok) {
-      alert("Device verwijderd uit database");
-      await laadAlleData();
+      alert("Device verwijderd");
+      await laadAlleData(); 
     } else {
-      alert("Server gaf een foutmelding. Check Node-RED.");
+      alert("Server fout bij verwijderen");
     }
   } catch (err) {
-    alert("Netwerkfout: kon de server niet bereiken.");
-  }
-};
-
-const verwijderKoppeling = async (userID, deviceID) => {
-  if (!userID || !deviceID) return;
-
-  const url = `https://smartplanters.dedyn.io:1880/cleardata?table=Planter&userID=${encodeURIComponent(userID)}&deviceID=${encodeURIComponent(deviceID)}`;
-  
-  try {
-    const res = await fetch(url, { method: "GET" });
-    if (res.ok) {
-      alert("Koppeling verwijderd");
-      await laadAlleData();
-    }
-  } catch (err) {
-    alert("Netwerkfout bij koppeling verwijderen");
+    alert("Netwerkfout bij verwijderen");
   }
 };
 
@@ -399,8 +370,8 @@ const verwijderKoppeling = async (userID, deviceID) => {
   color: #888;
 }
 
-.delete-btn {
-  background-color: #bc4749;
+.verwijderKnop {
+  background-color: #2d6a4f;
   color: white;
   border: none;
   border-radius: 4px;
@@ -410,8 +381,8 @@ const verwijderKoppeling = async (userID, deviceID) => {
   transition: background 0.2s;
 }
 
-.delete-btn:hover {
-  background-color: #a33b3d;
+.verwijderKnop:hover {
+  background-color: #66b893;
 }
 
 .koppelsTabel th:last-child, 

@@ -219,7 +219,7 @@ export default {
 }
 
 .verwijderMeldingKnop {
-  background-color: #bc4749;
+  background-color: #2d6a4f;
   color: white;
   border: none;
   border-radius: 4px;
@@ -230,7 +230,7 @@ export default {
 }
 
 .verwijderMeldingKnop:hover {
-  background-color: #a33b3d;
+  background-color: #66b893;
 }
 
 .meldingen-tabel th:last-child, 
