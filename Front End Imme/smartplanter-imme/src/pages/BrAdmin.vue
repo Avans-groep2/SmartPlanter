@@ -217,23 +217,19 @@ const verwijderDevice = async (ttnID) => {
   if (!ttnID) return;
   if (!confirm(`Weet je zeker dat je device ${ttnID} wilt verwijderen?`)) return;
 
-  // De URL parameter moet EXACT matchen met je Node-RED 'Delete' node
-  // Probeer 'deviceID' als 'ttnDeviceID' een 400 error gaf
+  // Let op de parameter 'deviceID', deze moet exact kloppen met Node-RED
   const url = `https://smartplanters.dedyn.io:1880/cleardata?table=Devices&deviceID=${encodeURIComponent(ttnID)}`;
   
   try {
     const res = await fetch(url, { method: "GET" });
-    
     if (res.ok) {
-      // Pas NA een succesvolle response de UI bijwerken
-      devicesRaw.value = devicesRaw.value.filter((d) => d.TtnDeviceID !== ttnID);
-      alert("Device definitief verwijderd uit database");
+      alert("Device verwijderd uit database");
+      await laadAlleData();
     } else {
-      alert("Server fout: Device kon niet worden verwijderd.");
+      alert("Server gaf een foutmelding. Check Node-RED.");
     }
   } catch (err) {
-    console.error("Netwerkfout:", err);
-    alert("Kon geen verbinding maken met de server.");
+    alert("Netwerkfout: kon de server niet bereiken.");
   }
 };
 
@@ -244,16 +240,12 @@ const verwijderKoppeling = async (userID, deviceID) => {
   
   try {
     const res = await fetch(url, { method: "GET" });
-
     if (res.ok) {
-      // UI alleen filteren als de database-actie gelukt is
-      planterData.value = planterData.value.filter((p) => !(p.UserID === userID && p.DeviceID === deviceID));
-      alert("Koppeling succesvol verwijderd");
-    } else {
-      alert("Fout bij verwijderen: Database niet bijgewerkt.");
+      alert("Koppeling verwijderd");
+      await laadAlleData();
     }
   } catch (err) {
-    alert("Netwerkfout bij het verwijderen van de koppeling.");
+    alert("Netwerkfout bij koppeling verwijderen");
   }
 };
 

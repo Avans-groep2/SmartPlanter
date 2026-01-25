@@ -8,7 +8,6 @@
     <div class="navigatie">
       <router-link to="/home" class="nav-item">Moestuin</router-link>
       <router-link to="/notificaties" class="nav-item notification-link">Notificaties
-        <span>Meldingen</span>
         <span v-if="moestuinStore.meldingenCount > 0" class="meldingenBel">🔔</span>
       </router-link>
       <router-link to="/data" class="nav-item">Data</router-link>

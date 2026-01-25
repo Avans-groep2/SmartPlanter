@@ -40,7 +40,6 @@ export const useMoestuinStore = defineStore('moestuin', {
     return {
       ...baseState,
       meldingen: [],
-      loadingMeldingen: false
     }
   }, 
 
@@ -54,12 +53,9 @@ export const useMoestuinStore = defineStore('moestuin', {
   },
 
   actions: {
-    setMeldingen(data) {
-      this.meldingen = Array.isArray(data) ? data : [];
-    },
-    setLoading(status) {
-      this.loadingMeldingen = status;
-    },
+    verwijderMeldingLokaal(meldingID) {
+    this.meldingen = this.meldingen.filter(m => m.MeldingID !== meldingID);
+  },
 
     setMoestuin(moestuin) {
       this.actieveMoestuin = moestuin;

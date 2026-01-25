@@ -146,11 +146,19 @@ export default {
   const meldingID = melding.MeldingID;
   if (!meldingID) return;
 
-  this.meldingen = this.meldingen.filter((m) => m.MeldingID !== meldingID);
+  this.moestuinStore.verwijderMeldingLokaal(meldingID);    
 
   const url = `https://smartplanters.dedyn.io:1880/cleardata?table=Meldingen&meldingID=${meldingID}`;
-  fetch(url, { method: "GET" });
-  console.log("Melding verwijderd");
+
+  try {
+      const res = await fetch(url, { method: "GET" });
+      if (!res.ok) {
+        console.error("Database kon melding niet verwijderen");
+        this.moestuinStore.fetchMeldingenAction(); 
+      }
+    } catch (err) {
+      console.error("Netwerkfout");
+    }
 },
 
     toggleDropdown() {
@@ -210,11 +218,6 @@ export default {
 .belangrijke_meldingen, .overige_meldingen {
   overflow-y: auto; 
 }
-
-
-
-
-
 
 .meldingenDropdownAdmin {
   margin-bottom: 5px;
