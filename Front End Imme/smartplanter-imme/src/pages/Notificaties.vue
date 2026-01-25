@@ -89,8 +89,8 @@ export default {
     const footerStore = useFooterSpan();
     const moestuinStore = useMoestuinStore();
 
-    const meldingen = ref([]);
-    const loading = ref(true);
+    const meldingen = computed(() => moestuinStore.meldingen);
+    const loading = computed(() => moestuinStore.loadingMeldingen);
 
     const isBeheerder = computed(() => {
       if (!footerStore.keycloak) return false;
@@ -124,13 +124,6 @@ export default {
       return meldingen.value.filter(m => m && m.Prioriteit?.toLowerCase() !== 'hoog');
     });
 
-    onMounted(() => {
-      fetchMeldingen();
-      const interval = setInterval(fetchMeldingen, 60000);
-      onBeforeUnmount(() => clearInterval(interval));
-    })
-
-
     return { moestuinStore, isBeheerder, footerStore, meldingen, 
       loading, belangrijkeMeldingen, overigeMeldingen};
   },
@@ -153,7 +146,6 @@ export default {
   const meldingID = melding.MeldingID;
   if (!meldingID) return;
 
-  // Update de UI direct (gebruik .value niet bij 'this' in methods)
   this.meldingen = this.meldingen.filter((m) => m.MeldingID !== meldingID);
 
   const url = `https://smartplanters.dedyn.io:1880/cleardata?table=Meldingen&meldingID=${meldingID}`;
@@ -351,7 +343,6 @@ export default {
   background-color: #a33b3d;
 }
 
-/* Zorg dat de tabelkolom voor de knop smal is */
 .meldingen-tabel th:last-child, 
 .meldingen-tabel td:last-child {
   text-align: right;

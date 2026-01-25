@@ -81,6 +81,20 @@ export const useMoestuinStore = defineStore('moestuin', {
       this.save();
     },
 
+    async fetchMeldingenAction() {
+      this.setLoading(true);
+      try {
+        const response = await fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Meldingen');
+        const data = await response.json();
+        this.setMeldingen(data);
+      } catch (error) {
+        console.error("Fout bij ophalen meldingen in store:", error);
+        this.setMeldingen([]);
+      } finally {
+        this.setLoading(false);
+      }
+    },
+
   save() {
     localStorage.setItem(
         STORAGE_KEY,

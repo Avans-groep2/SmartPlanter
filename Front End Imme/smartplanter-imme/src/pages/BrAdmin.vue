@@ -215,35 +215,46 @@ const insertNieuwDevice = async () => {
 
 const verwijderDevice = async (ttnID) => {
   if (!ttnID) return;
-  
-  // UI direct bijwerken
-  devicesRaw.value = devicesRaw.value.filter((d) => d.TtnDeviceID !== ttnID);
+  if (!confirm(`Weet je zeker dat je device ${ttnID} wilt verwijderen?`)) return;
 
-  // Probeer deze URL (check of de backend 'deviceID' of 'ttnDeviceID' verwacht)
-  // Gezien je screenshot 8c1071.png krijgt ttnDeviceID een 400.
+  // De URL parameter moet EXACT matchen met je Node-RED 'Delete' node
+  // Probeer 'deviceID' als 'ttnDeviceID' een 400 error gaf
   const url = `https://smartplanters.dedyn.io:1880/cleardata?table=Devices&deviceID=${encodeURIComponent(ttnID)}`;
   
   try {
-    await fetch(url, { method: "GET" });
+    const res = await fetch(url, { method: "GET" });
+    
+    if (res.ok) {
+      // Pas NA een succesvolle response de UI bijwerken
+      devicesRaw.value = devicesRaw.value.filter((d) => d.TtnDeviceID !== ttnID);
+      alert("Device definitief verwijderd uit database");
+    } else {
+      alert("Server fout: Device kon niet worden verwijderd.");
+    }
   } catch (err) {
-    console.error("Backend request mislukt", err);
+    console.error("Netwerkfout:", err);
+    alert("Kon geen verbinding maken met de server.");
   }
-  alert("Device verwijderd uit weergave");
 };
 
 const verwijderKoppeling = async (userID, deviceID) => {
   if (!userID || !deviceID) return;
 
-  // 1. Verwijder direct uit de lokale lijst
-  planterData.value = planterData.value.filter((p) => !(p.UserID === userID && p.DeviceID === deviceID));
-
-  // 2. Stuur verzoek naar de 'cleardata' API
-  // Let op: controleer of de backend voor de Planter-tabel beide ID's nodig heeft
   const url = `https://smartplanters.dedyn.io:1880/cleardata?table=Planter&userID=${encodeURIComponent(userID)}&deviceID=${encodeURIComponent(deviceID)}`;
   
-  fetch(url, { method: "GET" });
+  try {
+    const res = await fetch(url, { method: "GET" });
 
-  alert("Koppeling succesvol verwijderd");
+    if (res.ok) {
+      // UI alleen filteren als de database-actie gelukt is
+      planterData.value = planterData.value.filter((p) => !(p.UserID === userID && p.DeviceID === deviceID));
+      alert("Koppeling succesvol verwijderd");
+    } else {
+      alert("Fout bij verwijderen: Database niet bijgewerkt.");
+    }
+  } catch (err) {
+    alert("Netwerkfout bij het verwijderen van de koppeling.");
+  }
 };
 
     const toggleUserDropdown = () => {

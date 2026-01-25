@@ -8,9 +8,8 @@
     <div class="navigatie">
       <router-link to="/home" class="nav-item">Moestuin</router-link>
       <router-link to="/notificaties" class="nav-item notification-link">Notificaties
-        <span v-if="userStore.meldingenCount > 0" class="nav-badge">
-          {{ userStore.meldingenCount }}
-        </span>
+        <span>Meldingen</span>
+        <span v-if="moestuinStore.meldingenCount > 0" class="meldingenBel">🔔</span>
       </router-link>
       <router-link to="/data" class="nav-item">Data</router-link>
     </div>
@@ -19,13 +18,27 @@
 
 <script>
 import { useMoestuinStore } from '../stores/moestuinScherm';
+import { onMounted, onBeforeUnmount } from 'vue';
 
 export default {
   name: 'NavBar',
   setup() {
-    const userStore = useMoestuinStore();
+    const moestuinStore = useMoestuinStore();
+    let intervalId = null;
 
-    return { userStore };
+    onMounted(() => {
+       moestuinStore.fetchMeldingenAction();
+
+       const intervalId = setInterval(() => {
+        moestuinStore.fetchMeldingenAction();
+       }, 60000);
+    })
+
+    onBeforeUnmount(() => {
+      if (intervalId) clearInterval(intervalId);
+    });
+
+    return { moestuinStore, intervalId };
   }
 }
 </script>
@@ -49,30 +62,7 @@ export default {
 
 .notification-link {
   position: relative;
-  padding-right: 15px; /* Ruimte maken voor het bolletje */
-}
-
-.nav-badge {
-  position: absolute;
-  top: -8px;      /* Iets boven de tekst */
-  right: -5px;     /* Iets naar rechts */
-  background-color: #ff4d4d; /* Fel rood */
-  color: white;
-  font-size: 11px;
-  font-weight: bold;
-  padding: 2px 6px;
-  border-radius: 50%;
-  min-width: 12px;
-  height: 18px;
-  display: flex;
-  text-align: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-  z-index: 99;
-}
-
-/* Zorg dat het bolletje niet verdwijnt bij hover */
-.nav-item:hover .nav-badge {
-  filter: none; 
+  padding-right: 15px; 
 }
 
 .nav-item {
@@ -108,5 +98,23 @@ export default {
   color: white;
   font-size: 28px;
   font-weight: 600;
+}
+
+.meldingenBel {
+  margin-left: 5px;
+  font-size: 1.2rem;
+  /* Optioneel: animatie toevoegen zodat het opvalt */
+  animation: ring 2s infinite;
+  display: inline-block;
+}
+
+@keyframes ring {
+  0% { transform: rotate(0); }
+  10% { transform: rotate(15deg); }
+  20% { transform: rotate(-15deg); }
+  30% { transform: rotate(10deg); }
+  40% { transform: rotate(-10deg); }
+  50% { transform: rotate(0); }
+  100% { transform: rotate(0); }
 }
 </style>
