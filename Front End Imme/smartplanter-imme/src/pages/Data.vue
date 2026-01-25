@@ -67,7 +67,7 @@ export default {
       { label: 'Temperatuur', dataKey: 'temperature', unit: '°C', decimals: 1, latestValue: null, status: 'unknown', chart: null, 
       threshold: { warning: {min: 15, max: 25}, critical: {min: 10, max: 30} } },
       { label: 'pH', dataKey: 'ph', unit: '', decimals: 2, latestValue: null, status: 'unknown', chart: null, 
-      threshold: { warning: {min: 14, max: 14}, critical: {min: 15, max: 15} } },
+      threshold: { warning: {min: 5.0, max: 7.5}, critical: {min: 3.0, max: 8.0} } },
       { label: 'EC', dataKey: 'ec', unit: 'µS/cm', decimals: 2, latestValue: null, status: 'unknown', chart: null, 
       threshold: { warning: {min: 1.5, max: 3.5}, critical: {min: 0.8, max: 4} } },
       { label: 'LUX', dataKey: 'lux', unit: 'lx', decimals: 1, latestValue: null, status: 'unknown', chart: null, 

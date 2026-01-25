@@ -61,7 +61,7 @@
 
 
 <script>
-import { ref, onMounted, computed, onBeforeUnmount } from 'vue';
+import { computed } from 'vue';
 import { useFooterSpan } from '../stores/footerSpan';
 import { useMoestuinStore } from '../stores/moestuinScherm';
 
@@ -101,7 +101,7 @@ export default {
       return meldingen.value.filter(m => m && m.Prioriteit?.toLowerCase() !== 'hoog');
     });
 
-    return { moestuinStore, isBeheerder, footerStore, meldingen, 
+    return { moestuinStore, footerStore, meldingen, 
       loading, belangrijkeMeldingen, overigeMeldingen};
   },
 

@@ -217,7 +217,7 @@ const verwijderDevice = async (ttnID) => {
   if (!ttnID) return;
   if (!confirm(`Weet je zeker dat je device ${ttnID} wilt verwijderen?`)) return;
 
-  const url = `https://smartplanters.dedyn.io:1880/cleardata?table=Devices&deviceID=${encodeURIComponent(ttnID)}`;
+  const url = `https://smartplanters.dedyn.io:1880/cleardata?table=Devices&ttnDeviceID=${encodeURIComponent(ttnID)}`;
   
   try {
     const res = await fetch(url, { method: "GET" });
@@ -288,7 +288,8 @@ const verwijderKoppeling = async (userID, deviceID) => {
 .admin {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  overflow: hidden;
+  height: 100vh;
   padding: 1rem;
   box-sizing: border-box;
   position: relative;
@@ -308,6 +309,8 @@ const verwijderKoppeling = async (userID, deviceID) => {
   border-radius: 10px;
   margin-bottom: 20px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  overflow-y: auto;
+  max-height: 40vh;
 }
 
 .deviceKeuze, .koppelMaken {
