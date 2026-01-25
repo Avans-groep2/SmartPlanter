@@ -215,13 +215,20 @@ const insertNieuwDevice = async () => {
 
 const verwijderDevice = async (ttnID) => {
   if (!ttnID) return;
+  
+  // UI direct bijwerken
   devicesRaw.value = devicesRaw.value.filter((d) => d.TtnDeviceID !== ttnID);
 
-  // Verander 'ttnDeviceID' naar de naam die jouw backend exact verwacht (bijv. deviceID?)
-  const url = `https://smartplanters.dedyn.io:1880/cleardata?table=Devices&ttnDeviceID=${encodeURIComponent(ttnID)}`;
+  // Probeer deze URL (check of de backend 'deviceID' of 'ttnDeviceID' verwacht)
+  // Gezien je screenshot 8c1071.png krijgt ttnDeviceID een 400.
+  const url = `https://smartplanters.dedyn.io:1880/cleardata?table=Devices&deviceID=${encodeURIComponent(ttnID)}`;
   
-  fetch(url, { method: "GET" });
-  alert("Device verwijderd");
+  try {
+    await fetch(url, { method: "GET" });
+  } catch (err) {
+    console.error("Backend request mislukt", err);
+  }
+  alert("Device verwijderd uit weergave");
 };
 
 const verwijderKoppeling = async (userID, deviceID) => {
@@ -388,17 +395,23 @@ const verwijderKoppeling = async (userID, deviceID) => {
 }
 
 .delete-btn {
-  background-color: #bc4749; /* Roodachtig */
+  background-color: #bc4749;
   color: white;
   border: none;
-  padding: 5px 10px;
   border-radius: 4px;
+  padding: 4px 8px;
   cursor: pointer;
-  font-size: 12px;
+  font-weight: bold;
+  transition: background 0.2s;
 }
 
 .delete-btn:hover {
   background-color: #a33b3d;
 }
 
+.koppelsTabel th:last-child, 
+.deviceId-tabel th:last-child {
+  text-align: right;
+  width: 50px;
+}
 </style>

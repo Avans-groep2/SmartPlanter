@@ -9,6 +9,7 @@
         <tr>
           <th>Moestuin</th>
           <th>Melding</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -17,7 +18,9 @@
         class="prioriteit-hoog">
           <td>{{ melding.DeviceID }}</td>
           <td>{{ melding.Bericht }}</td>
-          <td></td>
+          <td>
+            <button class="verwijderMeldingKnop" @click="verwijderMelding(melding)">✖</button>
+          </td>
         </tr>
       </tbody>
     </table>
