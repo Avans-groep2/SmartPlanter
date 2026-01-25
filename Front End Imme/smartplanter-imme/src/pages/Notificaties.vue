@@ -61,7 +61,7 @@
 
 
 <script>
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useFooterSpan } from '../stores/footerSpan';
 import { useMoestuinStore } from '../stores/moestuinScherm';
 
@@ -90,6 +90,10 @@ export default {
         loading.value = false;
       }
     };
+
+    onMounted (() => {
+      fetchMeldingen
+    });
 
     const belangrijkeMeldingen = computed(() => {
       if (!meldingen.value) return [];
