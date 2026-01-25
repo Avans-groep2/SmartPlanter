@@ -4,14 +4,25 @@
   <div class="Plant">
     <WelcomeMessage />
 
+    
+
     <div class="plantContainer">
       <!-- Inputs boven table -->
       <div class="plantInputs">
-        <input v-model="selectedPlantID" placeholder="PlantID" type="number" readonly />
-        <input v-model="selectedPlantsoort" placeholder="Plantsoort" />
-        <input v-model="selectedPhMin" placeholder="PhMin" type="number" step="0.1" />
-        <input v-model="selectedPhMax" placeholder="PhMax" type="number" step="0.1" />
-        <input v-model="selectedGroeitijd" placeholder="Groeitijd (dagen)" type="number" />
+        <input v-model="newPlantsoort" placeholder="Plantsoort" @keyup.enter="addPlant"/>
+        <input v-model="newPhMin" placeholder="PhMin" type="number" step="0.1" @keyup.enter="addPlant"/>
+        <input v-model="newPhMax" placeholder="PhMax" type="number" step="0.1" @keyup.enter="addPlant"/>
+        <input v-model="newGroeitijd" placeholder="Groeitijd (dagen)" type="number" @keyup.enter="addPlant"/>
+
+        <button @click="addPlant">Toevoegen</button>
+      </div>
+
+      <div class="plantInputs">
+        <input v-model="selectedPlantID" placeholder="PlantID" type="number" @keyup.enter="wijzigPlant" readonly/>
+        <input v-model="selectedPlantsoort" placeholder="Plantsoort" @keyup.enter="wijzigPlant"/>
+        <input v-model="selectedPhMin" placeholder="PhMin" type="number" step="0.1" @keyup.enter="wijzigPlant"/>
+        <input v-model="selectedPhMax" placeholder="PhMax" type="number" step="0.1" @keyup.enter="wijzigPlant"/>
+        <input v-model="selectedGroeitijd" placeholder="Groeitijd (dagen)" type="number" @keyup.enter="wijzigPlant"/>
 
         <button @click="wijzigPlant">Wijzigen</button>
       </div>
@@ -65,7 +76,12 @@ export default {
       selectedPlantsoort: '',
       selectedPhMin: '',
       selectedPhMax: '',
-      selectedGroeitijd: ''
+      selectedGroeitijd: '',
+      newPlantID: '',
+      newPlantsoort: '',
+      newPhMin: '',
+      newPhMax: '',
+      newGroeitijd: ''
     }
   },
 
@@ -83,6 +99,18 @@ export default {
       }
     },
 
+    getNextPlantID() {
+  if (this.planten.length === 0) {
+    return 1
+  }
+
+  const hoogsteID = Math.max(
+    ...this.planten.map(p => Number(p.PlantID))
+  )
+
+  return hoogsteID + 1
+},
+
     selectPlant(plant) {
       this.selectedPlantID = plant.PlantID
       this.selectedPlantsoort = plant.Plantsoort
@@ -92,29 +120,74 @@ export default {
     },
 
     async wijzigPlant() {
-      if (!this.selectedPlantID || !this.selectedPlantsoort || !this.selectedPhMin || !this.selectedPhMax || !this.selectedGroeitijd) {
-        this.$toast('Vul alle velden in', 'error')
-        return
-      }
+  if (
+    !this.selectedPlantID ||
+    !this.selectedPlantsoort ||
+    !this.selectedPhMin ||
+    !this.selectedPhMax ||
+    !this.selectedGroeitijd
+  ) {
+    this.$toast('Vul alle velden in', 'error')
+    return
+  }
 
-      const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Planten` +
-                  `&PlantID=${this.selectedPlantID}` +
-                  `&Plantsoort=${encodeURIComponent(this.selectedPlantsoort)}` +
-                  `&PhMin=${this.selectedPhMin}` +
-                  `&PhMax=${this.selectedPhMax}` +
-                  `&Groeitijd=${this.selectedGroeitijd}`
+  const url = `https://smartplanters.dedyn.io:1880/plants` +
+              `?plantID=${this.selectedPlantID}` +
+              `&plantSoort=${encodeURIComponent(this.selectedPlantsoort)}` +
+              `&phMin=${this.selectedPhMin}` +
+              `&phMax=${this.selectedPhMax}` +
+              `&groeitijd=${this.selectedGroeitijd}`
 
-      try {
-        const res = await fetch(url)
-        if (!res.ok) throw new Error('Fout bij wijzigen plant')
+  try {
+    fetch(url)
+    this.$toast('Plant succesvol gewijzigd', 'success')
+    setTimeout(() => {
+  this.loadPlanten()
+}, 500)
+  } catch (err) {
+    console.error('Kon plant niet wijzigen:', err)
+    this.$toast('Kon plant niet wijzigen', 'error')
+  }
+},
+async addPlant() {
+  if (
+    this.newPlantsoort === '' ||
+    this.newPhMin === '' ||
+    this.newPhMax === '' ||
+    this.newGroeitijd === ''
+  ) {
+    this.$toast('Vul alle velden in', 'error')
+    return
+  }
 
-        this.$toast('Plant succesvol gewijzigd', 'success')
-        this.loadPlanten()
-      } catch (err) {
-        console.error(err)
-        this.$toast('Kon plant niet wijzigen', 'error')
-      }
-    }
+  const nextPlantID = this.getNextPlantID()
+
+  const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Planten` +
+              `&plantID=${nextPlantID}` +
+              `&plantSoort=${encodeURIComponent(this.newPlantsoort)}` +
+              `&phMin=${this.newPhMin}` +
+              `&phMax=${this.newPhMax}` +
+              `&groeitijd=${this.newGroeitijd}`
+
+  try {
+    await fetch(url)
+    this.$toast('Plant succesvol toegevoegd', 'success')
+
+    // velden leegmaken
+    this.newPlantsoort = ''
+    this.newPhMin = ''
+    this.newPhMax = ''
+    this.newGroeitijd = ''
+
+    setTimeout(() => {
+      this.loadPlanten()
+    }, 500)
+  } catch (err) {
+    console.error('Kon plant niet toevoegen:', err)
+    this.$toast('Kon plant niet toevoegen', 'error')
+  }
+}
+
   }
 }
 </script>
@@ -179,8 +252,8 @@ deviceTable {
 /* Scrollbare body */
 .plantsTable tbody {
   display: block;
-  min-height: 11rem;
-  max-height: 11rem;
+  min-height: 15rem;
+  max-height: 30rem;
   overflow-y: auto;
 }
 

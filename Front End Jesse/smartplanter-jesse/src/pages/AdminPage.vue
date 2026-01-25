@@ -7,7 +7,7 @@
     <!-- ================== Devices Tabel ================== -->
     <div class="adminContainer">
       <div class="adminTitle">
-        <input v-model="newDeviceId" placeholder="Device ID" />
+        <input v-model="newDeviceId" placeholder="Device ID" @keyup.enter="addDevice"/>
         <button @click="addDevice">Aanmaken</button>
       </div>
 
@@ -55,8 +55,8 @@
           </option>
         </select>
 
-        <input v-model="selectedPlantenTeller" placeholder="PlantenTeller" type="number"/>
-        <input v-model="selectedDeviceNaam" placeholder="Device Naam" />
+        <input v-model="selectedPlantenTeller" placeholder="PlantenTeller" type="number" @keyup.enter="koppel"/>
+        <input v-model="selectedDeviceNaam" placeholder="Device Naam" @keyup.enter="koppel"/>
 
         <button @click="koppel">Koppelen</button>
       </div>
