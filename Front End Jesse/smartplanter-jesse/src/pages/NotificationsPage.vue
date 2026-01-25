@@ -7,7 +7,6 @@
       <PlantSelector v-model="selectedDeviceID" :includeAllOption="true" />
     </header>
 
-    <!-- ================== Belangrijke Meldingen ================== -->
     <div class="notificationContainer">
       <h2 class="notificationTitle">Belangrijke meldingen</h2>
 
@@ -42,7 +41,6 @@
       </table>
     </div>
 
-    <!-- ================== Overige Meldingen ================== -->
     <div class="notificationContainer">
       <h2 class="notificationTitle">Overige meldingen</h2>
 
@@ -178,23 +176,18 @@ export default {
     },
 
     async softDelete(melding) {
-      const meldingID = melding.MeldingID;
+      const meldingID = melding.MeldingID ?? melding.meldingID;
       if (!meldingID) {
         console.error("MeldingID is undefined");
         this.$toast("Verwijderen mislukt. Probeer opnieuw.", "error");
         return;
       }
 
-      // Verwijder melding direct uit de lokale array
       this.meldingen = this.meldingen.filter((m) => m.MeldingID !== meldingID);
 
-      // Stuur request naar backend, maar negeer response/fouten
-      fetch(
-        `https://smartplanters.dedyn.io:1880/cleardata?table=Meldingen&meldingID=${meldingID}`,
-        { method: "GET" },
-      );
+      const url = `https://smartplanters.dedyn.io:1880/cleardata?table=Meldingen&meldingID=${meldingID}`;
+      fetch(url);
 
-      // Toon toast direct, ongeacht backend
       this.$toast("Melding succesvol verwijderd", "success");
     },
   },
@@ -213,7 +206,6 @@ header {
   align-items: center;
 }
 
-/* ================= Containers ================= */
 .notificationContainer {
   background: var(--light);
   width: 90%;
@@ -222,14 +214,12 @@ header {
   padding: 1rem;
 }
 
-/* ================= Titles ================= */
 .notificationTitle {
   margin: 0 0 0.8rem 0;
   font-size: 2rem;
   font-weight: 600;
 }
 
-/* ================= Tables ================= */
 .deviceTable {
   width: 100%;
   border-collapse: collapse;
@@ -248,7 +238,6 @@ header {
   border-bottom: 1px solid var(--icon);
 }
 
-/* Scrollbare body */
 .deviceTable tbody {
   display: block;
   min-height: 11rem;
@@ -256,7 +245,6 @@ header {
   overflow-y: auto;
 }
 
-/* Rows */
 .deviceTable tbody tr {
   display: table;
   width: 100%;
@@ -264,26 +252,22 @@ header {
   transition: background 0.2s ease, opacity 0.3s ease;
 }
 
-/* Hover row */
 .deviceTable tbody tr:hover {
   background: var(--primary);
   color: var(--text);
   font-weight: 600;
 }
 
-/* Cells */
 .deviceTable tbody td {
   padding: 0.6rem;
   border: brown;
 }
 
-/* Actie kolom */
 .actionCol {
   width: 3rem;
   text-align: center;
 }
 
-/* Delete knop (verborgen standaard) */
 .deleteBtn {
   opacity: 0;
   background: none;
@@ -294,18 +278,15 @@ header {
   transition: opacity 0.2s ease;
 }
 
-/* Toon prullenbak alleen bij hover van rij */
 .deviceTable tbody tr:hover .deleteBtn {
   opacity: 1;
 }
 
-/* Soft delete animatie */
 .softDeleted {
   opacity: 0;
   pointer-events: none;
 }
 
-/* Empty state */
 .emptyRow {
   text-align: center;
   color: var(--icon);

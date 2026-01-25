@@ -41,16 +41,13 @@
       </div>
     </section>
 
-    <!-- Button oogsten -->
     <button class="btnOogst" @click="showHarvestScreen = true">
       Plant oogsten
     </button>
 
-    <!-- Oogst modal -->
     <div v-if="showHarvestScreen" class="harvest-screen">
       <h2>Hoe was de oogst?</h2>
 
-      <!-- Rating -->
       <div class="rating">
         <i
           v-for="star in 5"
@@ -63,7 +60,6 @@
         ></i>
       </div>
 
-      <!-- Actions -->
       <div class="harvest-actions">
         <button @click="showHarvestScreen = false">Annuleren</button>
         <button @click="confirmHarvest">Bevestigen</button>
@@ -78,14 +74,14 @@ export default {
   props: {
     name: String,
     position: Number,
-    plantDate: String, // ISO YYYY-MM-DD
+    plantDate: String,
   },
   data() {
     return {
       showHarvestScreen: false,
       rating: 3,
       hoverRatingValue: null,
-      groeitijd: null, // aantal dagen tot oogst
+      groeitijd: null,
     };
   },
   computed: {
@@ -128,7 +124,6 @@ export default {
     },
   },
   mounted() {
-    // Haal de plantgegevens op
     fetch("https://smartplanters.dedyn.io:1880/smartplantdata?table=Planten")
       .then((res) => res.json())
       .then((data) => {

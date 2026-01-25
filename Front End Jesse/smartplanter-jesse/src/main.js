@@ -9,7 +9,7 @@ import { toast } from "./toast.js"; // toast helper
 /* ======================================================
    FLAGS
 ====================================================== */
-const authDisabled = process.env.VUE_APP_AUTH_DISABLED === "true";
+const authDisabled = process.env.VUE_APP_AUTH_DISABLED === "false";
 
 /* ======================================================
    THEME INITIALISATIE
@@ -157,7 +157,6 @@ function ensureUserExists() {
    GLOBALE TOAST FUNCTIE REGISTREREN
 ====================================================== */
 function registerGlobalToast(app) {
-  // Voeg de toast helper toe aan Vue globale properties
   app.config.globalProperties.$toast = toast;
 }
 
@@ -169,7 +168,7 @@ if (authDisabled) {
 
   const app = createApp(App);
   app.config.globalProperties.$auth = createDevAuth();
-  registerGlobalToast(app); // ✅ Globale toast
+  registerGlobalToast(app);
   app.use(router);
   app.mount("#app");
 } else {
@@ -185,7 +184,7 @@ if (authDisabled) {
 
       const app = createApp(App);
       app.config.globalProperties.$auth = auth;
-      registerGlobalToast(app); // ✅ Globale toast
+      registerGlobalToast(app);
       app.use(router);
       app.mount("#app");
 
@@ -210,12 +209,10 @@ function startTokenRefresh() {
 /* ======================================================
    NO NEGATIVE NUMBER INPUT
 ====================================================== */
-// Voor alle number inputs
 document.addEventListener("input", (e) => {
   const target = e.target;
 
   if (target.matches('input[type="number"]')) {
-    // Als het negatief is, verwijder het teken
     if (target.value.startsWith("-")) {
       target.value = target.value.replace("-", "");
     }

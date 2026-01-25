@@ -36,24 +36,15 @@ import PlantCard from "@/components/PlantCard.vue";
 import PlantSelector from "@/components/PlantSelector.vue";
 import AddPlantCard from "@/components/AddPlantCard.vue";
 
-/* --------------------
-   State
--------------------- */
 const selectedDeviceId = ref(null);
 const planters = ref([]);
 const plants = ref([]);
 const plantPositions = ref([]);
 
-/* --------------------
-   Lifecycle
--------------------- */
 onMounted(async () => {
   await fetchAllData();
 });
 
-/* --------------------
-   Fetch functies
--------------------- */
 async function fetchAllData() {
   await Promise.all([fetchPlanters(), fetchPlants(), fetchPlantPositions()]);
 }
@@ -79,28 +70,20 @@ async function fetchPlantPositions() {
   plantPositions.value = await res.json();
 }
 
-/* --------------------
-   Herladen na toevoegen
--------------------- */
 async function reloadPlantPositions() {
   console.log("🔄 Herladen plantposities...");
   await fetchPlantPositions();
 }
 
 function removePlant(position) {
-  // Filter de plantpositie uit de lijst
   plantPositions.value = plantPositions.value.filter(
     (p) => p.Plantpositie !== position,
   );
 }
 
-/* --------------------
-   Computed properties
--------------------- */
 const filteredPlants = computed(() => {
   if (!selectedDeviceId.value) return [];
 
-  // Filter plantposities op DeviceID en dat er een Plantpositie is
   const positions = plantPositions.value.filter(
     (p) =>
       p.DeviceID === selectedDeviceId.value &&
@@ -108,7 +91,6 @@ const filteredPlants = computed(() => {
       p.Plantpositie !== "",
   );
 
-  // Voeg plantgegevens toe
   return positions.map((p) => {
     const plantData = plants.value.find((pl) => pl.PlantID === p.PlantID);
     return {

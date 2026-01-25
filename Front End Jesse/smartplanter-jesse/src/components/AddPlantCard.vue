@@ -97,7 +97,6 @@ export default {
         return;
       }
 
-      // Controleer of alle velden ingevuld zijn
       if (
         !this.newPlant.position ||
         !this.newPlant.plantDate ||
@@ -122,7 +121,6 @@ export default {
           if (!res.ok) throw new Error("Toevoegen mislukt");
 
           this.showAddPlantScreen = false;
-          // Reset velden
           this.newPlant = { position: "", plantDate: "", plantID: "" };
           this.$emit("plant-added");
           this.$toast("Plant succesvol toegevoegd!", "success");
@@ -137,7 +135,6 @@ export default {
 </script>
 
 <style>
-/* Algemene container styling */
 .plants-card {
   position: relative;
   display: flex;
@@ -150,7 +147,6 @@ export default {
   min-height: 16.5rem;
 }
 
-/* Knop styling */
 .btnPlantToevoegen {
   background: var(--primary);
   color: var(--text);
@@ -164,7 +160,6 @@ export default {
   cursor: pointer;
 }
 
-/* Modal styling */
 .harvest-screen {
   position: absolute;
   inset: 0;
@@ -224,7 +219,6 @@ export default {
   cursor: pointer;
 }
 
-/* Stijl voor alle inputs en dropdowns */
 .form-input {
   width: 90%;
   padding: 0.4rem 0.8rem;

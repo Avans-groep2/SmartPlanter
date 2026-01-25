@@ -78,20 +78,17 @@ export default {
   },
 
   mounted() {
-    // Accent kleur herstellen
     const savedColor = localStorage.getItem("primary-color");
     if (savedColor) {
       document.documentElement.style.setProperty("--primary", savedColor);
       this.primaryColor = savedColor;
     }
 
-    // Thema herstellen
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme === "dark") {
       document.documentElement.classList.add("dark");
     }
 
-    // Planternaam ophalen uit localStorage
     const savedPlanterName = localStorage.getItem("chosenDeviceName");
     if (savedPlanterName) {
       this.planterName = savedPlanterName;
@@ -125,25 +122,20 @@ export default {
         return;
       }
 
-      // Fire-and-forget fetch naar backend
       const url = `https://smartplanters.dedyn.io:1880/harvest?table=Planter&userID=tester&deviceID=${selectedID}&deviceNaam=${encodeURIComponent(
         this.planterName,
       )}`;
       fetch(url);
 
-      // Update localStorage zodat naam behouden blijft
       localStorage.setItem("chosenDeviceName", this.planterName);
 
-      // Update PlantSelector **opties direct**
       if (
         this.$refs.plantSelector &&
         this.$refs.plantSelector.updateOptionName
       ) {
-        // roep een method aan in PlantSelector om de naam van de geselecteerde planter te wijzigen
         this.$refs.plantSelector.updateOptionName(selectedID, this.planterName);
       }
 
-      // Toast tonen
       this.$toast("Planternaam succesvol gewijzigd", "success");
     },
 
@@ -247,18 +239,17 @@ header {
 }
 
 .settingsContainer .colorInput {
-  width: 2rem; /* zelfde als btnTheme */
+  width: 2rem;  
   height: 2rem;
-  border-radius: 50%; /* rond */
+  border-radius: 50%;  
   border: 2px solid var(--primary-dark);
-  padding: 0; /* padding reset */
+  padding: 0; 
   cursor: pointer;
-  -webkit-appearance: none; /* Chrome/Safari */
-  appearance: none; /* alle browsers */
-  background: none; /* verwijdert default bg */
+  -webkit-appearance: none;  
+  appearance: none;  
+  background: none;  
 }
 
-/* Chrome, Safari */
 .settingsContainer .colorInput::-webkit-color-swatch-wrapper {
   padding: 0;
   border-radius: 50%;
@@ -266,11 +257,10 @@ header {
 }
 
 .settingsContainer .colorInput::-webkit-color-swatch {
-  border-radius: 50%; /* rond */
+  border-radius: 50%;  
   border: none;
 }
 
-/* Firefox */
 .settingsContainer .colorInput::-moz-color-swatch {
   border-radius: 50%;
   border: none;

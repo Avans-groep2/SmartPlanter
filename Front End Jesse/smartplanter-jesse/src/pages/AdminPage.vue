@@ -4,7 +4,6 @@
   <div class="Admin">
     <WelcomeMessage />
 
-    <!-- ================== Devices Tabel ================== -->
     <div class="adminContainer">
       <div class="adminTitle">
         <input
@@ -34,10 +33,8 @@
       </table>
     </div>
 
-    <!-- ================== Planters Tabel ================== -->
     <div class="adminContainer">
       <div class="adminTitle">
-        <!-- Users dropdown: UserID als value, Username tonen, alfabetisch -->
         <select v-model="selectedUserID">
           <option
             v-for="user in sortedUsers"
@@ -48,7 +45,6 @@
           </option>
         </select>
 
-        <!-- Devices dropdown -->
         <select v-model="selectedDeviceID">
           <option
             v-for="device in devices"
@@ -120,7 +116,7 @@ export default {
       selectedDeviceNaam: "",
 
       users: [],
-      selectedUserID: "", // UserID opgeslagen voor backend
+      selectedUserID: "",
     };
   },
 
@@ -131,7 +127,6 @@ export default {
   },
 
   computed: {
-    // Alle users alfabetisch op Username
     sortedUsers() {
       return [...this.users].sort((a, b) => {
         if (a.Username.toLowerCase() < b.Username.toLowerCase()) return -1;
@@ -142,7 +137,6 @@ export default {
   },
 
   methods: {
-    // Devices ophalen
     loadDevices() {
       fetch("https://smartplanters.dedyn.io:1880/smartplantdata?table=Devices")
         .then((res) => res.json())
@@ -155,7 +149,6 @@ export default {
         .catch((err) => console.error("Fout bij ophalen devices:", err));
     },
 
-    // Planters ophalen
     loadPlanters() {
       fetch("https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter")
         .then((res) => res.json())
@@ -165,7 +158,6 @@ export default {
         .catch((err) => console.error("Fout bij ophalen planters:", err));
     },
 
-    // Users ophalen
     loadUsers() {
       fetch("https://smartplanters.dedyn.io:1880/smartplantdata?table=Users")
         .then((res) => res.json())
@@ -178,7 +170,6 @@ export default {
         .catch((err) => console.error("Fout bij ophalen users:", err));
     },
 
-    // Device toevoegen
     addDevice() {
       if (!this.newDeviceId.trim()) return;
 
@@ -197,7 +188,6 @@ export default {
         });
     },
 
-    // Koppelen van User → Device
     koppel() {
       if (!this.selectedUserID || !this.selectedDeviceID) return;
 
@@ -222,7 +212,6 @@ export default {
         });
     },
 
-    // Helper: UserID → Username
     getUsername(userID) {
       const user = this.users.find((u) => u.UserID === userID);
       return user ? user.Username : userID;

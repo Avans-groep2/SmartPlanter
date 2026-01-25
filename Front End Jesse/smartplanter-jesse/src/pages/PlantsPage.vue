@@ -5,7 +5,6 @@
     <WelcomeMessage />
 
     <div class="plantContainer">
-      <!-- Inputs boven table -->
       <div class="plantInputs">
         <input
           v-model="newPlantsoort"
@@ -252,7 +251,6 @@ export default {
   padding: 1rem;
 }
 
-/* Inputs boven table */
 .plantInputs {
   display: flex;
   gap: 0.5rem;
@@ -277,7 +275,7 @@ export default {
   cursor: pointer;
 }
 
-deviceTable {
+.plantsTable {
   width: 100%;
   border-collapse: collapse;
 }
@@ -295,7 +293,6 @@ deviceTable {
   font-weight: bold;
 }
 
-/* Scrollbare body */
 .plantsTable tbody {
   display: block;
   min-height: 15rem;
@@ -303,7 +300,6 @@ deviceTable {
   overflow-y: auto;
 }
 
-/* Rows */
 .plantsTable tbody tr {
   display: table;
   width: 100%;
@@ -311,26 +307,22 @@ deviceTable {
   transition: background 0.2s ease, opacity 0.3s ease;
 }
 
-/* Hover row */
 .plantsTable tbody tr:hover {
   background: var(--primary);
   color: var(--text);
   font-weight: 600;
 }
 
-/* Cells */
 .plantsTable tbody td {
   padding: 0.6rem;
   border: none;
 }
 
-/* Actie kolom */
 .actionCol {
   width: 3rem;
   text-align: center;
 }
 
-/* Delete knop (verborgen standaard) */
 .deleteBtn {
   opacity: 0;
   background: none;
@@ -341,18 +333,15 @@ deviceTable {
   transition: opacity 0.2s ease;
 }
 
-/* Toon prullenbak alleen bij hover van rij */
 .plantsTable tbody tr:hover .deleteBtn {
   opacity: 1;
 }
 
-/* Soft delete animatie */
 .softDeleted {
   opacity: 0;
   pointer-events: none;
 }
 
-/* Empty state */
 .emptyRow {
   text-align: center;
   color: var(--icon);

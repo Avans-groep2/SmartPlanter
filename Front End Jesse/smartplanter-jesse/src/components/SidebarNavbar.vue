@@ -1,55 +1,61 @@
 <script setup>
-import { computed, ref, onMounted, getCurrentInstance } from "vue";
+import {
+  computed,
+  ref,
+  onMounted,
+  onBeforeUnmount,
+  getCurrentInstance,
+} from "vue";
 
-// Haal $auth op uit globalProperties
 const { appContext } = getCurrentInstance();
 const $auth = appContext.config.globalProperties.$auth;
 
-// Check of ingelogde gebruiker beheerder is
 const isBeheerder = computed(() => $auth.user?.roles.includes("beheerder"));
 
-// Meldingen
 const notificationCount = ref(0);
+let intervalId = null;
 
 async function fetchNotifications() {
   try {
     if (!$auth.user) return;
 
-    // Haal alle meldingen op
-    const url = `https://smartplanters.dedyn.io:1880/smartplantdata?table=Meldingen`;
+    const res = await fetch(
+      "https://smartplanters.dedyn.io:1880/smartplantdata?table=Meldingen",
+    );
 
-    const response = await fetch(url);
-    if (!response.ok) throw new Error("Fout bij ophalen meldingen");
+    if (!res.ok) throw new Error("Fetch mislukt");
 
-    const data = await response.json();
+    const data = await res.json();
+    const userId = $auth.user.id;
 
-    // Filter op ingelogde gebruiker
-    const userId = $auth.user.id; // of $auth.user.email als ID niet beschikbaar is
     const userMeldingen = data.filter((m) => m.UserID === userId);
 
-    // Stel het aantal meldingen in
     notificationCount.value = userMeldingen.length;
-  } catch (error) {
-    console.error("Kon meldingen niet ophalen:", error);
-    notificationCount.value = 0;
+  } catch (err) {
+    console.error("Kon meldingen niet ophalen:", err);
   }
 }
 
-// Haal meldingen op bij mount
 onMounted(() => {
   fetchNotifications();
+  intervalId = setInterval(fetchNotifications, 2500);
+});
+
+onBeforeUnmount(() => {
+  if (intervalId) {
+    clearInterval(intervalId);
+    intervalId = null;
+  }
 });
 </script>
 
 <template>
   <div class="sidebar">
-    <!-- LOGO -->
     <div class="logo">
       <i class="fa-solid fa-seedling"></i>
       <h1 class="logo-text">SmartPlanter</h1>
     </div>
 
-    <!-- NAVIGATIE -->
     <nav>
       <ul>
         <li>
@@ -64,7 +70,6 @@ onMounted(() => {
             <i class="fa-solid fa-bell"></i>
             <span class="label">Meldingen</span>
           </router-link>
-          <!-- Badge altijd zichtbaar -->
           <p
             class="notificationCount"
             :class="{ 'has-meldingen': notificationCount > 0 }"
@@ -97,6 +102,7 @@ onMounted(() => {
         </li>
       </ul>
 
+      <!-- SETTING PAGE -->
       <ul>
         <li>
           <router-link to="/settings" class="nav-item">
@@ -132,7 +138,6 @@ onMounted(() => {
 </template>
 
 <style>
-/* ================= SIDEBAR BASIS ================= */
 .sidebar {
   position: fixed;
   top: 0;
@@ -152,7 +157,6 @@ onMounted(() => {
   margin: 0;
 }
 
-/* ================= LOGO ================= */
 .logo {
   display: flex;
   align-items: center;
@@ -175,7 +179,6 @@ onMounted(() => {
   color: var(--text);
 }
 
-/* ================= NAVIGATIE ================= */
 nav {
   display: flex;
   flex-direction: column;
@@ -230,7 +233,6 @@ li {
   color: var(--primary);
 }
 
-/* ================= MELDING-BADGE ================= */
 .notificationCount {
   display: flex;
   align-items: center;
@@ -240,17 +242,16 @@ li {
   border-radius: 50%;
   font-weight: 600;
   margin-left: 0.5rem;
-  background-color: var(--light); /* standaard neutraal */
+  background-color: var(--light);
   color: var(--light);
   transition: all 0.3s ease;
 }
 
 .notificationCount.has-meldingen {
-  background-color: var(--danger); /* rood bij meldingen */
+  background-color: var(--danger);
   color: var(--text);
 }
 
-/* ================= PROFIEL ================= */
 .profile {
   display: flex;
   align-items: center;
@@ -287,7 +288,6 @@ li {
   flex-direction: column;
 }
 
-/* ================= HOVER EFFECT ================= */
 .sidebar:hover {
   width: 20rem;
 }

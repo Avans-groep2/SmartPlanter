@@ -51,7 +51,6 @@ export default {
 
   watch: {
     modelValue(value) {
-      // sync v-model met selected
       if (!value || !this.options.length) return;
       this.selected =
         this.options.find((o) => o.deviceId === value) || this.selected;
@@ -84,23 +83,21 @@ export default {
         );
         const data = await res.json();
 
-        // Check of de gebruiker beheerder is via roles-array
         const isBeheerder = this.user?.roles?.includes("beheerder");
 
         let plantersToShow = [];
 
         if (isBeheerder) {
-          plantersToShow = data; // alle planten voor beheerder
+          plantersToShow = data;
         } else {
           plantersToShow = data.filter(
             (p) => String(p.UserID) === String(this.currentUserID),
           );
         }
 
-        // Unieke planten verwijderen op basis van zowel DeviceID én DeviceNaam
         const uniquePlantersMap = new Map();
         plantersToShow.forEach((p) => {
-          const key = `${p.DeviceID}-${p.DeviceNaam}`; // combinatie van ID + naam
+          const key = `${p.DeviceID}-${p.DeviceNaam}`;
           if (!uniquePlantersMap.has(key)) {
             uniquePlantersMap.set(key, {
               label: p.DeviceNaam,
@@ -111,7 +108,6 @@ export default {
 
         this.options = Array.from(uniquePlantersMap.values());
 
-        // Voeg "Alle planters" toe als includeAllOption true is
         if (this.includeAllOption) {
           this.options.unshift({
             label: "Alle planters",
@@ -119,7 +115,6 @@ export default {
           });
         }
 
-        // Bepaal de selectie
         const savedId = localStorage.getItem("chosenDeviceId");
         if (savedId) {
           this.selected =
@@ -131,7 +126,6 @@ export default {
           localStorage.setItem("chosenDeviceName", this.selected.label);
         }
 
-        // Sync v-model
         if (this.selected) {
           this.$emit("update:modelValue", this.selected.deviceId);
           this.$emit("update:planterName", this.selected.label);
@@ -150,9 +144,7 @@ export default {
       localStorage.setItem("chosenDeviceId", option.deviceId);
       localStorage.setItem("chosenDeviceName", option.label);
 
-      // Emit v-model update
       this.$emit("update:modelValue", option.deviceId);
-      // Emit naam update
       this.$emit("update:planterName", option.label);
     },
 
@@ -219,11 +211,9 @@ export default {
   padding: 8px;
   cursor: pointer;
   color: var(--text);
-
-  /* tekst laten wrappen */
-  white-space: normal; /* in plaats van nowrap */
-  word-break: break-word; /* lange woorden afbreken als nodig */
-  overflow-wrap: anywhere; /* extra zekerheid voor lange woorden */
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .dropdown-menu li:hover {

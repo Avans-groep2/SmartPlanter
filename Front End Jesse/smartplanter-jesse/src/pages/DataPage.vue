@@ -97,7 +97,6 @@ import WelcomeMessage from "@/components/WelcomeMessage.vue";
 import PlantSelector from "@/components/PlantSelector.vue";
 import DataChart from "@/components/DataChart.vue";
 
-// geselecteerd device (default)
 const selectedDeviceId = ref("device-1");
 </script>
 
@@ -120,10 +119,7 @@ header {
   margin: 0 auto;
   padding: 1rem;
   display: grid;
-  grid-template-columns: repeat(
-    auto-fit,
-    minmax(350px, 1fr)
-  ); /* flexibele min-width */
+  grid-template-columns: repeat(auto-fit,minmax(350px, 1fr)); 
   gap: 1rem;
   box-sizing: border-box;
 }

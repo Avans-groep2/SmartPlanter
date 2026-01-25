@@ -20,7 +20,15 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, watch, defineProps, computed, nextTick } from "vue";
+import {
+  ref,
+  onMounted,
+  onBeforeUnmount,
+  watch,
+  defineProps,
+  computed,
+  nextTick,
+} from "vue";
 import { Chart } from "chart.js/auto";
 import { getCurrentInstance } from "vue";
 
@@ -50,14 +58,20 @@ let intervalId = null;
 const sentAlerts = ref({});
 
 // Kleuren
-const primaryColor = getComputedStyle(document.documentElement).getPropertyValue("--primary").trim();
-const textColor = getComputedStyle(document.documentElement).getPropertyValue("--text").trim();
+const primaryColor = getComputedStyle(document.documentElement)
+  .getPropertyValue("--primary")
+  .trim();
+const textColor = getComputedStyle(document.documentElement)
+  .getPropertyValue("--text")
+  .trim();
 
 // Status tekst
 const statusText = computed(() => {
   if (latestValue.value === null) return "OK";
-  if (props.minThreshold !== null && latestValue.value < props.minThreshold) return "Te laag";
-  if (props.maxThreshold !== null && latestValue.value > props.maxThreshold) return "Te hoog";
+  if (props.minThreshold !== null && latestValue.value < props.minThreshold)
+    return "Te laag";
+  if (props.maxThreshold !== null && latestValue.value > props.maxThreshold)
+    return "Te hoog";
   return "OK";
 });
 
@@ -82,7 +96,9 @@ async function fetchDeviceData(deviceId) {
 
 async function fetchAllMeldingen() {
   try {
-    const res = await fetch("https://smartplanters.dedyn.io:1880/smartplantdata?table=Meldingen");
+    const res = await fetch(
+      "https://smartplanters.dedyn.io:1880/smartplantdata?table=Meldingen",
+    );
     const data = await res.json();
     return data || [];
   } catch (err) {
@@ -143,7 +159,10 @@ function updateChart(labels, data) {
 function cleanupChart() {
   if (intervalId) clearInterval(intervalId);
   intervalId = null;
-  if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+  if (chartInstance) {
+    chartInstance.destroy();
+    chartInstance = null;
+  }
 }
 
 // ────────────── Alerts ──────────────
@@ -151,17 +170,16 @@ async function sendThresholdAlert(deviceId, status) {
   const userID = $auth.user?.id;
   if (!userID) return;
 
-  const berichtcode = status === "onder" ? props.minBerichtcode : props.maxBerichtcode;
+  const berichtcode =
+    status === "onder" ? props.minBerichtcode : props.maxBerichtcode;
 
-  // Haal alle meldingen op
   const meldingen = await fetchAllMeldingen();
 
-  // Check of alert al bestaat
   const bestaat = meldingen.some(
     (m) =>
       m.DeviceID === deviceId &&
       Number(m.Berichtcode) === berichtcode &&
-      m.Prioriteit === props.thresholdPriority
+      m.Prioriteit === props.thresholdPriority,
   );
 
   if (bestaat) {
@@ -169,30 +187,33 @@ async function sendThresholdAlert(deviceId, status) {
     return;
   }
 
-  // Nieuwe MeldingID
-  const hoogsteID = meldingen.length ? Math.max(...meldingen.map((m) => Number(m.MeldingID || 0))) : 0;
+  const hoogsteID = meldingen.length
+    ? Math.max(...meldingen.map((m) => Number(m.MeldingID || 0)))
+    : 0;
+
   const meldingID = hoogsteID + 1;
 
-  // Update sentAlerts zodat we niet dubbel sturen in deze sessie
   if (!sentAlerts.value[deviceId]) sentAlerts.value[deviceId] = {};
   sentAlerts.value[deviceId][status] = true;
 
-  const url = `https://smartplanters.dedyn.io:1880/smartplantedit` +
-              `?userID=${userID}` +
-              `&meldingID=${meldingID}` +
-              `&table=Meldingen` +
-              `&deviceID=${deviceId}` +
-              `&prioriteit=${props.thresholdPriority}` +
-              `&berichtcode=${berichtcode}`;
+  const url =
+    `https://smartplanters.dedyn.io:1880/smartplantedit` +
+    `?userID=${userID}` +
+    `&meldingID=${meldingID}` +
+    `&table=Meldingen` +
+    `&deviceID=${deviceId}` +
+    `&prioriteit=${props.thresholdPriority}` +
+    `&berichtcode=${berichtcode}`;
 
   console.log("Verstuur alert met MeldingID:", meldingID);
   fetch(url);
 }
 
-// ────────────── Load + Poll ──────────────
 async function loadData(deviceId) {
   const apiData = await fetchDeviceData(deviceId);
-  const validData = apiData.filter(item => item.data?.[props.dataKey] != null);
+  const validData = apiData.filter(
+    (item) => item.data?.[props.dataKey] != null,
+  );
 
   if (!validData.length) {
     latestValue.value = null;
@@ -200,15 +221,28 @@ async function loadData(deviceId) {
     return;
   }
 
-  const sorted = validData.sort((a, b) => a.time.localeCompare(b.time)).slice(-5);
-  const labels = sorted.map(item => parseIsoToDate(item.time).toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit", second: "2-digit" }));
-  const values = sorted.map(item => Number(item.data[props.dataKey].toFixed(props.decimals)));
+  const sorted = validData
+    .sort((a, b) => a.time.localeCompare(b.time))
+    .slice(-5);
+  const labels = sorted.map((item) =>
+    parseIsoToDate(item.time).toLocaleTimeString("nl-NL", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    }),
+  );
+  const values = sorted.map((item) =>
+    Number(item.data[props.dataKey].toFixed(props.decimals)),
+  );
 
   latestValue.value = values.at(-1);
 
   if (props.minThreshold !== null && latestValue.value < props.minThreshold) {
     sendThresholdAlert(deviceId, "onder");
-  } else if (props.maxThreshold !== null && latestValue.value > props.maxThreshold) {
+  } else if (
+    props.maxThreshold !== null &&
+    latestValue.value > props.maxThreshold
+  ) {
     sendThresholdAlert(deviceId, "boven");
   } else {
     if (sentAlerts.value[deviceId]) sentAlerts.value[deviceId] = {};
@@ -224,17 +258,20 @@ function startPolling(deviceId) {
 
 // ────────────── Lifecycle ──────────────
 onMounted(async () => {
-  await nextTick(); // wacht tot canvas beschikbaar is
+  await nextTick();
   loadData(props.deviceId);
   startPolling(props.deviceId);
 });
 
-watch(() => props.deviceId, async (newId) => {
-  cleanupChart();
-  await nextTick(); // wacht tot canvas opnieuw beschikbaar is
-  loadData(newId);
-  startPolling(newId);
-});
+watch(
+  () => props.deviceId,
+  async (newId) => {
+    cleanupChart();
+    await nextTick();
+    loadData(newId);
+    startPolling(newId);
+  },
+);
 
 onBeforeUnmount(() => cleanupChart());
 </script>

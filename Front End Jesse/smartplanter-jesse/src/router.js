@@ -62,18 +62,15 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const requiredRole = to.meta.requiresRole;
 
-  // Geen rol nodig → doorlaten
   if (!requiredRole) {
     return next();
   }
 
-  // Keycloak niet klaar
   if (!keycloakInstance) {
     console.error("⚠️ Keycloak niet geïnitialiseerd");
     return next("/");
   }
 
-  // Rol check (realm role)
   const isAdmin = keycloakInstance.hasRealmRole("beheerder");
 
   if (!isAdmin) {
