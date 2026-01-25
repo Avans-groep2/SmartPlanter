@@ -153,6 +153,7 @@ export default {
       fetch(url)
 
       this.$emit('plant-harvested', this.position);
+      this.$toast("Plant succesvol geoogst!" , "succes")
       
         }
     }

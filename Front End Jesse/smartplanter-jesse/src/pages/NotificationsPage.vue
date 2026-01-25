@@ -180,27 +180,27 @@ export default {
       return berichtObj ? berichtObj.Bericht : 'Onbekend bericht'
     },
 
-    async softDelete(melding) {
-    try {
-      const meldingID = melding.MeldingID;
-      if (!meldingID) throw new Error('MeldingID is undefined');
-
-      // Verwijder melding direct uit de lokale array
-      this.meldingen = this.meldingen.filter(m => m.MeldingID !== meldingID);
-
-      fetch(
-        `https://smartplanters.dedyn.io:1880/cleardata?table=Meldingen&meldingID=${meldingID}`,
-        { method: 'GET' }
-      ).catch(err => {
-        console.warn('Fetch faalde, maar melding is waarschijnlijk verwijderd:', err);
-      });
-
-    } catch (error) {
-      console.error('Fout bij verwijderen melding:', error);
-      alert('Verwijderen mislukt. Probeer opnieuw.');
-    }
+   async softDelete(melding) {
+  const meldingID = melding.MeldingID;
+  if (!meldingID) {
+    console.error('MeldingID is undefined');
+    this.$toast("Verwijderen mislukt. Probeer opnieuw.","error");
+    return;
   }
+
+  // Verwijder melding direct uit de lokale array
+  this.meldingen = this.meldingen.filter(m => m.MeldingID !== meldingID);
+
+  // Stuur request naar backend, maar negeer response/fouten
+  fetch(
+    `https://smartplanters.dedyn.io:1880/cleardata?table=Meldingen&meldingID=${meldingID}`,
+    { method: 'GET' }
+  );
+
+  // Toon toast direct, ongeacht backend
+  this.$toast("Succesvol verwijderd", "success");
 }
+  }
 }
 </script>
 
@@ -277,7 +277,7 @@ header {
 /* Cells */
 .deviceTable tbody td {
   padding: 0.6rem;
-  border: none;
+  border: brown;
 }
 
 /* Actie kolom */

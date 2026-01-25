@@ -2,9 +2,13 @@
   <SidebarNavbar/>
   <div class="Settings">
     <header>
-    <WelcomeMessage/>
-    <PlantSelector v-model="selectedDeviceId" ref="plantSelector" />
-</header>
+      <WelcomeMessage/>
+      <PlantSelector 
+        v-model="selectedDeviceId" 
+        ref="plantSelector" 
+        :key="plantSelectorKey" 
+      />
+    </header>
 
     <div class="settingsContainer">
       <h2>Thema</h2>
@@ -17,21 +21,21 @@
       <input type="color" id="colorPicker" v-model="primaryColor" @input="updatePrimaryColor">
     </div> 
 
-     <div class="settingsContainer">
+    <div class="settingsContainer">
       <h2>Plantenbak</h2>
-        <div class="divColumn">
-          <input type="text" class="inputText" v-model="planterName">
-          <button @click="updatePlanterName">Wijzigen</button>
-        </div>
-     </div> 
+      <div class="divColumn">
+        <input type="text" class="inputText" v-model="planterName" @keyup.enter="updatePlanterName">
+        <button @click="updatePlanterName">Wijzigen</button>
+      </div>
+    </div> 
 
-     <div class="settingsContainer">
+    <div class="settingsContainer">
       <h2>Account</h2>
-        <div class="divColumn">
-          <a href="https://141.148.237.73:8443/realms/smartplanter/account/">Wijzig Gebruikersnaam en Email</a>
-          <a href="https://141.148.237.73:8443/realms/smartplanter/login-actions/required-action?execution=UPDATE_PASSWORD&client_id=account-console&tab_id=Y5oKab4nKhc&client_data=eyJydSI6Imh0dHBzOi8vMTQxLjE0OC4yMzcuNzM6ODQ0My9yZWFsbXMvc21hcnRwbGFudGVyL2FjY291bnQvYWNjb3VudC1zZWN1cml0eS9zaWduaW5nLWluIiwicnQiOiJjb2RlIiwicm0iOiJxdWVyeSIsInN0IjoiY2IwYjZhODAtYmQwMC00YWI3LWFkZTEtNjljYTRjYmQzZmQ1In0">Wijzig Wachtwoord</a>
-        </div>
-     </div> 
+      <div class="divColumn">
+        <a href="https://141.148.237.73:8443/realms/smartplanter/account/">Wijzig Gebruikersnaam en Email</a>
+        <a href="https://141.148.237.73:8443/realms/smartplanter/login-actions/required-action?execution=UPDATE_PASSWORD&client_id=account-console&tab_id=Y5oKab4nKhc&client_data=eyJydSI6Imh0dHBzOi8vMTQxLjE0OC4yMzcuNzM6ODQ0My9yZWFsbXMvc21hcnRwbGFudGVyL2FjY291bnQvYWNjb3VudC1zZWN1cml0eS9zaWduaW5nLWluIiwicnQiOiJjb2RlIiwicm0iOiJxdWVyeSIsInN0IjoiY2IwYjZhODAtYmQwMC00YWI3LWFkZTEtNjljYTRjYmQzZmQ1In0">Wijzig Wachtwoord</a>
+      </div>
+    </div> 
   </div>
 </template>
 
@@ -58,20 +62,20 @@ export default {
   },
 
   mounted() {
-    // accent kleur herstellen
+    // Accent kleur herstellen
     const savedColor = localStorage.getItem('primary-color');
     if (savedColor) {
       document.documentElement.style.setProperty('--primary', savedColor);
       this.primaryColor = savedColor;
     }
 
-    // thema herstellen
+    // Thema herstellen
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'dark') {
       document.documentElement.classList.add('dark');
     }
 
-    // planternaam ophalen uit localStorage
+    // Planternaam ophalen uit localStorage
     const savedPlanterName = localStorage.getItem('chosenDeviceName');
     if (savedPlanterName) {
       this.planterName = savedPlanterName;
@@ -93,14 +97,31 @@ export default {
       document.documentElement.style.setProperty('--primary', this.primaryColor);
       localStorage.setItem('primary-color', this.primaryColor);
     },
-     updatePlanterName() {
+
+    updatePlanterName() {
   const selectedID = localStorage.getItem('chosenDeviceId');
 
-  const url = `https://smartplanters.dedyn.io:1880/harvest?table=Planter&userID=tester&deviceID=${selectedID}&deviceNaam=${this.planterName}`;
+  if (!selectedID) {
+    this.$toast("Geen planter geselecteerd","error");
+    return;
+  }
 
-  // Fire-and-forget fetch
-  fetch(url)
-     }
+  // Fire-and-forget fetch naar backend
+  const url = `https://smartplanters.dedyn.io:1880/harvest?table=Planter&userID=tester&deviceID=${selectedID}&deviceNaam=${encodeURIComponent(this.planterName)}`;
+  fetch(url);
+
+  // Update localStorage zodat naam behouden blijft
+  localStorage.setItem('chosenDeviceName', this.planterName);
+
+  // Update PlantSelector **opties direct**
+  if (this.$refs.plantSelector && this.$refs.plantSelector.updateOptionName) {
+    // roep een method aan in PlantSelector om de naam van de geselecteerde planter te wijzigen
+    this.$refs.plantSelector.updateOptionName(selectedID, this.planterName);
+  }
+
+  // Toast tonen
+  this.$toast("Planternaam succesvol gewijzigd","success");
+}
   }
 }
 </script>

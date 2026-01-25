@@ -121,6 +121,17 @@ export default {
       this.$emit('update:modelValue', option.deviceId)
     },
 
+    updateOptionName(deviceId, newName) {
+  const option = this.options.find(o => String(o.deviceId) === String(deviceId));
+  if (option) {
+    option.label = newName; // update de naam die in de dropdown wordt getoond
+    // Als deze optie geselecteerd is, ook selected updaten
+    if (this.selected && String(this.selected.deviceId) === String(deviceId)) {
+      this.selected.label = newName;
+    }
+  }
+},
+
     handleClickOutside(e) {
       const dropdown = this.$el
       if (dropdown && !dropdown.contains(e.target)) {

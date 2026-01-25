@@ -23,3 +23,45 @@
   --danger: #FF4A4A;
   --inputbg: #151515;
 } 
+
+/* Toast Style */
+/* Toast container */
+.toast-container {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  z-index: 9999;
+}
+
+/* Toast zelf */
+.toast {
+  color: white;
+  padding: 1rem 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  animation: slideIn 0.3s, fadeOut 0.5s 2.5s forwards;
+}
+
+/* Icon spacing */
+.toast i {
+  margin-right: 0.5rem;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+/* Animations */
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}

@@ -4,6 +4,7 @@ import App from './App.vue'
 import Keycloak from 'keycloak-js'
 import router, { setKeycloak } from './router'
 import './assets/styles/theme.css'
+import { toast } from './toast.js'  // toast helper
 
 /* ======================================================
    FLAGS
@@ -153,6 +154,14 @@ function ensureUserExists() {
 }
 
 /* ======================================================
+   GLOBALE TOAST FUNCTIE REGISTREREN
+====================================================== */
+function registerGlobalToast(app) {
+  // Voeg de toast helper toe aan Vue globale properties
+  app.config.globalProperties.$toast = toast
+}
+
+/* ======================================================
    APP INITIALISATIE
 ====================================================== */
 if (authDisabled) {
@@ -160,6 +169,7 @@ if (authDisabled) {
 
   const app = createApp(App)
   app.config.globalProperties.$auth = createDevAuth()
+  registerGlobalToast(app)   // ✅ Globale toast
   app.use(router)
   app.mount('#app')
 } else {
@@ -175,6 +185,7 @@ if (authDisabled) {
 
       const app = createApp(App)
       app.config.globalProperties.$auth = auth
+      registerGlobalToast(app)  // ✅ Globale toast
       app.use(router)
       app.mount('#app')
 

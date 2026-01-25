@@ -84,6 +84,40 @@ body,
     border-color 0.3s ease;
 }
 
+/* Toast container */
+.toast-container {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  z-index: 9999;
+}
+
+/* Toast zelf */
+.toast {
+  background-color: #f44336; /* rood voor foutmelding */
+  color: white;
+  padding: 1rem 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  font-size: 1rem;
+  animation: slideIn 0.3s, fadeOut 0.5s 2.5s forwards;
+}
+
+/* Animaties */
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+
 ::selection {
   background-color: var(--primary);
   color: var(--primary-dark);

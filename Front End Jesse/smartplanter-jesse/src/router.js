@@ -1,11 +1,13 @@
 // router.js
 import { createRouter, createWebHistory } from 'vue-router'
+import { toast } from './toast.js'
 
 import DashboardPage from './pages/DashboardPage.vue'
 import SettingsPage from './pages/SettingsPage.vue'
 import DataPage from './pages/DataPage.vue'
 import NotificationsPage from './pages/NotificationsPage.vue'
 import AdminPage from './pages/AdminPage.vue'
+import PlantsPage from './pages/PlantsPage.vue'
 
 let keycloakInstance = null
 
@@ -39,7 +41,15 @@ const routes = [
     name: 'admin',
     component: AdminPage,
     meta: {
-      requiresRole: 'beheerder'
+      // requiresRole: 'beheerder'
+    }
+  },
+  {
+    path: '/plants',
+    name: 'plants',
+    component: PlantsPage,
+    meta: {
+      // requiresRole: 'beheerder'
     }
   }
 ]
@@ -67,7 +77,7 @@ router.beforeEach((to, from, next) => {
   const isAdmin = keycloakInstance.hasRealmRole('beheerder')
 
   if (!isAdmin) {
-    alert('⛔ Geen toegang: alleen beheerders')
+    toast("Geen toegang", "error")
     return next('/')
   }
 

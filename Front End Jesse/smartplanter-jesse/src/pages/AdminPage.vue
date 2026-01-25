@@ -242,7 +242,7 @@ input,
 select {
   padding: 0.5rem;
   border-radius: 10px;
-  border: 1px solid var(--icon);
+  border: 2px solid var(--icon);
   background: var(--light);
   color: var(--text);
 }
@@ -271,7 +271,7 @@ button {
   padding: 0.6rem;
   text-align: left;
   font-weight: bold;
-  border-bottom: 1px solid var(--icon);
+  border-bottom: 2px solid var(--icon);
 }
 
 .deviceTable tbody {

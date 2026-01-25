@@ -80,6 +80,14 @@ onMounted(() => {
           </router-link>
         </li>
 
+        <!-- PLANT PAGE -->
+        <li v-if="isBeheerder">
+          <router-link to="/plants" class="nav-item">
+            <i class="fa-solid fa-plant-wilt"></i>
+            <span class="label">Planten</span>
+          </router-link>
+        </li>
+
         <!-- ADMIN PAGE -->
         <li v-if="isBeheerder">
           <router-link to="/admin" class="nav-item">
@@ -87,6 +95,7 @@ onMounted(() => {
             <span class="label">Admin</span>
           </router-link>
         </li>
+        
       </ul>
 
       <ul>
