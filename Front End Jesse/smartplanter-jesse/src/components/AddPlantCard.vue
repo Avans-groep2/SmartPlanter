@@ -16,6 +16,7 @@
         v-model="newPlant.position"
         class="form-input"
         @keyup.enter="addPlant"
+        min="0"
       />
 
       <input

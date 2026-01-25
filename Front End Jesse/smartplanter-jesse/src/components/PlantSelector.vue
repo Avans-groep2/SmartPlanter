@@ -51,6 +51,7 @@ export default {
 
   watch: {
     modelValue(value) {
+      // sync v-model met selected
       if (!value || !this.options.length) return
       this.selected = this.options.find(o => o.deviceId === value) || this.selected
     },
@@ -74,42 +75,56 @@ export default {
     },
 
     async loadPlanters() {
-      if (!this.currentUserID) return
+  if (!this.user) return
 
-      try {
-        const res = await fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter')
-        const data = await res.json()
+  try {
+    const res = await fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter')
+    const data = await res.json()
 
-        const userPlanters = data.filter(p => p.UserID === this.currentUserID)
+    let plantersToShow = []
 
-        this.options = userPlanters.map(p => ({
-          label: p.DeviceNaam,
-          deviceId: p.DeviceID
-        }))
+    // Als de gebruiker een beheerder is, laat alles zien
+    if (this.user.role === 'admin') {
+      plantersToShow = data
+    } else {
+      // Anders alleen planters van deze gebruiker
+      plantersToShow = data.filter(p => p.UserID === this.currentUserID)
+    }
 
-        if (this.includeAllOption) {
-          this.options.unshift({
-            label: 'Alle planters',
-            deviceId: null
-          })
-        }
+    this.options = plantersToShow.map(p => ({
+      label: p.DeviceNaam,
+      deviceId: p.DeviceID
+    }))
 
-        const savedId = localStorage.getItem('chosenDeviceId')
-        if (savedId) {
-          this.selected = this.options.find(o => String(o.deviceId) === savedId) || this.options[0]
-        } else if (this.options.length) {
-          this.selected = this.options[0]
-          localStorage.setItem('chosenDeviceId', this.selected.deviceId)
-          localStorage.setItem('chosenDeviceName', this.selected.label)
-        }
+    if (this.includeAllOption) {
+      this.options.unshift({
+        label: 'Alle planters',
+        deviceId: null
+      })
+    }
 
-        if (this.selected) {
-          this.$emit('update:modelValue', this.selected.deviceId)
-        }
-      } catch (err) {
-        console.error('Fout bij ophalen van planters:', err)
-      }
-    },
+    // Bepaal de selectie
+    const savedId = localStorage.getItem('chosenDeviceId')
+    if (savedId) {
+      this.selected = this.options.find(o => String(o.deviceId) === savedId) || this.options[0]
+    } else if (this.options.length) {
+      this.selected = this.options[0]
+      localStorage.setItem('chosenDeviceId', this.selected.deviceId)
+      localStorage.setItem('chosenDeviceName', this.selected.label)
+    }
+
+    // Sync v-model
+    if (this.selected) {
+      this.$emit('update:modelValue', this.selected.deviceId)
+      this.$emit('update:planterName', this.selected.label)
+    }
+
+    this.$emit('loaded', this.selected)
+
+  } catch (err) {
+    console.error('Fout bij ophalen van planters:', err)
+  }
+},
 
     select(option) {
       this.selected = option
@@ -118,19 +133,21 @@ export default {
       localStorage.setItem('chosenDeviceId', option.deviceId)
       localStorage.setItem('chosenDeviceName', option.label)
 
+      // Emit v-model update
       this.$emit('update:modelValue', option.deviceId)
+      // Emit naam update
+      this.$emit('update:planterName', option.label)
     },
 
     updateOptionName(deviceId, newName) {
-  const option = this.options.find(o => String(o.deviceId) === String(deviceId));
-  if (option) {
-    option.label = newName; // update de naam die in de dropdown wordt getoond
-    // Als deze optie geselecteerd is, ook selected updaten
-    if (this.selected && String(this.selected.deviceId) === String(deviceId)) {
-      this.selected.label = newName;
-    }
-  }
-},
+      const option = this.options.find(o => String(o.deviceId) === String(deviceId))
+      if (option) {
+        option.label = newName
+        if (this.selected && String(this.selected.deviceId) === String(deviceId)) {
+          this.selected.label = newName
+        }
+      }
+    },
 
     handleClickOutside(e) {
       const dropdown = this.$el
@@ -141,6 +158,7 @@ export default {
   }
 }
 </script>
+
 
 <style>
 .dropdown {

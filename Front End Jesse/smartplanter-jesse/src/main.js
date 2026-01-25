@@ -208,3 +208,20 @@ function startTokenRefresh() {
       })
   }, 60000)
 }
+
+
+/* ======================================================
+   NO NEGATIVE NUMBER INPUT
+====================================================== */
+// Voor alle number inputs
+document.addEventListener('input', (e) => {
+  const target = e.target;
+
+  if (target.matches('input[type="number"]')) {
+    // Als het negatief is, verwijder het teken
+    if (target.value.startsWith('-')) {
+      target.value = target.value.replace('-', '');
+    }
+  }
+});
+

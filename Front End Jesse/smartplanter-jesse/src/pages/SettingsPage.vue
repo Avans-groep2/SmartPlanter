@@ -3,11 +3,13 @@
   <div class="Settings">
     <header>
       <WelcomeMessage/>
-      <PlantSelector 
-        v-model="selectedDeviceId" 
-        ref="plantSelector" 
-        :key="plantSelectorKey" 
-      />
+      <PlantSelector
+  v-model="selectedDeviceId"
+  ref="plantSelector"
+  @update:planterName="planterName = $event"
+/>
+
+
     </header>
 
     <div class="settingsContainer">
@@ -121,7 +123,30 @@ export default {
 
   // Toast tonen
   this.$toast("Planternaam succesvol gewijzigd","success");
+},
+
+onPlantSelectorLoaded(selectedOption) {
+    if (selectedOption) {
+      this.planterName = selectedOption.label
+    }
+  },
+
+
+watch: {
+  selectedDeviceId(newId) {
+    if (!newId) {
+      this.planterName = '';
+      return;
+    }
+
+    const selectedOption = this.$refs.plantSelector.options.find(
+      o => String(o.deviceId) === String(newId)
+    );
+    this.planterName = selectedOption ? selectedOption.label : '';
+  }
 }
+
+
   }
 }
 </script>

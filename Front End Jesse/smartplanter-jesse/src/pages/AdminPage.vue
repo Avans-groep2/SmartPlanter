@@ -169,7 +169,7 @@ export default {
     addDevice() {
       if (!this.newDeviceId.trim()) return
 
-      const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Devices&TtnDeviceID=${this.newDeviceId}`
+      const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Devices&ttnDeviceID=${this.newDeviceId}`
 
       fetch(url)
         .then(res => {

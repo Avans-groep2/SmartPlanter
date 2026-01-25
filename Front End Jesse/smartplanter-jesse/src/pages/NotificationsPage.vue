@@ -198,7 +198,7 @@ export default {
   );
 
   // Toon toast direct, ongeacht backend
-  this.$toast("Succesvol verwijderd", "success");
+  this.$toast("Melding succesvol verwijderd", "success");
 }
   }
 }
