@@ -102,8 +102,8 @@ const auth = {
    USER CHECK + INSERT
 ====================================================== */
 function ensureUserExists() {
-  const userID = keycloak.sub
-  const username = keycloak.username
+  const userID = keycloak.tokenParsed.sub
+  const username = keycloak.tokenParsed.preferred_username
 
   if (!userID || !username) {
     console.error('❌ User gegevens ontbreken')
