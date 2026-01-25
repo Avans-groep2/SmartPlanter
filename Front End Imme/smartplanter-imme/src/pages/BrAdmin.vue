@@ -165,35 +165,40 @@ export default {
     };
 
     const opslaanKoppeling = async () => {
-      if (!gekozenUserId.value || !gekozenDeviceID.value) {
-        return alert("Selecteer eerst een gebruiker en device");
-      }
+  if (!gekozenUserId.value || !gekozenDeviceID.value) {
+    return alert("Selecteer eerst een gebruiker en device");
+  }
 
-      // CRUCIAAL: De namen na de '&' moeten EXACT zo in de database staan (hoofdlettergevoelig!)
-      const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Planter` +
-                  `&UserID=${encodeURIComponent(gekozenUserId.value)}` +
-                  `&DeviceID=${encodeURIComponent(gekozenDeviceID.value)}` +
-                  `&PlantenTeller=${plantenTellerKeuze.value}` +
-                  `&DeviceNaam=${encodeURIComponent(deviceNaamKeuze.value || 'Nieuwe Planter')}`;
-      
-      try {
-        const res = await fetch(url);
-        const data = await res.json();
-        
-        if (data.error) {
-          alert("Database weigert koppeling: " + data.code); 
-        } else {
-          gekozenUserId.value = "";
-          gekozenDeviceID.value = "";
-          plantenTellerKeuze.value = 0;
-          deviceNaamKeuze.value = "";
-          await laadAlleData();
-          alert("Koppeling tussen gebruiker en device is gelukt!");
-        }
-      } catch (err) {
-        alert("Netwerkfout: Check of de API bereikbaar is.");
-      }
-    };
+  // De API is extreem hoofdlettergevoelig. 
+  // We gebruiken exact de namen die uit de GET-request komen (zie image_99af77.png)
+  const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Planter` +
+              `&UserID=${encodeURIComponent(gekozenUserId.value)}` +
+              `&DeviceID=${encodeURIComponent(gekozenDeviceID.value)}` +
+              `&PlantenTeller=${plantenTellerKeuze.value}` +
+              `&DeviceNaam=${encodeURIComponent(deviceNaamKeuze.value || 'Nieuwe Planter')}`;
+  
+  console.log("Versturen naar API:", url); // Controleer dit in je console!
+
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    
+    if (data.error) {
+      // Als je hier ER_BAD_NULL_ERROR krijgt, mist er een kolom die verplicht is
+      alert("Database Error: " + data.code); 
+      console.error("Details:", data);
+    } else {
+      alert("Koppeling succesvol!");
+      gekozenUserId.value = "";
+      gekozenDeviceID.value = "";
+      plantenTellerKeuze.value = 0;
+      deviceNaamKeuze.value = "";
+      await laadAlleData();
+    }
+  } catch (err) {
+    alert("Netwerkfout bij koppelen");
+  }
+};
 
     const toggleUserDropdown = () => {
       deviceDropdownOpen.value = false;
