@@ -81,14 +81,15 @@ export default {
     const res = await fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter')
     const data = await res.json()
 
+    // check of de gebruiker beheerder is via roles-array
+    const isBeheerder = this.user?.roles?.includes('beheerder')
+
     let plantersToShow = []
 
-    // Als de gebruiker een beheerder is, laat alles zien
-    if (this.user.role === 'beheerder') {
-      plantersToShow = data
+    if (isBeheerder) {
+      plantersToShow = data // alle planten voor beheerder
     } else {
-      // Anders alleen planters van deze gebruiker
-      plantersToShow = data.filter(p => p.UserID === this.currentUserID)
+      plantersToShow = data.filter(p => String(p.UserID) === String(this.currentUserID))
     }
 
     this.options = plantersToShow.map(p => ({
