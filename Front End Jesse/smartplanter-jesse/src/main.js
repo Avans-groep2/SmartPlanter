@@ -103,8 +103,7 @@ const auth = {
 ====================================================== */
 function ensureUserExists() {
   const userID = keycloak.tokenParsed?.sub
-  const username = keycloak.tokenParsed?.preferred_username
-  const rights = 'read'
+  const username = keycloak.tokenParsed?.username
 
   if (!userID || !username) {
     console.error('❌ User gegevens ontbreken')
@@ -118,7 +117,7 @@ function ensureUserExists() {
     `https://smartplanters.dedyn.io:1880/smartplantedit?table=Users` +
     `&userID=${encodeURIComponent(userID)}` +
     `&Username=${encodeURIComponent(username)}` +
-    `&Rights=${rights}`
+    `&Rights=read`
 
   fetch(DATA_URL)
     .then(res => res.json())
