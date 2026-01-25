@@ -103,7 +103,6 @@ export default {
     const planterData = ref([]);
     const loading = ref(false);
 
-    // Formuliervelden - Let op: gekozenDeviceID moet overeenkomen met TtnDeviceID
     const deviceIdKeuze = ref("");
     const gekozenUserId = ref("");
     const gekozenDeviceID = ref("");
@@ -116,7 +115,7 @@ export default {
     const laadAlleData = async () => {
       loading.value = true;
       try {
-        // Gebruik HTTPS zoals in de console errors wordt vereist
+        // GEBRUIK HTTPS (Cruciaal voor Azure!)
         const [resDev, resPlan] = await Promise.all([
           fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Devices'),
           fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter')
@@ -132,12 +131,12 @@ export default {
     };
 
     const opgeschoondeDevices = computed(() => {
-      // Gebruik exact TtnDeviceID zoals in de data response
+      // Map naar TtnDeviceID
       return devicesRaw.value.map(d => d.TtnDeviceID).filter(id => id);
     });
 
     const uniekeUsers = computed(() => {
-      // Gebruik UserID uit de planter tabel
+      // Gebruik UserID
       const users = planterData.value.map(p => p.UserID);
       return [...new Set(users)].filter(u => u);
     });
@@ -145,45 +144,40 @@ export default {
     const insertNieuwDevice = async () => {
       if (!deviceIdKeuze.value.trim()) return alert("Vul een Device ID in");
       
-      // Gebruik TtnDeviceID in de URL zoals je medestudent
+      // Exacte parameter: TtnDeviceID
       const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Devices&TtnDeviceID=${encodeURIComponent(deviceIdKeuze.value.trim())}`;
       
       try {
         const res = await fetch(url);
-        const data = await res.json();
-        
-        if (data.error) {
-          alert("Fout: " + data.code);
-        } else {
-          deviceIdKeuze.value = "";
-          await laadAlleData();
-          alert("Device toegevoegd!");
-        }
+        if (!res.ok) throw new Error("Server error");
+        deviceIdKeuze.value = "";
+        await laadAlleData();
+        alert("Device toegevoegd!");
       } catch (err) {
-        alert("Netwerkfout");
+        alert("Fout bij toevoegen: " + err.message);
       }
     };
 
     const opslaanKoppeling = async () => {
-      // Controleer of de dropdowns zijn ingevuld om NULL errors te voorkomen
       if (!gekozenUserId.value || !gekozenDeviceID.value) {
         return alert("Selecteer eerst een gebruiker en device");
       }
 
-      // De URL parameters moeten exact de namen UserID en DeviceID hebben
+      // Parameters moeten EXACT zo heten: UserID, DeviceID, PlantenTeller, DeviceNaam
       const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Planter` +
                   `&UserID=${encodeURIComponent(gekozenUserId.value)}` +
                   `&DeviceID=${encodeURIComponent(gekozenDeviceID.value)}` +
                   `&PlantenTeller=${plantenTellerKeuze.value}` +
-                  `&DeviceNaam=${encodeURIComponent(deviceNaamKeuze.value || 'Mijn Planter')}`;
+                  `&DeviceNaam=${encodeURIComponent(deviceNaamKeuze.value || 'Nieuwe Planter')}`;
       
       try {
         const res = await fetch(url);
         const data = await res.json();
         
         if (data.error) {
-          alert("Koppel fout: " + data.code);
+          alert("Database Error: " + data.code); // Dit vangt de ER_BAD_NULL_ERROR op
         } else {
+          // Reset velden
           gekozenUserId.value = "";
           gekozenDeviceID.value = "";
           plantenTellerKeuze.value = 0;
@@ -192,33 +186,23 @@ export default {
           alert("Koppeling succesvol!");
         }
       } catch (err) {
-        alert("Koppelen mislukt");
+        alert("Netwerkfout bij koppelen");
       }
     };
 
+    // UI Logica voor dropdowns
     const toggleUserDropdown = () => {
       deviceDropdownOpen.value = false;
       userDropdownOpen.value = !userDropdownOpen.value;
     };
-
     const toggleDeviceDropdown = () => {
       userDropdownOpen.value = false;
       deviceDropdownOpen.value = !deviceDropdownOpen.value;
     };
+    const selecteerUser = (u) => { gekozenUserId.value = u; userDropdownOpen.value = false; };
+    const selecteerDevice = (d) => { gekozenDeviceID.value = d; deviceDropdownOpen.value = false; };
 
-    const selecteerUser = (u) => {
-      gekozenUserId.value = u;
-      userDropdownOpen.value = false;
-    };
-
-    const selecteerDevice = (d) => {
-      gekozenDeviceID.value = d;
-      deviceDropdownOpen.value = false;
-    };
-
-    onMounted(() => {
-      laadAlleData();
-    });
+    onMounted(laadAlleData);
 
     return {
       devicesRaw, planterData, loading, deviceIdKeuze, gekozenUserId, 
