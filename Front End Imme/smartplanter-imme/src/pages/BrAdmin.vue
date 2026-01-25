@@ -159,36 +159,37 @@ export default {
     };
 
     const opslaanKoppeling = async () => {
-      if (!gekozenUserId.value || !gekozenDeviceID.value) {
-        return alert("Selecteer eerst een gebruiker en device");
-      }
+  if (!gekozenUserId.value || !gekozenDeviceID.value) {
+    return alert("Selecteer eerst een gebruiker en device");
+  }
 
-      // Parameters moeten EXACT zo heten: UserID, DeviceID, PlantenTeller, DeviceNaam
-      const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Planter` +
-                  `&userID=${encodeURIComponent(gekozenUserId.value)}` +
-                  `&deviceID=${encodeURIComponent(gekozenDeviceID.value)}` +
-                  `&plantenTeller=${plantenTellerKeuze.value}` +
-                  `&deviceNaam=${encodeURIComponent(deviceNaamKeuze.value || 'Nieuwe Planter')}`;
-      
-      try {
-        const res = await fetch(url);
-        const data = await res.json();
-        
-        if (data.error) {
-          alert("Database Error: " + data.code); // Dit vangt de ER_BAD_NULL_ERROR op
-        } else {
-          // Reset velden
-          gekozenUserId.value = "";
-          gekozenDeviceID.value = "";
-          plantenTellerKeuze.value = 0;
-          deviceNaamKeuze.value = "";
-          await laadAlleData();
-          alert("Koppeling succesvol!");
-        }
-      } catch (err) {
-        alert("Netwerkfout bij koppelen");
-      }
-    };
+  // LET OP: De hoofdletters hieronder zijn exact gelijk aan de databasekolommen
+  const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Planter` +
+              `&UserID=${encodeURIComponent(gekozenUserId.value)}` +
+              `&DeviceID=${encodeURIComponent(gekozenDeviceID.value)}` +
+              `&PlantenTeller=${plantenTellerKeuze.value}` +
+              `&DeviceNaam=${encodeURIComponent(deviceNaamKeuze.value || 'Nieuwe Planter')}`;
+  
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    
+    if (data.error) {
+      // Als je nu een error krijgt, staat er precies WELK veld fout is
+      alert("Database Error: " + data.code); 
+    } else {
+      // Reset velden na succes
+      gekozenUserId.value = "";
+      gekozenDeviceID.value = "";
+      plantenTellerKeuze.value = 0;
+      deviceNaamKeuze.value = "";
+      await laadAlleData();
+      alert("Koppeling succesvol!");
+    }
+  } catch (err) {
+    alert("Netwerkfout bij koppelen. Check of je op HTTPS zit.");
+  }
+};
 
     // UI Logica voor dropdowns
     const toggleUserDropdown = () => {
