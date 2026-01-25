@@ -84,7 +84,7 @@ export default {
     let plantersToShow = []
 
     // Als de gebruiker een beheerder is, laat alles zien
-    if (this.user.role === 'admin') {
+    if (this.user.role === 'beheerder') {
       plantersToShow = data
     } else {
       // Anders alleen planters van deze gebruiker
