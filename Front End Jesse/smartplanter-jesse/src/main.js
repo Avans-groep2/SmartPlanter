@@ -163,7 +163,6 @@ if (authDisabled) {
     .init({
       onLoad: 'login-required',
       pkceMethod: 'S256',
-      redirectUri: window.location.origin + '/dashboard'
     })
     .then(authenticated => {
       if (!authenticated) return
