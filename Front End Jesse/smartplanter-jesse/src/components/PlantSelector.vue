@@ -1,7 +1,7 @@
 <template>
   <div class="dropdown">
     <button @click="toggleDropdown" class="dropdown-btn">
-      {{ selected?.label || "Selecteer een plant" }}
+      {{ selected?.label || "Nog geen plantenbak" }}
     </button>
 
     <transition name="fade-slide">

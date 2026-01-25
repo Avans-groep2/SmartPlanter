@@ -14,7 +14,11 @@
         data-key="temperatuur"
         label="Temperatuur"
         unit="°C"
-        :threshold="30"
+        :min-threshold="18"
+        :threshold="26"
+        threshold-priority="normaal"
+        :min-berichtcode="1"
+        :max-berichtcode="2"
       />
 
       <!-- pH -->
@@ -23,7 +27,11 @@
         data-key="ph"
         label="pH"
         unit="pH"
+        :min-threshold="5.5"
         :threshold="6.5"
+        threshold-priority="hoog"
+        :min-berichtcode="3"
+        :max-berichtcode="4"
       />
 
       <!-- EC -->
@@ -32,7 +40,11 @@
         data-key="ec"
         label="EC"
         unit="mS/cm"
-        :threshold="2.5"
+        :min-threshold="10"
+        :threshold="16"
+        threshold-priority="normaal"
+        :min-berichtcode="5"
+        :max-berichtcode="6"
       />
 
       <!-- Flow Begin -->
@@ -41,6 +53,11 @@
         data-key="flow_begin"
         label="Flow Begin"
         unit="L/min"
+        :min-threshold="0.1"
+        :threshold="999"
+        threshold-priority="hoog"
+        :min-berichtcode="7"
+        :max-berichtcode="7"
       />
 
       <!-- Flow Eind -->
@@ -49,6 +66,11 @@
         data-key="flow_eind"
         label="Flow Eind"
         unit="L/min"
+        :min-threshold="0.1"
+        :threshold="999"
+        threshold-priority="hoog"
+        :min-berichtcode="1"
+        :max-berichtcode="7"
       />
 
       <!-- Lichtweerstand -->
@@ -57,6 +79,11 @@
         data-key="lichtweerstand"
         label="Lichtweerstand"
         unit="Ω"
+        :min-threshold="600"
+        :threshold="700"
+        threshold-priority="normaal"
+        :min-berichtcode="8"
+        :max-berichtcode="9"
       />
     </div>
   </div>
