@@ -162,7 +162,8 @@ if (authDisabled) {
   keycloak
     .init({
       onLoad: 'login-required',
-      pkceMethod: 'S256'
+      pkceMethod: 'S256',
+      redirectUri: window.location.origin + '/dashboard'
     })
     .then(authenticated => {
       if (!authenticated) return
