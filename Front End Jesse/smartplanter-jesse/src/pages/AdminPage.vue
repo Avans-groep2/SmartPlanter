@@ -33,11 +33,18 @@
     <!-- ================== Planters Tabel ================== -->
     <div class="adminContainer">
       <div class="adminTitle">
+        <!-- Users dropdown: UserID als value, Username tonen, alfabetisch -->
         <select v-model="selectedUserID">
-          <option v-for="user in uniqueUserIDs" :key="user" :value="user">
-            {{ user }}
+          <option
+            v-for="user in sortedUsers"
+            :key="user.UserID"
+            :value="user.UserID"
+          >
+            {{ user.Username }}
           </option>
         </select>
+
+        <!-- Devices dropdown -->
         <select v-model="selectedDeviceID">
           <option
             v-for="device in devices"
@@ -47,9 +54,9 @@
             {{ device.TtnDeviceID }}
           </option>
         </select>
+
         <input v-model="selectedPlantenTeller" placeholder="PlantenTeller" type="number"/>
         <input v-model="selectedDeviceNaam" placeholder="Device Naam" />
-
 
         <button @click="koppel">Koppelen</button>
       </div>
@@ -57,7 +64,7 @@
       <table class="deviceTable">
         <thead>
           <tr>
-            <th>UserID</th>
+            <th>Username</th>
             <th>DeviceID</th>
             <th>PlantenTeller</th>
             <th>DeviceNaam</th>
@@ -66,7 +73,7 @@
 
         <tbody>
           <tr v-for="(planter, index) in planters" :key="index">
-            <td>{{ planter.UserID }}</td>
+            <td>{{ getUsername(planter.UserID) }}</td>
             <td>{{ planter.DeviceID }}</td>
             <td>{{ planter.PlantenTeller }}</td>
             <td>{{ planter.DeviceNaam }}</td>
@@ -97,94 +104,115 @@ export default {
       newDeviceId: '',
 
       planters: [],
-      selectedUserID: '',
       selectedDeviceID: '',
       selectedPlantenTeller: '',
       selectedDeviceNaam: '',
 
-      koppelingen: []
+      users: [],
+      selectedUserID: '' // UserID opgeslagen voor backend
     }
   },
 
   mounted() {
-    fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Devices')
-      .then(res => res.json())
-      .then(data => {
-        this.devices = data
-        if (data.length) this.selectedDeviceID = data[0].TtnDeviceID
-      })
-      .catch(err => console.error('Fout bij ophalen devices:', err))
-
-    fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter')
-      .then(res => res.json())
-      .then(data => {
-        this.planters = data
-        if (data.length) this.selectedUserID = data[0].UserID
-      })
-      .catch(err => console.error('Fout bij ophalen planters:', err))
+    this.loadDevices()
+    this.loadPlanters()
+    this.loadUsers()
   },
 
   computed: {
-    uniqueUserIDs() {
-      return [...new Set(this.planters.map(p => p.UserID))]
+    // Alle users alfabetisch op Username
+    sortedUsers() {
+      return [...this.users].sort((a, b) => {
+        if (a.Username.toLowerCase() < b.Username.toLowerCase()) return -1
+        if (a.Username.toLowerCase() > b.Username.toLowerCase()) return 1
+        return 0
+      })
     }
   },
 
   methods: {
+    // Devices ophalen
+    loadDevices() {
+      fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Devices')
+        .then(res => res.json())
+        .then(data => {
+          this.devices = data
+          if (!this.selectedDeviceID && data.length) {
+            this.selectedDeviceID = data[data.length - 1].TtnDeviceID
+          }
+        })
+        .catch(err => console.error('Fout bij ophalen devices:', err))
+    },
+
+    // Planters ophalen
+    loadPlanters() {
+      fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter')
+        .then(res => res.json())
+        .then(data => { this.planters = data })
+        .catch(err => console.error('Fout bij ophalen planters:', err))
+    },
+
+    // Users ophalen
+    loadUsers() {
+      fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Users')
+        .then(res => res.json())
+        .then(data => {
+          this.users = data
+          if (!this.selectedUserID && data.length) {
+            this.selectedUserID = data[0].UserID
+          }
+        })
+        .catch(err => console.error('Fout bij ophalen users:', err))
+    },
+
+    // Device toevoegen
     addDevice() {
-  if (!this.newDeviceId.trim()) return
+      if (!this.newDeviceId.trim()) return
 
-  const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Devices&ttnDeviceID=${this.newDeviceId}`
+      const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Devices&TtnDeviceID=${this.newDeviceId}`
 
-  fetch(url) 
-    .then(res => {
-      if (!res.ok) throw new Error('Fout bij toevoegen device')
+      fetch(url)
+        .then(res => {
+          if (!res.ok) throw new Error('Fout bij toevoegen device')
 
-      // leegmaken van het inputveld
-      this.newDeviceId = ''
+          this.newDeviceId = ''
+          return this.loadDevices()
+        })
+        .catch(err => {
+          console.error(err)
+          alert('Device kon niet worden toegevoegd')
+        })
+    },
 
-      // tabel herladen
-      return fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Devices')
-    })
-    .then(res => res.json())
-    .then(data => {
-      this.devices = data
-      if (data.length) this.selectedDeviceID = data[0].TtnDeviceID
-    })
-    .catch(err => {
-      console.error(err)
-      alert('Device kon niet worden toegevoegd')
-    })
-},
-
+    // Koppelen van User → Device
     koppel() {
-  if (!this.selectedUserID || !this.selectedDeviceID) return
+      if (!this.selectedUserID || !this.selectedDeviceID) return
 
-  const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Planter` +
-              `&userID=${this.selectedUserID}` +
-              `&deviceID=${this.selectedDeviceID}` +
-              `&plantenTeller=${this.selectedPlantenTeller}` +
-              `&deviceNaam=${this.selectedDeviceNaam}`
+      const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Planter` +
+                  `&userID=${this.selectedUserID}` +
+                  `&deviceID=${this.selectedDeviceID}` +
+                  `&plantenTeller=${this.selectedPlantenTeller}` +
+                  `&deviceNaam=${this.selectedDeviceNaam}`
 
-  fetch(url)
-    .then(res => {
-      if (!res.ok) throw new Error('Fout bij toevoegen planter')
+      fetch(url)
+        .then(res => {
+          if (!res.ok) throw new Error('Fout bij toevoegen planter')
 
-      // reset velden
+          this.selectedPlantenTeller = ''
+          this.selectedDeviceNaam = ''
+          return this.loadPlanters()
+        })
+        .catch(err => {
+          console.error(err)
+          alert('Planter kon niet worden toegevoegd')
+        })
+    },
 
-      // tabel herladen
-      return fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter')
-    })
-    .then(res => res.json())
-    .then(data => {
-      this.planters = data
-      if (data.length) this.selectedUserID = data[0].UserID
-    })
-    .catch(err => {
-      console.error(err)
-      alert('Planter kon niet worden toegevoegd')
-    })
-}
+    // Helper: UserID → Username
+    getUsername(userID) {
+      const user = this.users.find(u => u.UserID === userID)
+      return user ? user.Username : userID
+    }
   }
 }
 </script>
@@ -195,7 +223,6 @@ export default {
   color: var(--text);
 }
 
-/* ================= Containers ================= */
 .adminContainer {
   background: var(--light);
   width: 90%;
@@ -204,7 +231,6 @@ export default {
   padding: 1rem;
 }
 
-/* ================= Controls ================= */
 .adminTitle {
   display: flex;
   align-items: center;
@@ -230,13 +256,11 @@ button {
   cursor: pointer;
 }
 
-/* ================= Tables ================= */
 .deviceTable {
   width: 100%;
   border-collapse: collapse;
 }
 
-/* Header */
 .deviceTable thead {
   display: table;
   width: 100%;
@@ -250,7 +274,6 @@ button {
   border-bottom: 1px solid var(--icon);
 }
 
-/* Body – voorkomt verspringen */
 .deviceTable tbody {
   display: block;
   min-height: 11rem;
@@ -258,7 +281,6 @@ button {
   overflow-y: auto;      
 }
 
-/* Rows */
 .deviceTable tbody tr {
   display: table;
   width: 100%;
@@ -270,7 +292,6 @@ button {
   border: none;
 }
 
-/* Empty state */
 .emptyRow {
   text-align: center;
   color: var(--icon);
