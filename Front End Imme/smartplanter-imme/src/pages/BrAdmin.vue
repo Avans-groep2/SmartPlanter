@@ -93,106 +93,145 @@
   </div>
 </template>
 
-<script setup>
+Natuurlijk! Ik zal de code omzetten naar de standaard setup() functie binnen de export default structuur. Dit is vaak nodig als je werkt met oudere Vue 3 projecten of specifieke configuraties.
+
+Hier is de volledige code waarbij de logica nu in de setup() functie staat, inclusief de correcties voor de veldnamen en de HTTPS-beveiliging die we in de screenshots zagen:
+
+JavaScript
+<script>
 import { ref, onMounted, computed } from 'vue';
 
-// 1. Reactive data
-const devicesRaw = ref([]);
-const planterData = ref([]);
-const loading = ref(false);
+export default {
+  name: 'AdminPage',
+  setup() {
+    // 1. Reactive data (via ref)
+    const devicesRaw = ref([]);
+    const planterData = ref([]);
+    const loading = ref(false);
 
-// Formuliervelden
-const deviceIdKeuze = ref("");
-const gekozenUserId = ref("");
-const gekozenDeviceID = ref("");
-const plantenTellerKeuze = ref(null);
-const deviceNaamKeuze = ref("");
+    // Formuliervelden
+    const deviceIdKeuze = ref("");
+    const gekozenUserId = ref("");
+    const gekozenDeviceID = ref("");
+    const plantenTellerKeuze = ref(0); // Voorkomt ER_BAD_NULL_ERROR
+    const deviceNaamKeuze = ref("");
 
-// UI State
-const userDropdownOpen = ref(false);
-const deviceDropdownOpen = ref(false);
+    // UI State voor dropdowns
+    const userDropdownOpen = ref(false);
+    const deviceDropdownOpen = ref(false);
 
-// 2. Data ophalen
-const laadAlleData = async () => {
-  loading.value = true;
-  try {
-    // Gebruik HTTPS om de Mixed Content error te voorkomen!
-    const [resDev, resPlan] = await Promise.all([
-      fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Devices'),
-      fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter')
-    ]);
+    // 2. Data ophalen via HTTPS
+    const laadAlleData = async () => {
+      loading.value = true;
+      try {
+        const [resDev, resPlan] = await Promise.all([
+          fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Devices'),
+          fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter')
+        ]);
 
-    devicesRaw.value = await resDev.json();
-    planterData.value = await resPlan.json();
-  } catch (err) {
-    console.error("Fout bij laden:", err);
-  } finally {
-    loading.value = false;
+        devicesRaw.value = await resDev.json();
+        planterData.value = await resPlan.json();
+      } catch (err) {
+        console.error("Fout bij laden:", err);
+      } finally {
+        loading.value = false;
+      }
+    };
+
+    // 3. Computed properties voor de dropdowns
+    const opgeschoondeDevices = computed(() => {
+      // Gebruikt TtnDeviceID zoals gezien in jouw network response
+      return devicesRaw.value.map(d => d.TtnDeviceID).filter(id => id);
+    });
+
+    const uniekeUsers = computed(() => {
+      // Gebruikt UserID zoals gezien in jouw network response
+      const users = planterData.value.map(p => p.UserID);
+      return [...new Set(users)].filter(u => u);
+    });
+
+    // 4. Acties (GET requests)
+    const insertNieuwDevice = async () => {
+      if (!deviceIdKeuze.value.trim()) return alert("Vul een Device ID in");
+      
+      const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Devices&TtnDeviceID=${encodeURIComponent(deviceIdKeuze.value.trim())}`;
+      
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        
+        if (data.error) {
+          alert("Fout van server: " + data.code);
+        } else {
+          deviceIdKeuze.value = "";
+          await laadAlleData();
+          alert("Device succesvol toegevoegd!");
+        }
+      } catch (err) {
+        alert("Netwerkfout bij toevoegen");
+      }
+    };
+
+    const opslaanKoppeling = async () => {
+      if (!gekozenUserId.value || !gekozenDeviceID.value) {
+        return alert("Selecteer eerst een gebruiker en device");
+      }
+
+      // Parameters afgestemd op jouw database velden
+      const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Planter&UserID=${encodeURIComponent(gekozenUserId.value)}&DeviceID=${encodeURIComponent(gekozenDeviceID.value)}&PlantenTeller=${plantenTellerKeuze.value}&DeviceNaam=${encodeURIComponent(deviceNaamKeuze.value)}`;
+      
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        
+        if (data.error) {
+          alert("Koppel fout: " + data.code);
+        } else {
+          gekozenUserId.value = "";
+          gekozenDeviceID.value = "";
+          plantenTellerKeuze.value = 0;
+          deviceNaamKeuze.value = "";
+          await laadAlleData();
+          alert("Koppeling succesvol aangemaakt!");
+        }
+      } catch (err) {
+        alert("Koppelen mislukt door netwerkfout");
+      }
+    };
+
+    // 5. UI Dropdown Logica
+    const toggleUserDropdown = () => {
+      deviceDropdownOpen.value = false;
+      userDropdownOpen.value = !userDropdownOpen.value;
+    };
+
+    const toggleDeviceDropdown = () => {
+      userDropdownOpen.value = false;
+      deviceDropdownOpen.value = !deviceDropdownOpen.value;
+    };
+
+    const selecteerUser = (u) => {
+      gekozenUserId.value = u;
+      userDropdownOpen.value = false;
+    };
+
+    const selecteerDevice = (d) => {
+      gekozenDeviceID.value = d;
+      deviceDropdownOpen.value = false;
+    };
+
+    onMounted(() => {
+      laadAlleData();
+    });
+
+    // BELANGRIJK: Alles wat de template gebruikt moet hier geretourneerd worden!
+    return {
+      devicesRaw, planterData, loading, deviceIdKeuze, gekozenUserId, gekozenDeviceID, plantenTellerKeuze, deviceNaamKeuze,
+      userDropdownOpen, deviceDropdownOpen, opgeschoondeDevices, uniekeUsers, laadAlleData, insertNieuwDevice, opslaanKoppeling,
+      toggleUserDropdown, toggleDeviceDropdown, selecteerUser, selecteerDevice
+    };
   }
 };
-
-// 3. Computed properties voor de dropdowns
-const opgeschoondeDevices = computed(() => {
-  // We pakken de TtnDeviceID property uit elk object
-  return devicesRaw.value.map(d => d.TtnDeviceID).filter(id => id);
-});
-
-const uniekeUsers = computed(() => {
-  // We pakken de UserID uit de planter tabel voor de dropdown
-  const users = planterData.value.map(p => p.UserID);
-  return [...new Set(users)].filter(u => u);
-});
-
-// 4. Acties (GET requests voor inserts)
-const insertNieuwDevice = async () => {
-  if (!deviceIdKeuze.value.trim()) return;
-  
-  // URL aanpassen naar smartplantedit zoals je vroeg
-  const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Devices&TtnDeviceID=${encodeURIComponent(deviceIdKeuze.value)}`;
-  
-  try {
-    const res = await fetch(url);
-    if (res.ok) {
-      deviceIdKeuze.value = "";
-      await laadAlleData();
-      alert("Device toegevoegd!");
-    }
-  } catch (err) {
-    alert("Kon device niet toevoegen");
-  }
-};
-
-const opslaanKoppeling = async () => {
-  if (!gekozenUserId.value || !gekozenDeviceID.value) {
-    alert("Selecteer eerst een gebruiker en device");
-    return;
-  }
-
-  const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Planter&UserID=${gekozenUserId.value}&DeviceID=${gekozenDeviceID.value}&PlantenTeller=${plantenTellerKeuze.value}&DeviceNaam=${encodeURIComponent(deviceNaamKeuze.value)}`;
-  
-  try {
-    const res = await fetch(url);
-    if (res.ok) {
-      // Reset
-      gekozenUserId.value = "";
-      gekozenDeviceID.value = "";
-      plantenTellerKeuze.value = null;
-      deviceNaamKeuze.value = "";
-      await laadAlleData();
-      alert("Koppeling succesvol!");
-    }
-  } catch (err) {
-    alert("Koppelen mislukt");
-  }
-};
-
-// Dropdown functies
-const selecteerUser = (u) => { gekozenUserId.value = u; userDropdownOpen.value = false; };
-const selecteerDevice = (d) => { gekozenDeviceID.value = d; deviceDropdownOpen.value = false; };
-
-onMounted(() => {
-  laadAlleData();
-});
 </script>
 
 <style>
