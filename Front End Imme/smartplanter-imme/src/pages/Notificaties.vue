@@ -33,9 +33,7 @@
         <tr>
           <th>Moestuin</th>
           <th>Melding</th>
-          <th>
-            <button class="verwijderMeldingKnop" @click="verwijderMelding(melding)">✖</button>
-          </th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -43,6 +41,9 @@
         :key="melding.MeldingID">
           <td>{{ melding.DeviceID }}</td>
           <td>{{ melding.Bericht }}</td>
+          <td>
+             <button class="verwijderMeldingKnop" @click="verwijderMelding(melding)">✖</button>
+          </td>
         </tr>
       </tbody>
     </table>
@@ -146,24 +147,16 @@ export default {
 
   methods: {
     async verwijderMelding(melding) {
-    const meldingID = melding.MeldingID;
-    if (!meldingID) return;
+  const meldingID = melding.MeldingID;
+  if (!meldingID) return;
 
-    // 1. Lokale UI update (rij verdwijnt direct)
-    // We filteren de meldingen in de 'setup' variabele via de store of lokale ref
-    this.meldingen = this.meldingen.filter((m) => m.MeldingID !== meldingID);
+  // Update de UI direct (gebruik .value niet bij 'this' in methods)
+  this.meldingen = this.meldingen.filter((m) => m.MeldingID !== meldingID);
 
-    // 2. Request naar backend (cleardata API)
-    const url = `https://smartplanters.dedyn.io:1880/cleardata?table=Meldingen&meldingID=${meldingID}`;
-    
-    try {
-      fetch(url, { method: "GET" });
-      // Je kunt hier eventueel een toast/melding tonen zoals je medestudent
-      console.log("Melding verwijderd uit DB");
-    } catch (error) {
-      console.error("Fout bij verwijderen:", error);
-    }
-  },
+  const url = `https://smartplanters.dedyn.io:1880/cleardata?table=Meldingen&meldingID=${meldingID}`;
+  fetch(url, { method: "GET" });
+  console.log("Melding verwijderd");
+},
 
     toggleDropdown() {
       this.open = !this.open;

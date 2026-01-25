@@ -23,7 +23,7 @@
           <tr v-for="(id, index) in opgeschoondeDevices" :key="index">
             <td>{{ id }}</td>
             <td>
-              <button class="verwijderKnop" @click="verwijderDevice(id)">Verwijder</button>
+              <button class="verwijderKnop" @click="verwijderDevice(id)">✖</button>
             </td>
           </tr>
           <tr v-if="opgeschoondeDevices.length === 0 && !loading">
@@ -92,7 +92,7 @@
             <td>{{ planter.PlantenTeller }}</td>
             <td>{{ planter.DeviceNaam }}</td>
             <td>
-              <button class="verwijderKnop" @click="verwijderKoppeling(planter.UserID, planter.DeviceID)">Verwijder</button>
+              <button class="verwijderKnop" @click="verwijderKoppeling(planter.UserID, planter.DeviceID)">✖</button>
             </td>
           </tr>
         </tbody>
@@ -198,7 +198,7 @@ const insertNieuwDevice = async () => {
   }
 };
 
-const verwijderDevice = async (ttnID) => {
+/*const verwijderDevice = async (ttnID) => {
   if (!ttnID) return;
 
   // 1. Verwijder direct uit de lokale lijst (UI update zoals medestudent)
@@ -211,6 +211,17 @@ const verwijderDevice = async (ttnID) => {
 
   // 3. Melding aan de gebruiker
   alert("Device succesvol verwijderd");
+}; */
+
+const verwijderDevice = async (ttnID) => {
+  if (!ttnID) return;
+  devicesRaw.value = devicesRaw.value.filter((d) => d.TtnDeviceID !== ttnID);
+
+  // Verander 'ttnDeviceID' naar de naam die jouw backend exact verwacht (bijv. deviceID?)
+  const url = `https://smartplanters.dedyn.io:1880/cleardata?table=Devices&ttnDeviceID=${encodeURIComponent(ttnID)}`;
+  
+  fetch(url, { method: "GET" });
+  alert("Device verwijderd");
 };
 
 const verwijderKoppeling = async (userID, deviceID) => {
