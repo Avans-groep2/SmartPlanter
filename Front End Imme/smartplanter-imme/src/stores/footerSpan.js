@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia'
-/*import keycloak from 'keycloak-js'*/
 
 export const useFooterSpan = defineStore('footerSpan', {
   state: () => ({

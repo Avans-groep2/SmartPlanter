@@ -27,11 +27,9 @@ export default {
     }
   },
   mounted() {
-    // Haal de instantie op die we in main.js hebben ingesteld
     const keycloak = this.$keycloak;
     
     if (keycloak && keycloak.authenticated) {
-      // Probeer username uit diverse velden te halen
       this.username = keycloak.tokenParsed.preferred_username || keycloak.tokenParsed.name || 'Gebruiker';
       this.token = keycloak.token;
     }
@@ -80,7 +78,4 @@ NavBar {
 body {
   background-color: #e7e6dc;
 }
-
-/*#e7e3d3;*/
-
 </style>

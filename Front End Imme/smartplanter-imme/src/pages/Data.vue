@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import { ref, onMounted, onBeforeUnmount, computed, markRaw } from 'vue'
+import { ref, computed, markRaw, beforeUnmount } from 'vue'
 import { Chart } from 'chart.js/auto'
 import { useFooterSpan } from '../stores/footerSpan';
 import { useMoestuinStore } from '../stores/moestuinScherm';
@@ -365,7 +365,6 @@ export default {
   background-color: #3c803c;
 }
 
-/*-------statusTekstKleur-----------*/
 
 .status {
   font-weight: bold;
