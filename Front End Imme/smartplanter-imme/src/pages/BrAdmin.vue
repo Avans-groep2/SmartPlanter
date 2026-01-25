@@ -82,7 +82,7 @@
         </thead>
         <tbody>
           <tr v-for="(planter, index) in planterData" :key="index">
-            <td>{{ planter.userID }}</td>
+            <td>{{ planter.UserID }}</td>
             <td>{{ planter.DeviceID }}</td>
             <td>{{ planter.PlantenTeller }}</td>
             <td>{{ planter.DeviceNaam }}</td>
@@ -145,23 +145,22 @@ export default {
       return [...new Set(users)].filter(u => u);
     });
 
-    const insertNieuwDevice = async () => {
+const insertNieuwDevice = async () => {
   if (!deviceIdKeuze.value.trim()) return alert("Vul een Device ID in");
   
-  // We veranderen 'deviceId' terug naar 'TtnDeviceID' (zoals in de database)
-  const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Devices&TtnDeviceID=${encodeURIComponent(deviceIdKeuze.value.trim())}`;
+  // Verander 'TtnDeviceID' naar 'ttnDeviceID' (kleine 't')
+  const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Devices&ttnDeviceID=${encodeURIComponent(deviceIdKeuze.value.trim())}`;
   
   try {
     const res = await fetch(url);
     const data = await res.json();
     
     if (data.error) {
-       // Als dit een 'ER_DUP_ENTRY' geeft, bestaat het device al.
        alert("Database Error: " + data.code);
     } else {
       deviceIdKeuze.value = "";
-      await laadAlleData();
-      alert("Device succesvol toegevoegd aan de lijst!");
+      await laadAlleData(); // Vernieuwt de lijst zodat het nieuwe device in de dropdown komt
+      alert("Device succesvol toegevoegd!");
     }
   } catch (err) {
     alert("Fout bij device aanmaken: " + err.message);
