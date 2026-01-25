@@ -37,8 +37,6 @@ const keycloakConfig = {
 }
 
 const keycloak = new Keycloak(keycloakConfig)
-
-// beschikbaar maken voor router guards
 setKeycloak(keycloak)
 
 /* ======================================================
@@ -48,7 +46,7 @@ function buildUserObject() {
   if (!keycloak.tokenParsed) return null
 
   const {
-    sub,               // ← Keycloak user ID
+    sub,
     preferred_username,
     email,
     given_name,
@@ -57,17 +55,12 @@ function buildUserObject() {
   } = keycloak.tokenParsed
 
   return {
-    id: sub,           // ← hier is je ID beschikbaar
-    sub,               // optioneel, Keycloak puur
+    id: sub,
     username: preferred_username,
     email,
     firstName: given_name,
     lastName: family_name,
     fullName: `${given_name ?? ''} ${family_name ?? ''}`.trim(),
-    firstLetter:
-      given_name?.charAt(0)?.toUpperCase() ??
-      preferred_username?.charAt(0)?.toUpperCase() ??
-      '?',
     roles: realm_access?.roles ?? []
   }
 }
@@ -79,10 +72,10 @@ function createDevAuth() {
   return {
     keycloak: null,
     user: {
+      id: 'tester',
       username: 'dev',
       fullName: 'Developer Mode',
-      roles: ['beheerder'],
-      id: 'tester'       // ook hier ID toevoegen voor dev mode
+      roles: ['beheerder']
     },
     logout() {},
     refresh() {}
@@ -106,6 +99,57 @@ const auth = {
 }
 
 /* ======================================================
+   USER CHECK + INSERT
+====================================================== */
+function ensureUserExists() {
+  const userID = keycloak.tokenParsed?.sub
+  const username = keycloak.tokenParsed?.preferred_username
+  const rights = 'read'
+
+  if (!userID || !username) {
+    console.error('❌ User gegevens ontbreken')
+    return
+  }
+
+  const DATA_URL =
+    'https://smartplanters.dedyn.io:1880/smartplantdata?table=Users'
+
+  const INSERT_URL =
+    `https://smartplanters.dedyn.io:1880/smartplantedit?table=Users` +
+    `&userID=${encodeURIComponent(userID)}` +
+    `&Username=${encodeURIComponent(username)}` +
+    `&Rights=${rights}`
+
+  fetch(DATA_URL)
+    .then(res => res.json())
+    .then(users => {
+      const exists = users.some(
+        u => u.UserID === userID && u.Username === username
+      )
+
+      if (exists) {
+        return
+      }
+
+      return fetch(INSERT_URL)
+    })
+    .then(res => {
+      if (!res) return
+
+      if (res.ok) {
+        console.log('✅ User succesvol toegevoegd aan database')
+      } else {
+        return res.text().then(text => {
+          console.error('❌ Fout bij toevoegen user:', text)
+        })
+      }
+    })
+    .catch(err => {
+      console.error('❌ Netwerkfout bij user check/toevoegen:', err)
+    })
+}
+
+/* ======================================================
    APP INITIALISATIE
 ====================================================== */
 if (authDisabled) {
@@ -115,61 +159,28 @@ if (authDisabled) {
   app.config.globalProperties.$auth = createDevAuth()
   app.use(router)
   app.mount('#app')
-} keycloak
-  .init({
-    onLoad: 'login-required',
-    pkceMethod: 'S256'
-  })
-  .then((authenticated) => {
-    if (!authenticated) {
-      console.warn('⚠️ Keycloak authentication failed or canceled.')
-      return
-    }
+} else {
+  keycloak
+    .init({
+      onLoad: 'login-required',
+      pkceMethod: 'S256'
+    })
+    .then(authenticated => {
+      if (!authenticated) return
 
-    console.log('✅ Authenticated')
+      ensureUserExists()
 
-// 🚀 Voeg user toe bij login met alle vereiste velden
-const userID = keycloak.tokenParsed?.sub;
-const username = keycloak.tokenParsed?.preferred_username;
-const rights = 'read';
+      const app = createApp(App)
+      app.config.globalProperties.$auth = auth
+      app.use(router)
+      app.mount('#app')
 
-console.log("Debug: userID:", userID, "username:", username, "rights:", rights);
-
-if (userID && username) {
-  const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Users&userID=${encodeURIComponent(userID)}&username=${username}&rights=${rights}`;
-  
-  console.log("Debug: URL die wordt opgevraagd:", url);
-
-  fetch(url)
-    .then(res => {
-      console.log("Debug: fetch voltooid, response status:", res.status, res.statusText);
-      if (!res.ok) {
-        return res.text().then(text => {
-          console.error(`❌ Fout bij toevoegen UserID: ${res.statusText}`, text);
-        });
-      } else {
-        console.log(`✅ UserID "${userID}" met username "${username}" en rights "${rights}" is toegevoegd of bestaat al`);
-      }
+      startTokenRefresh()
     })
     .catch(err => {
-      console.error("Fout bij fetch:", err);
-    });
-} else {
-  console.error("❌ Geen userID of username beschikbaar");
+      console.error('❌ Keycloak authenticatie mislukt:', err)
+    })
 }
-
-
-
-    const app = createApp(App)
-    app.config.globalProperties.$auth = auth
-    app.use(router)
-    app.mount('#app')
-
-    startTokenRefresh()
-  })
-  .catch((error) => {
-    console.error('❌ Authentication Failed', error)
-  })
 
 /* ======================================================
    TOKEN AUTO REFRESH
@@ -178,13 +189,8 @@ function startTokenRefresh() {
   setInterval(() => {
     keycloak
       .updateToken(70)
-      .then((refreshed) => {
-        if (refreshed) {
-          console.log('🔄 Token refreshed')
-        }
-      })
       .catch(() => {
-        console.error('❌ Failed to refresh token')
+        console.error('❌ Token refresh mislukt')
       })
   }, 60000)
 }
