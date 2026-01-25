@@ -16,11 +16,15 @@
         <thead>
           <tr>
             <th>Device ID</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="(id, index) in opgeschoondeDevices" :key="index">
             <td>{{ id }}</td>
+            <td>
+              <button class="verwijderKnop" @click="verwijderDevice(id)">Verwijder</button>
+            </td>
           </tr>
           <tr v-if="opgeschoondeDevices.length === 0 && !loading">
             <td>Geen devices gevonden in de database.</td>
@@ -78,6 +82,7 @@
             <th>DeviceID</th>
             <th>PlantenTeller</th>
             <th>DeviceNaam</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -86,6 +91,9 @@
             <td>{{ planter.DeviceID }}</td>
             <td>{{ planter.PlantenTeller }}</td>
             <td>{{ planter.DeviceNaam }}</td>
+            <td>
+              <button class="verwijderKnop" @click="verwijderKoppeling(planter.UserID, planter.DeviceID)">Verwijder</button>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -112,7 +120,6 @@ export default {
     const userDropdownOpen = ref(false);
     const deviceDropdownOpen = ref(false);
 
-    // ALTIJD HTTPS GEBRUIKEN VOOR AZURE
     const laadAlleData = async () => {
       loading.value = true;
       try {
@@ -124,9 +131,6 @@ export default {
         devicesRaw.value = await resDev.json();
         planterData.value = await resPlan.json();
 
-        console.log("Devices uit DB:", devicesRaw.value);
-        console.log("Planters uit DB", planterData.value);
-
       } catch (err) {
         console.error("Fout bij laden:", err);
       } finally {
@@ -135,12 +139,10 @@ export default {
     };
 
     const opgeschoondeDevices = computed(() => {
-      // Gebruik exact 'TtnDeviceID' met hoofdletters T en D
       return devicesRaw.value.map(d => d.TtnDeviceID).filter(id => id);
     });
 
     const uniekeUsers = computed(() => {
-      // Gebruik exact 'UserID' met hoofdletters U, I en D
       const users = planterData.value.map(p => p.UserID);
       return [...new Set(users)].filter(u => u);
     });
@@ -148,7 +150,6 @@ export default {
 const insertNieuwDevice = async () => {
   if (!deviceIdKeuze.value.trim()) return alert("Vul een Device ID in");
   
-  // Verander 'TtnDeviceID' naar 'ttnDeviceID' (kleine 't')
   const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Devices&ttnDeviceID=${encodeURIComponent(deviceIdKeuze.value.trim())}`;
   
   try {
@@ -159,7 +160,7 @@ const insertNieuwDevice = async () => {
        alert("Database Error: " + data.code);
     } else {
       deviceIdKeuze.value = "";
-      await laadAlleData(); // Vernieuwt de lijst zodat het nieuwe device in de dropdown komt
+      await laadAlleData(); 
       alert("Device succesvol toegevoegd!");
     }
   } catch (err) {
@@ -172,14 +173,11 @@ const insertNieuwDevice = async () => {
     return alert("Selecteer eerst een gebruiker en device");
   }
 
-  // We veranderen de namen naar kleine letters om te matchen met zijn code-logic
   const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Planter` +
               `&userID=${encodeURIComponent(gekozenUserId.value)}` +
               `&deviceID=${encodeURIComponent(gekozenDeviceID.value)}` +
               `&plantenTeller=${plantenTellerKeuze.value}` +
               `&deviceNaam=${encodeURIComponent(deviceNaamKeuze.value || 'Nieuwe Planter')}`;
-  
-  console.log("Versturen naar API:", url);
 
   try {
     const res = await fetch(url);
@@ -187,7 +185,6 @@ const insertNieuwDevice = async () => {
     
     if (data.error) {
       alert("Database Error: " + data.code); 
-      console.error("Details:", data);
     } else {
       alert("Koppeling succesvol!");
       gekozenUserId.value = "";
@@ -198,6 +195,42 @@ const insertNieuwDevice = async () => {
     }
   } catch (err) {
     alert("Netwerkfout bij koppelen");
+  }
+};
+
+// Voeg deze functies toe aan je return object en setup
+const verwijderKoppeling = async (userID, deviceID) => {
+  if (!confirm(`Weet je zeker dat je de koppeling voor ${userID} wilt verwijderen?`)) return;
+
+  // De API van je medestudent verwacht waarschijnlijk de tabel en de sleutels om te wissen
+  const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Planter&delete=true&userID=${encodeURIComponent(userID)}&deviceID=${encodeURIComponent(deviceID)}`;
+
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data.error) throw new Error(data.code);
+    
+    alert("Koppeling verwijderd");
+    await laadAlleData();
+  } catch (err) {
+    alert("Fout bij verwijderen: " + err.message);
+  }
+};
+
+const verwijderDevice = async (ttnID) => {
+  if (!confirm(`Device ${ttnID} verwijderen uit de database?`)) return;
+
+  const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Devices&delete=true&ttnDeviceID=${encodeURIComponent(ttnID)}`;
+
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data.error) throw new Error(data.code);
+
+    alert("Device verwijderd");
+    await laadAlleData();
+  } catch (err) {
+    alert("Fout bij verwijderen: " + err.message);
   }
 };
 
@@ -228,7 +261,7 @@ const insertNieuwDevice = async () => {
 <style>
 .koppelMaken {
   display: flex;
-  flex-wrap: wrap; /* Zorgt dat het netjes blijft op kleine schermen */
+  flex-wrap: wrap; 
   gap: 10px;
   align-items: center;
 }
@@ -348,5 +381,18 @@ const insertNieuwDevice = async () => {
   color: #888;
 }
 
+.delete-btn {
+  background-color: #bc4749; /* Roodachtig */
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.delete-btn:hover {
+  background-color: #a33b3d;
+}
 
 </style>
