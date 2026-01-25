@@ -17,6 +17,7 @@
         class="prioriteit-hoog">
           <td>{{ melding.DeviceID }}</td>
           <td>{{ melding.Bericht }}</td>
+          <td></td>
         </tr>
       </tbody>
     </table>
@@ -32,6 +33,9 @@
         <tr>
           <th>Moestuin</th>
           <th>Melding</th>
+          <th>
+            <button class="verwijderMeldingKnop" @click="verwijderMelding(melding)">✖</button>
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -141,6 +145,26 @@ export default {
   },
 
   methods: {
+    async verwijderMelding(melding) {
+    const meldingID = melding.MeldingID;
+    if (!meldingID) return;
+
+    // 1. Lokale UI update (rij verdwijnt direct)
+    // We filteren de meldingen in de 'setup' variabele via de store of lokale ref
+    this.meldingen = this.meldingen.filter((m) => m.MeldingID !== meldingID);
+
+    // 2. Request naar backend (cleardata API)
+    const url = `https://smartplanters.dedyn.io:1880/cleardata?table=Meldingen&meldingID=${meldingID}`;
+    
+    try {
+      fetch(url, { method: "GET" });
+      // Je kunt hier eventueel een toast/melding tonen zoals je medestudent
+      console.log("Melding verwijderd uit DB");
+    } catch (error) {
+      console.error("Fout bij verwijderen:", error);
+    }
+  },
+
     toggleDropdown() {
       this.open = !this.open;
     },
@@ -314,6 +338,28 @@ export default {
 
 .inspiratieKnop:hover {
   background-color: #3c803c;
+}
+
+.verwijderMeldingKnop {
+  background-color: #bc4749;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s;
+}
+
+.verwijderMeldingKnop:hover {
+  background-color: #a33b3d;
+}
+
+/* Zorg dat de tabelkolom voor de knop smal is */
+.meldingen-tabel th:last-child, 
+.meldingen-tabel td:last-child {
+  text-align: right;
+  width: 50px;
 }
 
 </style>

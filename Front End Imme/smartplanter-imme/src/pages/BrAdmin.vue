@@ -198,40 +198,34 @@ const insertNieuwDevice = async () => {
   }
 };
 
-// Voeg deze functies toe aan je return object en setup
-const verwijderKoppeling = async (userID, deviceID) => {
-  if (!confirm(`Weet je zeker dat je de koppeling voor ${userID} wilt verwijderen?`)) return;
+const verwijderDevice = async (ttnID) => {
+  if (!ttnID) return;
 
-  // De API van je medestudent verwacht waarschijnlijk de tabel en de sleutels om te wissen
-  const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Planter&delete=true&userID=${encodeURIComponent(userID)}&deviceID=${encodeURIComponent(deviceID)}`;
+  // 1. Verwijder direct uit de lokale lijst (UI update zoals medestudent)
+  devicesRaw.value = devicesRaw.value.filter((d) => d.TtnDeviceID !== ttnID);
 
-  try {
-    const res = await fetch(url);
-    const data = await res.json();
-    if (data.error) throw new Error(data.code);
-    
-    alert("Koppeling verwijderd");
-    await laadAlleData();
-  } catch (err) {
-    alert("Fout bij verwijderen: " + err.message);
-  }
+  // 2. Stuur verzoek naar de specifieke 'cleardata' API
+  const url = `https://smartplanters.dedyn.io:1880/cleardata?table=Devices&ttnDeviceID=${encodeURIComponent(ttnID)}`;
+  
+  fetch(url, { method: "GET" });
+
+  // 3. Melding aan de gebruiker
+  alert("Device succesvol verwijderd");
 };
 
-const verwijderDevice = async (ttnID) => {
-  if (!confirm(`Device ${ttnID} verwijderen uit de database?`)) return;
+const verwijderKoppeling = async (userID, deviceID) => {
+  if (!userID || !deviceID) return;
 
-  const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Devices&delete=true&ttnDeviceID=${encodeURIComponent(ttnID)}`;
+  // 1. Verwijder direct uit de lokale lijst
+  planterData.value = planterData.value.filter((p) => !(p.UserID === userID && p.DeviceID === deviceID));
 
-  try {
-    const res = await fetch(url);
-    const data = await res.json();
-    if (data.error) throw new Error(data.code);
+  // 2. Stuur verzoek naar de 'cleardata' API
+  // Let op: controleer of de backend voor de Planter-tabel beide ID's nodig heeft
+  const url = `https://smartplanters.dedyn.io:1880/cleardata?table=Planter&userID=${encodeURIComponent(userID)}&deviceID=${encodeURIComponent(deviceID)}`;
+  
+  fetch(url, { method: "GET" });
 
-    alert("Device verwijderd");
-    await laadAlleData();
-  } catch (err) {
-    alert("Fout bij verwijderen: " + err.message);
-  }
+  alert("Koppeling succesvol verwijderd");
 };
 
     const toggleUserDropdown = () => {
