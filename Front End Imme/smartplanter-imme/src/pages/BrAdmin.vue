@@ -217,7 +217,6 @@ const verwijderDevice = async (ttnID) => {
   if (!ttnID) return;
   if (!confirm(`Weet je zeker dat je device ${ttnID} wilt verwijderen?`)) return;
 
-  // Let op de parameter 'deviceID', deze moet exact kloppen met Node-RED
   const url = `https://smartplanters.dedyn.io:1880/cleardata?table=Devices&deviceID=${encodeURIComponent(ttnID)}`;
   
   try {

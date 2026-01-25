@@ -52,23 +52,6 @@
     </table>
       <p v-else-if="!loading" class="geen-meldingen">Geen overige meldingen.</p>
     </div>
-    
-    <div v-if="isBeheerder" class="meldingenDropdownAdmin">
-        <div class="moestuinKeuzeDropDown" ref="dropdown">
-            <div class="dropdown-selected" @click.stop="toggleDropdown">
-                {{ gekozenMoestuin || 'Moestuin' }}
-                <span class="dropDown">▼</span>
-            </div>
-            <div v-if="open" class="dropdownKeuzes">
-                <div
-                    v-for="moestuin in moestuinen"
-                    :key="moestuin"
-                    class="dropdownKeuze"
-                    @click="selecteerMoestuin(moestuin)"
-                    >{{ moestuin }}</div>
-            </div>
-        </div>
-    </div>
 
     <div class="inspiratieKnop"> 
       <a href="https://www.keukenliefde.nl/kook-koelkast-leeg/" class="inspiraiteWebsite" style="color:white";>? </a>
@@ -91,12 +74,6 @@ export default {
 
     const meldingen = computed(() => moestuinStore.meldingen);
     const loading = computed(() => moestuinStore.loadingMeldingen);
-
-    const isBeheerder = computed(() => {
-      if (!footerStore.keycloak) return false;
-      return footerStore.keycloak.hasRealmRole('beheerder') ||
-        footerStore.keycloak.hasResourceRole('beheerder', 'frontend-imme'); 
-    });
 
     const fetchMeldingen = async () => {
       try{
@@ -128,19 +105,6 @@ export default {
       loading, belangrijkeMeldingen, overigeMeldingen};
   },
 
-  data(){
-    return {
-      open: false,
-      moestuinen: ['Moestuin 1', 'Moestuin 2', 'Moestuin 3']
-    }
-  },
-
-  computed: {
-    gekozenMoestuin() {
-      return this.moestuinStore.actieveMoestuin;
-    }
-  },
-
   methods: {
     async verwijderMelding(melding) {
   const meldingID = melding.MeldingID;
@@ -159,32 +123,7 @@ export default {
     } catch (err) {
       console.error("Netwerkfout");
     }
-},
-
-    toggleDropdown() {
-      this.open = !this.open;
-    },
-
-    selecteerMoestuin(moestuin) {
-      this.moestuinStore.setMoestuin(moestuin);
-      this.open = false; 
-    },
-
-     handleClickOutside(event) {
-      if (this.$refs.dropdown && !this.$refs.dropdown.contains(event.target)) {
-        this.open = false;
-      }
-    },
-  },
-
-  mounted() {
-    document.addEventListener("click", this.handleClickOutside);
-  },
-
-  beforeUnmount() {
-    document.removeEventListener("click", this.handleClickOutside);
-  }
-}
+  }}}
 </script>
 
 
@@ -217,58 +156,6 @@ export default {
 
 .belangrijke_meldingen, .overige_meldingen {
   overflow-y: auto; 
-}
-
-.meldingenDropdownAdmin {
-  margin-bottom: 5px;
-  width: 200px;
-  display: flex; 
-  position: absolute;
-  right: 0.5rem;
-  top: 75px;
-}
-
-.moestuinKeuzeDropDown {
-  position: relative;
-  width: 180px;
-  margin-bottom: 25px;
-}
-
-.dropdown-selected {
-  background-color: rgba(255, 255, 255, 0);
-  border: 1px solid #2d6a4f;
-  border-radius: 5px;
-  padding: 10px;
-  font-size: 18px;
-  color: #2d6a4f;
-  cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.dropdownKeuzes {
-  text-align: left;
-  position: absolute;
-  top: 105%;   
-  width: 100%;
-  border: 1px solid #2d6a4f;
-  border-radius: 5px;
-  overflow: hidden;
-}
-
-.dropdownKeuze {
-  padding: 10px;
-  font-size: 18px;
-  color: #2d6a4f;
-  cursor: pointer;
-  background-color: white;
-  transition: 0.15s ease;
-}
-
-.dropdownKeuze:hover {
-  background-color: #2d6a4f;
-  color: white;
 }
 
 .notificatiesH1 {
@@ -322,7 +209,7 @@ export default {
 
     position: fixed;
     right: 20px;
-    bottom: 80px; /* ruimte boven footer */
+    bottom: 80px; 
     z-index: 1000;
     transition: background-color 0.2s;
 }
