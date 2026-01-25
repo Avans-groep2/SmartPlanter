@@ -61,6 +61,10 @@ function buildUserObject() {
     firstName: given_name,
     lastName: family_name,
     fullName: `${given_name ?? ''} ${family_name ?? ''}`.trim(),
+    firstLetter:
+      given_name?.charAt(0)?.toUpperCase() ??
+      preferred_username?.charAt(0)?.toUpperCase() ??
+      '?',
     roles: realm_access?.roles ?? []
   }
 }
@@ -162,7 +166,7 @@ if (authDisabled) {
   keycloak
     .init({
       onLoad: 'login-required',
-      pkceMethod: 'S256',
+      pkceMethod: 'S256'
     })
     .then(authenticated => {
       if (!authenticated) return
