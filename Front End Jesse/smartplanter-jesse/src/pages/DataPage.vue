@@ -69,7 +69,7 @@
         :min-threshold="0.1"
         :threshold="999"
         threshold-priority="hoog"
-        :min-berichtcode="1"
+        :min-berichtcode="7"
         :max-berichtcode="7"
       />
 
@@ -119,7 +119,7 @@ header {
   margin: 0 auto;
   padding: 1rem;
   display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(350px, 1fr)); 
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 1rem;
   box-sizing: border-box;
 }

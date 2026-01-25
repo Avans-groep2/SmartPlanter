@@ -4,6 +4,7 @@
   <div class="Admin">
     <WelcomeMessage />
 
+    <!-- Devices -->
     <div class="adminContainer">
       <div class="adminTitle">
         <input
@@ -14,25 +15,37 @@
         <button @click="addDevice">Aanmaken</button>
       </div>
 
-      <table class="deviceTable">
+      <table class="deviceTable planterTable">
         <thead>
           <tr>
             <th>Device ID</th>
+            <th></th>
           </tr>
         </thead>
 
         <tbody>
-          <tr v-for="(device, index) in devices" :key="index">
+          <tr
+            v-for="(device, index) in devices"
+            :key="index"
+            class="hoverRow"
+          >
             <td>{{ device.TtnDeviceID }}</td>
+            <td class="actieKolom">
+              <i
+                class="fa-solid fa-trash-can trashIcon"
+                @click="softDeleteDevice(device)"
+              ></i>
+            </td>
           </tr>
 
           <tr v-if="devices.length === 0">
-            <td class="emptyRow">Geen devices gevonden</td>
+            <td colspan="2" class="emptyRow">Geen devices gevonden</td>
           </tr>
         </tbody>
       </table>
     </div>
 
+    <!-- Planters -->
     <div class="adminContainer">
       <div class="adminTitle">
         <select v-model="selectedUserID">
@@ -59,37 +72,46 @@
           v-model="selectedPlantenTeller"
           placeholder="PlantenTeller"
           type="number"
-          @keyup.enter="koppel"
         />
         <input
           v-model="selectedDeviceNaam"
           placeholder="Device Naam"
-          @keyup.enter="koppel"
         />
 
         <button @click="koppel">Koppelen</button>
       </div>
 
-      <table class="deviceTable">
+      <table class="deviceTable planterTable">
         <thead>
           <tr>
             <th>Username</th>
             <th>DeviceID</th>
             <th>PlantenTeller</th>
             <th>DeviceNaam</th>
+            <th></th>
           </tr>
         </thead>
 
         <tbody>
-          <tr v-for="(planter, index) in planters" :key="index">
+          <tr
+            v-for="(planter, index) in planters"
+            :key="index"
+            class="hoverRow"
+          >
             <td>{{ getUsername(planter.UserID) }}</td>
             <td>{{ planter.DeviceID }}</td>
             <td>{{ planter.PlantenTeller }}</td>
             <td>{{ planter.DeviceNaam }}</td>
+            <td class="actieKolom">
+              <i
+                class="fa-solid fa-trash-can trashIcon"
+                @click="softDeletePlanter(planter)"
+              ></i>
+            </td>
           </tr>
 
           <tr v-if="planters.length === 0">
-            <td colspan="4" class="emptyRow">Geen planters gevonden</td>
+            <td colspan="5" class="emptyRow">Geen planters gevonden</td>
           </tr>
         </tbody>
       </table>
@@ -109,14 +131,12 @@ export default {
     return {
       devices: [],
       newDeviceId: "",
-
       planters: [],
+      users: [],
+      selectedUserID: "",
       selectedDeviceID: "",
       selectedPlantenTeller: "",
       selectedDeviceNaam: "",
-
-      users: [],
-      selectedUserID: "",
     };
   },
 
@@ -128,15 +148,14 @@ export default {
 
   computed: {
     sortedUsers() {
-      return [...this.users].sort((a, b) => {
-        if (a.Username.toLowerCase() < b.Username.toLowerCase()) return -1;
-        if (a.Username.toLowerCase() > b.Username.toLowerCase()) return 1;
-        return 0;
-      });
+      return [...this.users].sort((a, b) =>
+        a.Username.localeCompare(b.Username)
+      );
     },
   },
 
   methods: {
+    // --- Load Data ---
     loadDevices() {
       fetch("https://smartplanters.dedyn.io:1880/smartplantdata?table=Devices")
         .then((res) => res.json())
@@ -152,9 +171,7 @@ export default {
     loadPlanters() {
       fetch("https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter")
         .then((res) => res.json())
-        .then((data) => {
-          this.planters = data;
-        })
+        .then((data) => (this.planters = data))
         .catch((err) => console.error("Fout bij ophalen planters:", err));
     },
 
@@ -170,46 +187,78 @@ export default {
         .catch((err) => console.error("Fout bij ophalen users:", err));
     },
 
+    // --- Add / Koppel ---
     addDevice() {
       if (!this.newDeviceId.trim()) return;
 
-      const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Devices&ttnDeviceID=${this.newDeviceId}`;
-
-      fetch(url)
-        .then((res) => {
-          if (!res.ok) throw new Error("Fout bij toevoegen device");
-
+      fetch(
+        `https://smartplanters.dedyn.io:1880/smartplantedit?table=Devices&ttnDeviceID=${this.newDeviceId}`
+      )
+        .then(() => {
           this.newDeviceId = "";
-          return this.loadDevices();
+          this.loadDevices();
         })
         .catch((err) => {
           console.error(err);
-          alert("Device kon niet worden toegevoegd");
+          this.$toast("Device kon niet worden toegevoegd", "error");
         });
     },
 
     koppel() {
       if (!this.selectedUserID || !this.selectedDeviceID) return;
 
-      const url =
+      fetch(
         `https://smartplanters.dedyn.io:1880/smartplantedit?table=Planter` +
-        `&userID=${this.selectedUserID}` +
-        `&deviceID=${this.selectedDeviceID}` +
-        `&plantenTeller=${this.selectedPlantenTeller}` +
-        `&deviceNaam=${this.selectedDeviceNaam}`;
-
-      fetch(url)
-        .then((res) => {
-          if (!res.ok) throw new Error("Fout bij toevoegen planter");
-
+          `&userID=${this.selectedUserID}` +
+          `&deviceID=${this.selectedDeviceID}` +
+          `&plantenTeller=${this.selectedPlantenTeller}` +
+          `&deviceNaam=${this.selectedDeviceNaam}`
+      )
+        .then(() => {
           this.selectedPlantenTeller = "";
           this.selectedDeviceNaam = "";
-          return this.loadPlanters();
+          this.loadPlanters();
         })
         .catch((err) => {
           console.error(err);
-          alert("Planter kon niet worden toegevoegd");
+          this.$toast("Planter kon niet worden toegevoegd", "error");
         });
+    },
+
+    // --- Soft Delete Planter ---
+    softDeletePlanter(planter) {
+      if (!planter?.UserID || !planter?.DeviceID) {
+        this.$toast("Verwijderen mislukt", "error");
+        return;
+      }
+
+      this.planters = this.planters.filter(
+        (p) =>
+          !(p.UserID === planter.UserID && p.DeviceID === planter.DeviceID)
+      );
+
+      fetch(
+        `https://smartplanters.dedyn.io:1880/cleardata?table=Planter&userID=${planter.UserID}&deviceID=${planter.DeviceID}`
+      );
+
+      this.$toast("Planter succesvol verwijderd", "success");
+    },
+
+    // --- Soft Delete Device ---
+    softDeleteDevice(device) {
+      const deviceID = device?.TtnDeviceID;
+      if (!deviceID) {
+        this.$toast("Verwijderen mislukt", "error");
+        return;
+      }
+
+      this.devices = this.devices.filter((d) => d.TtnDeviceID !== deviceID);
+
+      fetch(
+        `https://smartplanters.dedyn.io:1880/cleardata?table=Devices&ttnDeviceID=${deviceID}`
+      );
+
+      this.$toast("Device succesvol verwijderd", "success");
     },
 
     getUsername(userID) {
@@ -219,6 +268,7 @@ export default {
   },
 };
 </script>
+
 
 <style scoped>
 .Admin {
@@ -299,5 +349,26 @@ button {
   text-align: center;
   color: var(--icon);
   font-style: italic;
+}
+
+.actieKolom {
+  width: 40px;
+  text-align: center;
+}
+
+.trashIcon {
+  opacity: 0;
+  cursor: pointer;
+  color: var(--danger);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.hoverRow:hover .trashIcon {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.deviceTable tbody tr:hover{
+  color: var(--danger);
 }
 </style>

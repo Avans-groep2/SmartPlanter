@@ -9,7 +9,7 @@ import { toast } from "./toast.js"; // toast helper
 /* ======================================================
    FLAGS
 ====================================================== */
-const authDisabled = process.env.VUE_APP_AUTH_DISABLED === "false";
+const authDisabled = process.env.VUE_APP_AUTH_DISABLED === "true";
 
 /* ======================================================
    THEME INITIALISATIE
