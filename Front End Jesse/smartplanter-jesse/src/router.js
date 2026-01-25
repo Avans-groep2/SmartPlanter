@@ -41,7 +41,7 @@ const routes = [
     name: "admin",
     component: AdminPage,
     meta: {
-      // requiresRole: "beheerder",
+      requiresRole: "beheerder",
     },
   },
   {
@@ -49,7 +49,7 @@ const routes = [
     name: "plants",
     component: PlantsPage,
     meta: {
-      // requiresRole: "beheerder",
+      requiresRole: "beheerder",
     },
   },
 ];
