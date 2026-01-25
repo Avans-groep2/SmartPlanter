@@ -178,7 +178,6 @@ export default {
     async softDelete(melding) {
       const meldingID = melding.MeldingID ?? melding.meldingID;
       if (!meldingID) {
-        console.error("MeldingID is undefined");
         this.$toast("Verwijderen mislukt. Probeer opnieuw.", "error");
         return;
       }

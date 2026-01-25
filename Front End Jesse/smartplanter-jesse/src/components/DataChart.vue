@@ -102,7 +102,6 @@ async function fetchAllMeldingen() {
     const data = await res.json();
     return data || [];
   } catch (err) {
-    console.error("Fout bij ophalen meldingen:", err);
     return [];
   }
 }
@@ -110,7 +109,6 @@ async function fetchAllMeldingen() {
 // ────────────── Chart logic ──────────────
 function buildChart(labels = [], data = []) {
   if (!canvasEl.value) {
-    console.warn("Canvas nog niet beschikbaar, chart wordt niet aangemaakt");
     return;
   }
 
@@ -183,7 +181,6 @@ async function sendThresholdAlert(deviceId, status) {
   );
 
   if (bestaat) {
-    console.log("Alert bestaat al, geen nieuwe melding nodig");
     return;
   }
 
@@ -205,7 +202,6 @@ async function sendThresholdAlert(deviceId, status) {
     `&prioriteit=${props.thresholdPriority}` +
     `&berichtcode=${berichtcode}`;
 
-  console.log("Verstuur alert met MeldingID:", meldingID);
   fetch(url);
 }
 

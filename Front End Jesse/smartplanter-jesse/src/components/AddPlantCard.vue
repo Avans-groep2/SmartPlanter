@@ -85,7 +85,6 @@ export default {
         );
         this.plantOptions = await res.json();
       } catch (err) {
-        console.error("Fout bij ophalen van plantopties:", err);
         this.$toast("Kan plantopties niet ophalen", "error");
       }
     },
@@ -126,7 +125,7 @@ export default {
           this.$toast("Plant succesvol toegevoegd!", "success");
         })
         .catch((err) => {
-          console.error("Fout bij toevoegen plant:", err);
+        console.error("Toevoegen mislukt" + err);
           this.$toast("Plant toevoegen mislukt", "error");
         });
     },

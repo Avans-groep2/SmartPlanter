@@ -71,7 +71,6 @@ async function fetchPlantPositions() {
 }
 
 async function reloadPlantPositions() {
-  console.log("🔄 Herladen plantposities...");
   await fetchPlantPositions();
 }
 
