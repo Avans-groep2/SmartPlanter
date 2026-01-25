@@ -108,9 +108,10 @@ export default {
   name: 'AdminPage',
   setup() {
     const devicesRaw = ref([]);
-    const planterData = ref([]);
+    const planterDataRaw = ref([]);
     const loading = ref(false);
 
+    // Formulier variabelen gekoppeld aan jouw template v-models
     const deviceIdKeuze = ref("");
     const gekozenUserId = ref("");
     const gekozenDeviceID = ref("");
@@ -120,6 +121,7 @@ export default {
     const userDropdownOpen = ref(false);
     const deviceDropdownOpen = ref(false);
 
+    // Data ophalen
     const laadAlleData = async () => {
       loading.value = true;
       try {
@@ -127,13 +129,12 @@ export default {
           fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Devices'),
           fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter')
         ]);
-
+        
         const devJson = await resDev.json();
         const planJson = await resPlan.json();
 
         devicesRaw.value = Array.isArray(devJson) ? devJson : [];
-        planterData.value = Array.isArray(planJson) ? planJson : [];
-
+        planterDataRaw.value = Array.isArray(planJson) ? planJson : [];
       } catch (err) {
         console.error("Fout bij laden:", err);
       } finally {
@@ -141,21 +142,36 @@ export default {
       }
     };
 
+    // --- COMPUTED PROPERTIES ---
+    // Zorgt dat de tabel de ID's laat zien, ook als de database ze in verschillende formats stuurt
     const opgeschoondeDevices = computed(() => {
       if (!Array.isArray(devicesRaw.value)) return [];
-      return devicesRaw.value.map(d => d.TtnDeviceID).filter(id => id);
+      return devicesRaw.value.map(d => d.TtnDeviceID || Object.values(d)[0]).filter(id => id);
+    });
+
+    const planterData = computed(() => {
+      if (!Array.isArray(planterDataRaw.value)) return [];
+      return planterDataRaw.value.map(p => ({
+        UserID: p.UserID || '?',
+        DeviceID: p.DeviceID || '?',
+        PlantenTeller: p.PlantenTeller || 0,
+        DeviceNaam: p.DeviceNaam || ''
+      }));
     });
 
     const uniekeUsers = computed(() => {
-      if (!Array.isArray(planterData.value)) return [];
-      const users = planterData.value.map(p => p.UserID);
-      return [...new Set(users)].filter(u => u);
+      const users = planterData.value.map(p => p.UserID).filter(u => u && u !== '?');
+      return [...new Set(users)];
     });
 
+    // --- ACTIES (Gekoppeld aan jouw knoppen) ---
+
+    // 1. Device Toevoegen
     const insertNieuwDevice = async () => {
       const cleanID = deviceIdKeuze.value.trim();
       if (!cleanID) return alert("Vul een Device ID in");
       
+      // Gebruik deviceID voor de toevoeg-actie
       const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Devices&deviceID=${encodeURIComponent(cleanID)}`;
       
       try {
@@ -164,12 +180,15 @@ export default {
           deviceIdKeuze.value = "";
           await laadAlleData(); 
           alert("Device succesvol toegevoegd!");
+        } else {
+          alert("Server fout (400): Controleer of het device ID al bestaat.");
         }
       } catch (err) {
-        alert("Fout bij aanmaken: " + err.message);
+        alert("Netwerkfout bij aanmaken");
       }
     };
 
+    // 2. Koppeling maken
     const opslaanKoppeling = async () => {
       if (!gekozenUserId.value || !gekozenDeviceID.value) {
         return alert("Selecteer eerst een gebruiker en device");
@@ -184,20 +203,23 @@ export default {
       try {
         const res = await fetch(url);
         if (res.ok) {
-          alert("Koppeling succesvol!");
           gekozenUserId.value = "";
           gekozenDeviceID.value = "";
           plantenTellerKeuze.value = 0;
           deviceNaamKeuze.value = "";
           await laadAlleData();
+          alert("Koppeling succesvol gemaakt!");
+        } else {
+          alert("Koppelen mislukt (400)");
         }
       } catch (err) {
         alert("Netwerkfout bij koppelen");
       }
     };
 
+    // 3. Device Verwijderen uit tabel en database
     const verwijderDevice = async (ttnID) => {
-      if (!ttnID || !confirm(`Weet je zeker dat je device ${ttnID} wilt verwijderen uit de database?`)) return;
+      if (!ttnID || !confirm(`Weet je zeker dat je device ${ttnID} wilt verwijderen?`)) return;
 
       const url = `https://smartplanters.dedyn.io:1880/cleardata?table=Devices&ttnDeviceID=${encodeURIComponent(ttnID)}`;
       
@@ -205,15 +227,16 @@ export default {
         const res = await fetch(url);
         if (res.ok) {
           await laadAlleData(); 
-          alert("Device definitief verwijderd");
+          alert("Device verwijderd");
         }
       } catch (err) {
         alert("Fout bij verwijderen");
       }
     };
 
+    // 4. Koppeling verwijderen uit tabel en database
     const verwijderKoppeling = async (uID, dID) => {
-      if (!uID || !dID || !confirm("Weet je zeker dat je deze koppeling wilt verwijderen?")) return;
+      if (!uID || !dID || !confirm("Deze koppeling verwijderen?")) return;
 
       const url = `https://smartplanters.dedyn.io:1880/cleardata?table=Planter&UserID=${encodeURIComponent(uID)}&DeviceID=${encodeURIComponent(dID)}`;
 
@@ -221,13 +244,14 @@ export default {
         const res = await fetch(url);
         if (res.ok) {
           await laadAlleData();
-          alert("Koppeling succesvol verwijderd");
+          alert("Koppeling verwijderd");
         }
       } catch (err) {
         alert("Fout bij verwijderen koppeling");
       }
     };
 
+    // UI Dropdown handlers
     const toggleUserDropdown = () => {
       deviceDropdownOpen.value = false;
       userDropdownOpen.value = !userDropdownOpen.value;
