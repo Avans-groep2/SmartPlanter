@@ -82,10 +82,10 @@
         </thead>
         <tbody>
           <tr v-for="(planter, index) in planterData" :key="index">
-            <td>{{ planter.UserID }}</td>
-            <td>{{ planter.DeviceID }}</td>
-            <td>{{ planter.PlantenTeller }}</td>
-            <td>{{ planter.DeviceNaam }}</td>
+            <td>{{ planter.userID }}</td>
+            <td>{{ planter.deviceID }}</td>
+            <td>{{ planter.plantenTeller }}</td>
+            <td>{{ planter.deviceNaam }}</td>
           </tr>
         </tbody>
       </table>
@@ -174,7 +174,7 @@ export default {
               `&userID=${encodeURIComponent(gekozenUserId.value)}` +
               `&deviceID=${encodeURIComponent(gekozenDeviceID.value)}` +
               `&plantenTeller=${plantenTellerKeuze.value}` +
-              `&deviceName=${encodeURIComponent(deviceNaamKeuze.value || 'Nieuwe Planter')}`;
+              `&deviceNaam=${encodeURIComponent(deviceNaamKeuze.value || 'Nieuwe Planter')}`;
   
   console.log("Versturen naar API:", url);
 
