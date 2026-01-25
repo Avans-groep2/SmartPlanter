@@ -116,8 +116,8 @@ function ensureUserExists() {
   const INSERT_URL =
     `https://smartplanters.dedyn.io:1880/smartplantedit?table=Users` +
     `&userID=${encodeURIComponent(userID)}` +
-    `&Username=${encodeURIComponent(username)}` +
-    `&Rights=read`
+    `&username=${encodeURIComponent(username)}` +
+    `&rights=read`
 
   fetch(DATA_URL)
     .then(res => res.json())
