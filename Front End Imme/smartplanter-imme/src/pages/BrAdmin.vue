@@ -238,7 +238,6 @@ const verwijderKoppeling = async (userID, deviceID) => {
   planterData.value = planterData.value.filter((p) => !(p.UserID === userID && p.DeviceID === deviceID));
 
   // 2. Stuur verzoek naar de 'cleardata' API
-  // Let op: controleer of de backend voor de Planter-tabel beide ID's nodig heeft
   const url = `https://smartplanters.dedyn.io:1880/cleardata?table=Planter&userID=${encodeURIComponent(userID)}&deviceID=${encodeURIComponent(deviceID)}`;
   
   fetch(url, { method: "GET" });
@@ -353,6 +352,12 @@ const verwijderKoppeling = async (userID, deviceID) => {
   border-bottom: 1px solid #eee;
 }
 
+.koppelsTabel th:last-child, 
+.deviceId-tabel th:last-child {
+  text-align: right;
+  width: 50px;
+}
+
 .koppelsDropdown {
   position: relative;
   width: 220px;
@@ -394,22 +399,8 @@ const verwijderKoppeling = async (userID, deviceID) => {
   color: #888;
 }
 
-.delete-btn {
-  background-color: #bc4749; /* Roodachtig */
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 12px;
-}
-
-.delete-btn:hover {
-  background-color: #a33b3d;
-}
-
 .verwijderMeldingKnop {
-  background-color: #bc4749;
+  background-color: #2d6a4f;
   color: white;
   border: none;
   border-radius: 4px;
@@ -420,12 +411,6 @@ const verwijderKoppeling = async (userID, deviceID) => {
 }
 
 .verwijderMeldingKnop:hover {
-  background-color: #a33b3d;
-}
-
-.meldingen-tabel th:last-child, 
-.meldingen-tabel td:last-child {
-  text-align: right;
-  width: 50px;
+  background-color: #66b893;
 }
 </style>
