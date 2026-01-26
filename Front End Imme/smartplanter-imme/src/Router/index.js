@@ -4,6 +4,7 @@ import Account from '../pages/Account.vue'
 import Data from '../pages/Data.vue'
 import Notificaties from '../pages/Notificaties.vue'
 import BrAdmin from '../pages/BrAdmin.vue'
+import BrPlantenToevoegen from '@/pages/BrPlantenToevoegen.vue'
 
 const routes = [
   { path: '/', redirect: '/home' },
@@ -11,7 +12,8 @@ const routes = [
   { path: '/account', component: Account },
   { path: '/data', component: Data },
   { path: '/notificaties', component: Notificaties },
-  { path: '/bradmin', component: BrAdmin, meta: { requiresAuth: true, role: 'beheerder'}}
+  { path: '/bradmin', component: BrAdmin, meta: { requiresAuth: true, role: 'beheerder'}},
+  { path: '/brplantentoevoegen', component: BrPlantenToevoegen, meta: { requiresAuth: true, role: 'beheerder'}}
 ]
 
 const router = createRouter({
