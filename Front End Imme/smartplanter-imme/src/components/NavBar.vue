@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar">
     <div class="naamEnLogo">
-      <img src="../assets/SmartplanterLogo.png" class="icoon" alt="logo">
+      <img src="/linkimg/smartplanterLogo.png" class="icoon" alt="logo">
       <span class="titel">Smartplanter</span>
     </div>
 

@@ -105,7 +105,7 @@
 import { ref, onMounted, computed } from 'vue';
 
 export default {
-  name: 'AdminPage',
+  name: 'AdminPagina',
   setup() {
     const devicesRaw = ref([]);
     const planterData = ref([]);
@@ -197,21 +197,6 @@ const insertNieuwDevice = async () => {
     alert("Netwerkfout bij koppelen");
   }
 };
-
-/*const verwijderDevice = async (ttnID) => {
-  if (!ttnID) return;
-
-  // 1. Verwijder direct uit de lokale lijst (UI update zoals medestudent)
-  devicesRaw.value = devicesRaw.value.filter((d) => d.TtnDeviceID !== ttnID);
-
-  // 2. Stuur verzoek naar de specifieke 'cleardata' API
-  const url = `https://smartplanters.dedyn.io:1880/cleardata?table=Devices&ttnDeviceID=${encodeURIComponent(ttnID)}`;
-  
-  fetch(url, { method: "GET" });
-
-  // 3. Melding aan de gebruiker
-  alert("Device succesvol verwijderd");
-}; */
 
 const verwijderDevice = async (ttnID) => {
   if (!ttnID) return;
@@ -399,7 +384,7 @@ const verwijderKoppeling = async (userID, deviceID) => {
   color: #888;
 }
 
-.verwijderMeldingKnop {
+.verwijderKnop {
   background-color: #2d6a4f;
   color: white;
   border: none;
@@ -410,7 +395,7 @@ const verwijderKoppeling = async (userID, deviceID) => {
   transition: background 0.2s;
 }
 
-.verwijderMeldingKnop:hover {
+.verwijderKnop:hover {
   background-color: #66b893;
 }
 </style>

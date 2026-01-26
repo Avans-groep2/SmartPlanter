@@ -8,21 +8,23 @@
 
     <div class="links">
       <button class="logoutButton" @click="doLogout">
-        <img src="../assets/logout.png" class="footerIcoon" alt="logout"/></button>
+        <img src="/linkimg/logout.png" class="footerIcoon" alt="logout"/></button>
 
       <a href="mailto:ima.piels@student.avans.nl">
-        <img src="../assets/mail.png" class="footerIcoon" alt="mail"></img></a>
+        <img src="/linkimg/mail.png" class="footerIcoon" alt="mail"></img></a>
 
         
-      <router-link to="/account" class="nav-item-settings"><img src="../assets/setting.png" class="footerIcoon" alt="settings"/></router-link>
-      <router-link v-if="isBeheerder" to="/bradmin" class="nav-item-admin"><img src="../assets/security.png" class="footerIcoon" alt="admin"/></router-link>
+      <router-link to="/account" class="nav-item-settings"><img src="/linkimg/setting.png" class="footerIcoon" alt="settings"/></router-link>
+      <router-link v-if="isBeheerder" to="/bradmin" class="nav-item-admin">
+        <img src="/linkimg/security.png" class="footerIcoon" alt="admin"/></router-link>
+      <router-link v-if="isBeheerder" to="/brplantentoevoegen" class="nav-item-admin">
+        <img src="/linkimg/plantenBeheer.png" class="footerIcoon" alt="admin"/></router-link>
 
     </div>
   </footer>
 </template>
 
 <script>
-import router from '../Router/index';
 import { computed } from 'vue';
 import { useFooterSpan } from '@/stores/footerSpan';
 
