@@ -18,7 +18,7 @@
       <router-link v-if="isBeheerder" to="/bradmin" class="nav-item-admin">
         <img src="/linkimg/security.png" class="footerIcoon" alt="admin"/></router-link>
       <router-link v-if="isBeheerder" to="/brplantentoevoegen" class="nav-item-admin">
-        <img src="/linkimg/plantenBeheer.png" class="footerIcoon" alt="admin"/></router-link>
+        <img src="/linkimg/plantBeheer.png" class="footerIcoon" alt="admin"/></router-link>
 
     </div>
   </footer>

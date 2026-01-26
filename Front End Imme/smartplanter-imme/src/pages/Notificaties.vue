@@ -179,7 +179,7 @@ export default {
   margin-left: 5%;
   margin-top: 2%;
   margin-bottom: 2%;
-  width: 80%;
+  width: 90%;
   height: 35vh;
   background-color: #ffffff; 
   border-radius: 8px;
@@ -190,7 +190,7 @@ export default {
   padding: 0.5rem;
   margin-left: 5%;
   margin-bottom: 2%;
-  width: 80%;
+  width: 90%;
   min-height: 35vh;
   background-color: #ffffff;  
   border-radius: 8px;

@@ -101,9 +101,9 @@ export default {
 }
 
 .meldingenBel {
-  margin-left: 5px;
+  margin-left: 3px;
+  margin-right: 7px;
   font-size: 1.2rem;
-  /* Optioneel: animatie toevoegen zodat het opvalt */
   animation: ring 2s infinite;
   display: inline-block;
 }
