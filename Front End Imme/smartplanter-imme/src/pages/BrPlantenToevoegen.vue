@@ -6,8 +6,8 @@
         <div class="inputPlant">
             <input type="number" v-model="idPlantKeuze" placeholder="PlantID" class="adminPlant-input"/>
             <input type="text" v-model="plantSoortKeuze" placeholder="Plant soort" class="adminPlant-input"/> 
-            <input type="number" v-model="phMinKeuze" placeholder="pHminimale plant" class="adminPlant-input"/>
-            <input type="number" v-model="phMaxKeuze" placeholder="pHmaximale plant" class="adminPlant-input"/> 
+            <input type="number" v-model="phMinKeuze" placeholder="pHminimale" class="adminPlant-input"/>
+            <input type="number" v-model="phMaxKeuze" placeholder="pHmaximale" class="adminPlant-input"/> 
             <input type="number" v-model="groeitijdKeuze" placeholder="Groeitijd plant" class="adminPlant-input"/> 
 
             <button class="plantInfoInsertKnop" @click="insertNieuwePlantInfo">Koppel</button>
@@ -26,12 +26,12 @@
             </thead>
             <tbody>
                 <tr v-for="plant in plantInfo"
-                    :key="plant.PlantID">
-                    <td>{{ plant.PlantID }}</td>
-                    <td>{{ plant.Plantsoort }}</td>
-                    <td>{{ plant.PhMin }}</td>
-                    <td>{{ plant.PhMax }}</td>
-                    <td>{{ plant.Groeitijd }}</td>
+                    :key="plant.plantID">
+                    <td>{{ plant.plantID }}</td>
+                    <td>{{ plant.plantsoort }}</td>
+                    <td>{{ plant.phMin }}</td>
+                    <td>{{ plant.phMax }}</td>
+                    <td>{{ plant.groeitijd }}</td>
                 </tr>
                 <tr v-if="plantInfo.length === 0">
                     <td colspan="5">Laden...</td>
@@ -79,11 +79,11 @@ export default {
     if (!idPlantKeuze.value) return alert("Vul Plant ID in");
   
   const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Planten` +
-              `&PlantID=${encodeURIComponent(idPlantKeuze.value)}` +
-              `&Plantsoort=${encodeURIComponent(plantSoortKeuze.value)}` +
-              `&PhMin=${encodeURIComponent(phMinKeuze.value)}` +
-              `&PhMax=${encodeURIComponent(phMaxKeuze.value)}` +
-              `&Groeitijd=${encodeURIComponent(groeitijdKeuze.value)}`;
+              `&plantID=${encodeURIComponent(idPlantKeuze.value)}` +
+              `&plantsoort=${encodeURIComponent(plantSoortKeuze.value)}` +
+              `&phMin=${encodeURIComponent(phMinKeuze.value)}` +
+              `&phMax=${encodeURIComponent(phMaxKeuze.value)}` +
+              `&groeitijd=${encodeURIComponent(groeitijdKeuze.value)}`;
 
     try {
         const res = await fetch(url);
@@ -175,7 +175,7 @@ export default {
     background: white;
     padding: 20px;
     width: 90%;
-    max-height: 80vh;
+    max-height: 75vh;
     margin: 2rem auto;
     border-radius: 10px;
     margin-bottom: 20px;
