@@ -33,7 +33,7 @@
                     <td>{{ plant.PhMax }}</td>
                     <td>{{ plant.Groeitijd }}</td>
                 </tr>
-                <tr v-if="plantInfo.length === 0">
+                <tr v-if="!plantInfo || plantInfo.length === 0">
                     <td colspan="5">Laden...</td>
                 </tr>
             </tbody> 
@@ -79,11 +79,11 @@ export default {
     if (!idPlantKeuze.value) return alert("Vul Plant ID in");
   
   const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Planten` +
-              `&plantID=${encodeURIComponent(idPlantKeuze.value)}` +
-              `&Plantsoort=${encodeURIComponent(plantSoortKeuze.value)}` +
-              `&phMin=${encodeURIComponent(phMinKeuze.value)}` +
-              `&phMax=${encodeURIComponent(phMaxKeuze.value)}` +
-              `&groeitijd=${encodeURIComponent(groeitijdKeuze.value)}`;
+              `&plantID=${idPlantKeuze.value}` +
+              `&plantsoort=${encodeURIComponent(plantSoortKeuze.value)}` +
+              `&phMin=${phMinKeuze.value}` +
+              `&phMax=${phMaxKeuze.value}` +
+              `&groeitijd=${groeitijdKeuze.value}`;
 
     try {
         const res = await fetch(url);

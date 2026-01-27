@@ -40,6 +40,7 @@ export const useMoestuinStore = defineStore('moestuin', {
     return {
       ...baseState,
       meldingen: [],
+      plantInfo: [],
       loadingMeldingen: false
     }
   }, 

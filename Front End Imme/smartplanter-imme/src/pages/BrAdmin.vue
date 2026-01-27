@@ -205,19 +205,26 @@ const insertNieuwDevice = async () => {
 const verwijderDevice = async (ttnID) => {
   if (!ttnID) return;
   
-  // UI direct bijwerken
-  devicesRaw.value = devicesRaw.value.filter((d) => d.TtnDeviceID !== ttnID);
-
-  // Probeer deze URL (check of de backend 'deviceID' of 'ttnDeviceID' verwacht)
-  // Gezien je screenshot 8c1071.png krijgt ttnDeviceID een 400.
-  const url = `https://smartplanters.dedyn.io:1880/cleardata?table=Devices&deviceID=${encodeURIComponent(ttnID)}`;
+  if (!confirm("${ttnID} word verwijderd")) {
+    return;
+  }
+  
+  const url = `https://smartplanters.dedyn.io:1880/cleardata?table=Devices&dttnDeviceID=${encodeURIComponent(ttnID)}`;
   
   try {
     await fetch(url, { method: "GET" });
+
+    if(res.ok) {
+      devicesRaw.value = devicesRaw.value.filter((d) => d.TtnDeviceID !==ttnID);
+      alert("Device succesvol verwijderd");
+    } else {
+      const errorData = await res.json();
+      alert("Fout bij verwijderen " + (errorData.message || "Mogelijk is het device nog gekoppeld aan een gebruiker"));
+    }
   } catch (err) {
     console.error("Backend request mislukt", err);
+    alert("Device verwijderd uit weergave");
   }
-  alert("Device verwijderd uit weergave");
 };
 
 const verwijderKoppeling = async (userID, deviceID) => {
@@ -309,11 +316,12 @@ const verwijderKoppeling = async (userID, deviceID) => {
 
 .deviceIdAanmaken, .UserIdKoppels {
   background: white;
+  flex-direction: row;
+  flex-wrap: wrap;
   padding: 20px;
   border-radius: 10px;
   margin-bottom: 20px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  max-height: 35vh;
 }
 
 .deviceKeuze, .koppelMaken {
