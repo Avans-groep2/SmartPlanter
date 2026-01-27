@@ -1,5 +1,7 @@
 <template>
   <div class="admin">
+
+    <div class="tabelScrol-container">
     <div class="deviceIdAanmaken">
       <h1 class="adminH1">Device Id kiezen:</h1>
       <div class="deviceKeuze">
@@ -11,7 +13,9 @@
         />
         <button class="deviceKeuzenKnop" @click="insertNieuwDevice">Aanmaken</button>
       </div>
+      </div>
 
+      <div class="tabelScrol-container">
       <table class="deviceId-tabel">
         <thead>
           <tr>
@@ -31,6 +35,7 @@
           </tr>
         </tbody>
       </table>
+    </div>
     </div>
 
     <div class="UserIdKoppels">
@@ -270,8 +275,8 @@ const verwijderKoppeling = async (userID, deviceID) => {
 .admin {
   display: flex;
   flex-direction: column;
-  max-height: 80vh;
-  overflow-y: auto;
+  max-height: 85vh;
+  overflow: hidden;
   padding: 1rem;
   box-sizing: border-box;
   position: relative;
@@ -300,7 +305,14 @@ const verwijderKoppeling = async (userID, deviceID) => {
   margin-bottom: 20px;
   align-items: center;
   max-height: 35vh;
+  flex-direction: column;
+}
+
+.tabel-container {
   overflow-y: auto;
+  flex-grow: 1;    
+  border: 1px solid #eee;
+  margin-top: 10px;
 }
 
 .admin-input {

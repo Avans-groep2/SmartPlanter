@@ -26,12 +26,12 @@
             </thead>
             <tbody>
                 <tr v-for="plant in plantInfo"
-                    :key="plant.plantID">
-                    <td>{{ plant.plantID }}</td>
-                    <td>{{ plant.plantsoort }}</td>
-                    <td>{{ plant.phMin }}</td>
-                    <td>{{ plant.phMax }}</td>
-                    <td>{{ plant.groeitijd }}</td>
+                    :key="plant.PlantID">
+                    <td>{{ plant.PlantID }}</td>
+                    <td>{{ plant.Plantsoort }}</td>
+                    <td>{{ plant.PhMin }}</td>
+                    <td>{{ plant.PhMax }}</td>
+                    <td>{{ plant.Groeitijd }}</td>
                 </tr>
                 <tr v-if="plantInfo.length === 0">
                     <td colspan="5">Laden...</td>
