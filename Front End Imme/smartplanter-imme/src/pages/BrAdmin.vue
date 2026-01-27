@@ -1,8 +1,6 @@
 <template>
   <div class="admin">
-
-    <div class="tabelScrol-container">
-    <div class="deviceIdAanmaken">
+    <div class="deviceIdAanmaken admin-sectie">
       <h1 class="adminH1">Device Id kiezen:</h1>
       <div class="deviceKeuze">
         <input
@@ -13,9 +11,8 @@
         />
         <button class="deviceKeuzenKnop" @click="insertNieuwDevice">Aanmaken</button>
       </div>
-      </div>
 
-      <div class="tabelScrol-container">
+      <div class="scrolTabel-container">
       <table class="deviceId-tabel">
         <thead>
           <tr>
@@ -38,7 +35,7 @@
     </div>
     </div>
 
-    <div class="UserIdKoppels">
+    <div class="UserIdKoppels admin-sectie">
       <h1 class="adminH1">Koppel hier de gebruiker met de deviceId</h1>
 
       <div class="koppelMaken">
@@ -80,28 +77,30 @@
 
       <p v-if="loading" class="koppelsLaden">Koppels worden geladen...</p>
 
-      <table v-else class="koppelsTabel">
-        <thead>
-          <tr>
-            <th>UserID</th>
-            <th>DeviceID</th>
-            <th>PlantenTeller</th>
-            <th>DeviceNaam</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(planter, index) in planterData" :key="index">
-            <td>{{ planter.UserID }}</td>
-            <td>{{ planter.DeviceID }}</td>
-            <td>{{ planter.PlantenTeller }}</td>
-            <td>{{ planter.DeviceNaam }}</td>
-            <td>
-              <button class="verwijderKnop" @click="verwijderKoppeling(planter.UserID, planter.DeviceID)">✖</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="scrolTabel-container">
+        <table class="koppelsTabel">
+          <thead>
+            <tr>
+              <th>UserID</th>
+              <th>DeviceID</th>
+              <th>Planten Teller</th>
+              <th>Device Naam</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(planter, index) in planterData" :key="index">
+              <td>{{ planter.UserID }}</td>
+              <td>{{ planter.DeviceID }}</td>
+              <td>{{ planter.PlantenTeller }}</td>
+              <td>{{ planter.DeviceNaam }}</td>
+              <td class="text-right">
+                <button class="verwijderKnop" @click="verwijderKoppeling(planter.UserID, planter.DeviceID)">✖</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </template>
@@ -275,12 +274,30 @@ const verwijderKoppeling = async (userID, deviceID) => {
 .admin {
   display: flex;
   flex-direction: column;
-  max-height: 85vh;
+  max-height: 100vh;
   overflow: hidden;
   padding: 1rem;
   box-sizing: border-box;
-  position: relative;
+  gap: 20px;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; 
+}
+
+.admin-sectie {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  
+  display: flex;
+  flex-direction: column;
+  height: 45vh;
+}
+
+.scrolTabel-container {
+  overflow-y: auto;
+  flex-grow: 1;
+  border: 1px solid #eee;
+  margin-top: 10px;
 }
 
 .adminH1{
@@ -305,14 +322,8 @@ const verwijderKoppeling = async (userID, deviceID) => {
   margin-bottom: 20px;
   align-items: center;
   max-height: 35vh;
-  flex-direction: column;
-}
-
-.tabel-container {
   overflow-y: auto;
-  flex-grow: 1;    
-  border: 1px solid #eee;
-  margin-top: 10px;
+  flex-direction: column;
 }
 
 .admin-input {

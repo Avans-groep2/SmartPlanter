@@ -80,7 +80,7 @@ export default {
   
   const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Planten` +
               `&plantID=${encodeURIComponent(idPlantKeuze.value)}` +
-              `&plantsoort=${encodeURIComponent(plantSoortKeuze.value)}` +
+              `&Plantsoort=${encodeURIComponent(plantSoortKeuze.value)}` +
               `&phMin=${encodeURIComponent(phMinKeuze.value)}` +
               `&phMax=${encodeURIComponent(phMaxKeuze.value)}` +
               `&groeitijd=${encodeURIComponent(groeitijdKeuze.value)}`;
