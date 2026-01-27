@@ -1,16 +1,19 @@
 <template>
 
     <div class="plantToevoegen">
-        <h class="plantInformatie">Informatie van de Plant</h>
+        <h2 class="plantInformatie">Informatie van de Plant</h2>
 
-        <input type="number" v-model="idPlantKeuze" placeholder="PlantID" class="adminPlant-input"/>
-        <input type="text" v-model="plantSoortKeuze" placeholder="Plant soort" class="adminPlant-input"/> 
-        <input type="number" v-model="phMinKeuze" placeholder="pHminimale plant" class="adminPlant-input"/>
-        <input type="number" v-model="phMaxKeuze" placeholder="pHmaximale plant" class="adminPlant-input"/> 
-        <input type="number" v-model="groeitijdKeuze" placeholder="Groeitijd plant" class="adminPlant-input"/> 
+        <div class="inputPlant">
+            <input type="number" v-model="idPlantKeuze" placeholder="PlantID" class="adminPlant-input"/>
+            <input type="text" v-model="plantSoortKeuze" placeholder="Plant soort" class="adminPlant-input"/> 
+            <input type="number" v-model="phMinKeuze" placeholder="pHminimale plant" class="adminPlant-input"/>
+            <input type="number" v-model="phMaxKeuze" placeholder="pHmaximale plant" class="adminPlant-input"/> 
+            <input type="number" v-model="groeitijdKeuze" placeholder="Groeitijd plant" class="adminPlant-input"/> 
 
-        <button class="plantInfoInsert" @click="insertNieuwePlantInfo">Koppel</button>
+            <button class="plantInfoInsertKnop" @click="insertNieuwePlantInfo">Koppel</button>
+        </div>
 
+        <div class="plantToevoegTabel-container">
         <table class="plantToevoegTabel">
             <thead>
                 <tr>
@@ -35,12 +38,12 @@
                 </tr>
             </tbody> 
         </table>
+        </div>
     </div>
 
 </template>
 
 <script>
-import { useFooterSpan } from '../stores/footerSpan';
 import { useMoestuinStore } from '../stores/moestuinScherm';
 import { computed, ref, onMounted } from 'vue';
 
@@ -48,15 +51,14 @@ export default {
   name: 'PlantToevoegenAdminPagina',
 
   setup() {
-    const footerStore = useFooterSpan();
     const moestuinStore = useMoestuinStore();
     const loading = ref(false);
 
-    const idPlantKeuze = ref(0);
+    const idPlantKeuze = ref(null);
     const plantSoortKeuze = ref("");
-    const phMinKeuze = ref(0);
-    const phMaxKeuze = ref(0);
-    const groeitijdKeuze = ref(0);
+    const phMinKeuze = ref(null);
+    const phMaxKeuze = ref(null);
+    const groeitijdKeuze = ref(null);
 
     const plantInfo = computed(() => moestuinStore.plantInfo || []);
 
@@ -65,18 +67,16 @@ export default {
         loading.value = true;
         const response = await fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Planten');
         const data = await response.json();
-        
         moestuinStore.plantInfo = Array.isArray(data) ? data : [];
       } catch (error) {
         console.error(error);
-        plantInfo.value = [];
       } finally {
         loading.value = false;
       }
     };
 
     const insertNieuwePlantInfo = async () => {
-    if (!plantIDKeuze.value.trim()) return alert("Vul een Device ID in");
+    if (!idPlantKeuze.value) return alert("Vul Plant ID in");
   
   const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Planten` +
               `&plantID=${encodeURIComponent(idPlantKeuze.value)}` +
@@ -90,18 +90,18 @@ export default {
         const data = await res.json();
         
         if (data.error) {
-        alert("Database Error: " + data.code);
+            alert("Database Error: " + data.code);
         } else {
-        idPlantKeuze.value = 0;
-        plantSoortKeuze = "";
-        phMinKeuze = 0;
-        phMaxKeuze = 0;
-        groeitijdKeuze = 0;
-        await fetchPlantInfo(); 
-        alert("Device succesvol toegevoegd!");
+            idPlantKeuze.value = null;
+            plantSoortKeuze.value = "";
+            phMinKeuze.value = null;
+            phMaxKeuze.value = null;
+            groeitijdKeuze.value = null;
+            await fetchPlantInfo(); 
+            alert("Plant succesvol toegevoegd!");
         }
     } catch (err) {
-        alert("Fout bij device aanmaken: " + err.message);
+        alert("Fout bij toevoegen plant " + err.message);
     }
     };
 
@@ -109,7 +109,7 @@ export default {
         fetchPlantInfo();
     });
 
-    return {moestuinStore, footerStore, plantInfo, loading, insertNieuwePlantInfo,
+    return {plantInfo, loading, insertNieuwePlantInfo,
         groeitijdKeuze, phMaxKeuze, phMinKeuze, plantSoortKeuze, idPlantKeuze
     };
 }
@@ -119,14 +119,27 @@ export default {
 </script>
 
 <style>
+.inputPlant{
+    margin-bottom: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.plantToevoegTabel-container {
+    overflow-y: auto;
+    flex-grow: 1;
+    border: 1px solid #eee;
+}
+
 .adminPlant-input {
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
-  width: 250px;
+  width: 150px;
 }
 
-.plantInfoInsert {
+.plantInfoInsertKnop {
   background-color: #2d6a4f;
   color: white;
   border: none;
@@ -155,20 +168,20 @@ export default {
 
 .plantInformatie {
     color:black;
-    font-weight: 500;
+    font-weight: 800;
 }
 
 .plantToevoegen {
     background: white;
     padding: 20px;
     width: 90%;
-    max-height: 80%;
-    margin-top: 2rem;
-    margin-left: 5%;
+    max-height: 85vh;
+    margin: 2rem auto;
     border-radius: 10px;
     margin-bottom: 20px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
 }
 
 </style>
