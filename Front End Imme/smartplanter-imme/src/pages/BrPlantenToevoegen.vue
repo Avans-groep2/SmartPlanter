@@ -1,7 +1,16 @@
 <template>
 
     <div class="plantToevoegen">
-        <p class="testPlant">Test scherm</p>
+        <h class="plantInformatie">Informatie van de Plant</h>
+
+        <input type="number" v-model="idPlantKeuze" placeholder="PlantID" class="adminPlant-input"/>
+        <input type="text" v-model="plantSoortKeuze" placeholder="Plant soort" class="adminPlant-input"/> 
+        <input type="number" v-model="phMinKeuze" placeholder="pHminimale plant" class="adminPlant-input"/>
+        <input type="number" v-model="phMaxKeuze" placeholder="pHmaximale plant" class="adminPlant-input"/> 
+        <input type="number" v-model="groeitijdKeuze" placeholder="Groeitijd plant" class="adminPlant-input"/> 
+
+        <button class="plantInfoInsert" @click="insertNieuwePlantInfo">Koppel</button>
+
         <table class="plantToevoegTabel">
             <thead>
                 <tr>
@@ -16,7 +25,7 @@
                 <tr v-for="plant in plantInfo"
                     :key="plant.PlantID">
                     <td>{{ plant.PlantID }}</td>
-                    <td>{{ plant.PlantSoort }}</td>
+                    <td>{{ plant.Plantsoort }}</td>
                     <td>{{ plant.PhMin }}</td>
                     <td>{{ plant.PhMax }}</td>
                     <td>{{ plant.Groeitijd }}</td>
@@ -31,8 +40,8 @@
 </template>
 
 <script>
-import { useFooterSpan } from '@/stores/footerSpan';
-import { useMoestuinStore } from '@/stores/moestuinScherm';
+import { useFooterSpan } from '../stores/footerSpan';
+import { useMoestuinStore } from '../stores/moestuinScherm';
 import { computed, ref, onMounted } from 'vue';
 
 export default {
@@ -43,7 +52,13 @@ export default {
     const moestuinStore = useMoestuinStore();
     const loading = ref(false);
 
-    const plantInfo = computed (() => moestuinStore.plantInfo);
+    const idPlantKeuze = ref(0);
+    const plantSoortKeuze = ref("");
+    const phMinKeuze = ref(0);
+    const phMaxKeuze = ref(0);
+    const groeitijdKeuze = ref(0);
+
+    const plantInfo = computed(() => moestuinStore.plantInfo || []);
 
     const fetchPlantInfo = async () => {
       try{
@@ -60,11 +75,43 @@ export default {
       }
     };
 
+    const insertNieuwePlantInfo = async () => {
+    if (!plantIDKeuze.value.trim()) return alert("Vul een Device ID in");
+  
+  const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Planten` +
+              `&plantID=${encodeURIComponent(idPlantKeuze.value)}` +
+              `&plantsoort=${encodeURIComponent(plantSoortKeuze.value)}` +
+              `&phMin=${encodeURIComponent(phMinKeuze.value)}` +
+              `&phMax=${encodeURIComponent(phMaxKeuze.value)}` +
+              `&groeitijd=${encodeURIComponent(groeitijdKeuze.value)}`;
+
+    try {
+        const res = await fetch(url);
+        const data = await res.json();
+        
+        if (data.error) {
+        alert("Database Error: " + data.code);
+        } else {
+        idPlantKeuze.value = 0;
+        plantSoortKeuze = "";
+        phMinKeuze = 0;
+        phMaxKeuze = 0;
+        groeitijdKeuze = 0;
+        await fetchPlantInfo(); 
+        alert("Device succesvol toegevoegd!");
+        }
+    } catch (err) {
+        alert("Fout bij device aanmaken: " + err.message);
+    }
+    };
+
     onMounted(() => {
         fetchPlantInfo();
     });
 
-    return {moestuinStore, footerStore, plantInfo, loading};
+    return {moestuinStore, footerStore, plantInfo, loading, insertNieuwePlantInfo,
+        groeitijdKeuze, phMaxKeuze, phMinKeuze, plantSoortKeuze, idPlantKeuze
+    };
 }
 }
 
@@ -72,6 +119,23 @@ export default {
 </script>
 
 <style>
+.adminPlant-input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 250px;
+}
+
+.plantInfoInsert {
+  background-color: #2d6a4f;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
 .plantToevoegTabel{
   width: 100%;
   border-collapse: collapse;
@@ -89,14 +153,16 @@ export default {
   border-bottom: 1px solid #eee;
 }
 
-.testPlant {
+.plantInformatie {
     color:black;
+    font-weight: 500;
 }
 
 .plantToevoegen {
     background: white;
     padding: 20px;
     width: 90%;
+    max-height: 80%;
     margin-top: 2rem;
     margin-left: 5%;
     border-radius: 10px;

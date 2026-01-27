@@ -297,6 +297,7 @@ const verwijderKoppeling = async (userID, deviceID) => {
   gap: 15px;
   margin-bottom: 20px;
   align-items: center;
+  max-height: 35vh;
   overflow-y: auto;
 }
 
