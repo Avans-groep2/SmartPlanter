@@ -204,41 +204,39 @@ const insertNieuwDevice = async () => {
 
 const verwijderDevice = async (ttnID) => {
   if (!ttnID) return;
-  
-  if (!confirm("${ttnID} word verwijderd")) {
-    return;
-  }
-  
-  const url = `https://smartplanters.dedyn.io:1880/cleardata?table=Devices&dttnDeviceID=${encodeURIComponent(ttnID)}`;
+  if (!confirm(`Weet je zeker dat je ${ttnID} wilt verwijderen?`)) return;
+
+  const url = `https://smartplanters.dedyn.io:1880/cleardata?table=Devices&ttnDeviceID=${encodeURIComponent(ttnID)}`;
   
   try {
-    await fetch(url, { method: "GET" });
-
-    if(res.ok) {
-      devicesRaw.value = devicesRaw.value.filter((d) => d.TtnDeviceID !==ttnID);
-      alert("Device succesvol verwijderd");
+    const res = await fetch(url);
+    if (res.ok) {
+      devicesRaw.value = devicesRaw.value.filter((d) => d.TtnDeviceID !== ttnID);
+      alert("Device verwijderd uit database.");
     } else {
-      const errorData = await res.json();
-      alert("Fout bij verwijderen " + (errorData.message || "Mogelijk is het device nog gekoppeld aan een gebruiker"));
+      alert("Fout bij verwijderen. Is het device nog gekoppeld aan een planter?");
     }
   } catch (err) {
-    console.error("Backend request mislukt", err);
-    alert("Device verwijderd uit weergave");
+    console.error("Netwerkfout:", err);
   }
 };
 
 const verwijderKoppeling = async (userID, deviceID) => {
   if (!userID || !deviceID) return;
+  if (!confirm("Koppelling verwijdern?")) return;
 
-  // 1. Verwijder direct uit de lokale lijst
-  planterData.value = planterData.value.filter((p) => !(p.UserID === userID && p.DeviceID === deviceID));
 
-  // 2. Stuur verzoek naar de 'cleardata' API
-  const url = `https://smartplanters.dedyn.io:1880/cleardata?table=Planter&userID=${encodeURIComponent(userID)}&deviceID=${encodeURIComponent(deviceID)}`;
+   const url = `https://smartplanters.dedyn.io:1880/cleardata?table=Planter&userID=${encodeURIComponent(userID)}&deviceID=${encodeURIComponent(deviceID)}`;
   
-  fetch(url, { method: "GET" });
-
-  alert("Koppeling succesvol verwijderd");
+   try{
+    const res = await fetch(url);
+    if (res.ok) {
+      planterData.value = planterData.value.filter((p) => !(p.UserID === userID && p.DeviceID === deviceID));
+      alert("Koppeling succesvol verwijderd");
+    }
+   } catch (err) {
+      alert("Koppeling onsuccesvol verwijderd");
+   }
 };
 
     const toggleUserDropdown = () => {
@@ -275,13 +273,13 @@ const verwijderKoppeling = async (userID, deviceID) => {
 }
 
 .admin-input.klein {
-  width: 120px;
+  width: 100px;
 }
 
 .admin {
   display: flex;
   flex-direction: column;
-  max-height: 100vh;
+  max-height: 90vh;
   overflow: hidden;
   padding: 1rem;
   box-sizing: border-box;
@@ -297,14 +295,15 @@ const verwijderKoppeling = async (userID, deviceID) => {
   
   display: flex;
   flex-direction: column;
-  height: 45vh;
+  height: 35vh;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .scrolTabel-container {
   overflow-y: auto;
   flex-grow: 1;
   border: 1px solid #eee;
-  margin-top: 10px;
 }
 
 .adminH1{
@@ -326,19 +325,20 @@ const verwijderKoppeling = async (userID, deviceID) => {
 
 .deviceKeuze, .koppelMaken {
   display: flex;
+  flex-direction: row;
+  flex-direction: nowrap;
   gap: 15px;
   margin-bottom: 20px;
   align-items: center;
-  max-height: 35vh;
-  overflow-y: auto;
-  flex-direction: column;
+  overflow-x:  auto;
 }
 
 .admin-input {
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
-  width: 250px;
+  width: 180px;
+  flex-shrink: 0;
 }
 
 .koppelMakenKnop, .deviceKeuzenKnop {
