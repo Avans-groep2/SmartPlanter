@@ -270,7 +270,8 @@ const verwijderKoppeling = async (userID, deviceID) => {
 .admin {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  max-height: 80vh;
+  overflow-y: auto;
   padding: 1rem;
   box-sizing: border-box;
   position: relative;
