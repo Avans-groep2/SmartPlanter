@@ -57,8 +57,8 @@
 
         <div v-if="hoverInfo.buisIndex === buisIndex && hoverInfo.slotIndex === slotIndex" 
             class="hoverInfo">
-          <p v-if="slot.plant">{{slot.plant.naam}} <br>
-            Geplant op: <br>
+          <p v-if="slot.plant">{{slot.plant.Plantsoort}} <br>
+           Groeitijd:  <br>
             Kan geoogst worden op:
           </p>
           <p v-else>
@@ -89,11 +89,11 @@
           <div class="plant-list">
             <div
               v-for="plant in filteredPlants"
-              :key="plant.naam"
+              :key="plant.PlantID"
               class="plant-item"
               @click="selectPlant(buisIndex, slotIndex, plant)"
             >
-              {{ plant.naam }}
+              {{ plant.Plantsoort }}
             </div>
           </div>
         </div>
@@ -143,6 +143,19 @@ export default {
              footerStore.keycloak.hasResourceRole('beheerder', 'frontend-imme'); 
     });
 
+    const laadPlantenDropdown = async () => {
+      try{
+        loading.value = true;
+        const response = await fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Planten');
+        const data = await response.json();
+        moestuinStore.plantInfo = Array.isArray(data) ? data : [];
+      } catch (error) {
+        console.error(error);
+      } finally {
+        loading.value = false;
+      }
+    };
+
     
     const handleClickOutside = (event) => {
       if (openMoestuin.value && adminDropdownRef.value && !adminDropdownRef.value.contains(event.target)){
@@ -154,6 +167,7 @@ export default {
     };
 
     onMounted(() => {
+      laadPlantenDropdown();
       document.addEventListener('click', handleClickOutside)
     })
 
@@ -162,7 +176,7 @@ export default {
     })
 
     return { moestuinStore, isBeheerder, openMoestuin, 
-      openDropdown, adminDropdownRef};
+      openDropdown, adminDropdownRef, laadPlantenDropdown};
   },
 
   data() {
@@ -179,26 +193,28 @@ export default {
         slotIndex:null
       },
       moestuinen: ['Moestuin 1', 'Moestuin 2', 'Moestuin 3'],
-      allePlanten: [
-        { naam: 'Tomaat', img: '/plantenimg/tomaat.png' },
-        { naam: 'Paprika', img: '/plantenimg/paprika.png' },
-        { naam: 'Peper', img: '/plantenimg/peper.png' },
-        { naam: 'Sla', img: '/plantenimg/sla.png' },
-        { naam: 'Aubergine', img: '/plantenimg/aubergine.png' },
-        { naam: 'Courgette', img: '/plantenimg/courgette.png' },
-        { naam: 'Basilicum', img: '/plantenimg/basilicum.png' },
-        { naam: 'Munt', img: '/plantenimg/munt.png' },
-        { naam: 'Peterselie', img: '/plantenimg/peterselie.png' },
-        { naam: 'Rozemarijn', img: '/plantenimg/rozemarijn.png' },
-        { naam: 'Spinazie', img: '/plantenimg/spinazie.png' },
-        { naam: 'Snijbiet', img: '/plantenimg/snijbiet.png' },
-        { naam: 'Boerenkool', img: '/plantenimg/boerenkool.png' },
-        { naam: 'Komkommer', img: '/plantenimg/komkommer.png' },
-        { naam: 'Aardbei', img: '/plantenimg/aardbei.png' },
-        { naam: 'Framboos', img: '/plantenimg/framboos.png' },
-        { naam: 'Blauwe Bessen', img: '/plantenimg/blauweBessen.png' },
-        { naam: 'Vijgen', img: '/plantenimg/vijgen.png' }
-      ]
+      plantIconen: {
+      'Aardbei': '/plantenimg/aardbei.png',
+      'Komkommer': '/plantenimg/komkommer.png',
+      'Courgette': '/plantenimg/courgette.png',
+      'Sla': '/plantenimg/sla.png',
+      'Basilicum': '/plantenimg/basilicum.png',
+      'Tomaat': '/plantenimg/tomaat.png',
+      'Paprika': '/plantenimg/paprika.png',
+      'peper': '/plantenimg/peper.png',
+      'Vijgen': '/plantenimg/vijgen.png',
+      'Koriander': '/plantenimg/koriander.png',
+      'Peterselie': '/plantenimg/peterselie.png',
+      'Sijbiet': '/plantenimg/snijbiet.png',
+      'Spinazie': '/plantenimg/spinazie.png',
+      'Munt': '/plantenimg/munt.png',
+      'Cilantro': '/plantenimg/cilantro.png',
+      'Rucola': '/plantenimg/rucola.png',
+      'Paksoi': '/plantenimg/paksoi.png',
+      'Andijve': '/plantenimg/andijvie.png',
+      'Boerenkool': '/plantenimg/boerenkool.png',
+
+      }
     };
   },
 
@@ -208,9 +224,10 @@ export default {
     },
 
     filteredPlants() {
-      return this.allePlanten.filter(plant => 
-        plant.naam.toLowerCase().includes(this.searchQuery.toLowerCase())
-      );
+      const PlantenUitDatabase = this.moestuinStore || [];
+      return PlantenUitDatabase.filter(plant =>
+        plant.Plantsoort && plant.Plntsoort.toLowerCase().includes(this.searchQuery.toLowerCase())
+      )
     }
   },
 
@@ -232,8 +249,15 @@ export default {
         this.searchQuery = '';
      },
 
-    selectPlant(buisIndex, slotIndex, plant) {
-      this.moestuinStore.setPlant(buisIndex, slotIndex, plant);
+    selectPlant(buisIndex, slotIndex, databasePlant) {
+      const plantImg = {
+        naam: databasePlant.Plantsoort,
+        img: img.plantIconen[databasePlant.Plantsoort] || '/plantenimg/default.png',
+        phMin: databasePlant.PhMin,
+        PhMax: databasePlant.PhMax,
+        groeitijd: databasePlant.Groeitijd
+      }
+      this.moestuinStore.setPlant(buisIndex, slotIndex, plantImg);
       this.openDropdown = { buisIndex: null, slotIndex: null };
     },
 
