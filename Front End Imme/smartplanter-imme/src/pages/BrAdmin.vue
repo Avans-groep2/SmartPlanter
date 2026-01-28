@@ -212,6 +212,7 @@ const verwijderDevice = async (ttnDeviceID) => {
     const res = await fetch(url);
     if (res.ok) {
       devicesRaw.value = devicesRaw.value.filter((d) => !(d.TtnDeviceID !== ttnDeviceID));
+      await laadAlleData();
       alert("Device verwijderd uit database."); 
     } else {
       alert("Fout bij verwijderen. Is het device nog gekoppeld aan een planter?");
@@ -231,6 +232,7 @@ const verwijderKoppeling = async (userID, deviceID) => {
     const res = await fetch(url);
     if (res.ok) {
       planterData.value = planterData.value.filter((p) => !(p.UserID === userID && p.DeviceID === deviceID));
+      await laadAlleData();
       alert("Koppeling succesvol verwijderd");
     }
    } catch (err) {
@@ -271,7 +273,7 @@ const verwijderKoppeling = async (userID, deviceID) => {
   overflow: hidden;
   padding: 1rem;
   box-sizing: border-box;
-  gap: 20px;
+  gap: 15px;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; 
 }
 
@@ -283,6 +285,7 @@ const verwijderKoppeling = async (userID, deviceID) => {
   
   display: flex;
   flex-direction: column;
+  flex:1;
   height: 45vh;
   overflow: hidden;
 }
@@ -316,7 +319,7 @@ const verwijderKoppeling = async (userID, deviceID) => {
   position: sticky;
   top: 0;
   background: white;
-  z-index: 1;
+  z-index: 10;
 }
 
 .deviceIdAanmaken, .UserIdKoppels {
@@ -332,11 +335,11 @@ const verwijderKoppeling = async (userID, deviceID) => {
 .deviceKeuze, .koppelMaken {
   display: flex;
   flex-direction: row;
-  flex-direction: nowrap;
+  flex-shrink: 0;
   gap: 15px;
   margin-bottom: 20px;
   align-items: center;
-  overflow-x:  auto;
+  overflow-x:  visible;
 }
 
 .admin-input {
