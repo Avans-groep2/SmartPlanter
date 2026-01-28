@@ -212,8 +212,8 @@ const verwijderDevice = async (ttnDeviceID) => {
     const res = await fetch(url);
     if (res.ok) {
       devicesRaw.value = devicesRaw.value.filter((d) => !(d.TtnDeviceID !== ttnDeviceID));
-      await laadAlleData();
       alert("Device verwijderd uit database."); 
+      await laadAlleData();
     } else {
       alert("Fout bij verwijderen. Is het device nog gekoppeld aan een planter?");
     }
@@ -232,8 +232,8 @@ const verwijderKoppeling = async (userID, deviceID) => {
     const res = await fetch(url);
     if (res.ok) {
       planterData.value = planterData.value.filter((p) => !(p.UserID === userID && p.DeviceID === deviceID));
-      await laadAlleData();
       alert("Koppeling succesvol verwijderd");
+      await laadAlleData();
     }
    } catch (err) {
       alert("Koppeling onsuccesvol verwijderd");
@@ -273,7 +273,7 @@ const verwijderKoppeling = async (userID, deviceID) => {
   overflow: hidden;
   padding: 1rem;
   box-sizing: border-box;
-  gap: 15px;
+  gap: 10px;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; 
 }
 
@@ -312,7 +312,7 @@ const verwijderKoppeling = async (userID, deviceID) => {
   overflow-y: auto;
   flex-grow: 1;
   border: 1px solid #eee;
-  margin-top: 10px;
+  margin-top: 5px;
 }
 
 .scrolTabel-container thead th {
@@ -328,7 +328,7 @@ const verwijderKoppeling = async (userID, deviceID) => {
   background: white;
   padding: 20px;
   border-radius: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
