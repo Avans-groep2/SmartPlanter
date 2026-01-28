@@ -79,11 +79,11 @@ export default {
     if (!idPlantKeuze.value) return alert("Vul Plant ID in");
   
   const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Planten` +
-              `&PlantID=${idPlantKeuze.value}` +
-              `&Plantsoort=${encodeURIComponent(plantSoortKeuze.value)}` +
-              `&PhMin=${phMinKeuze.value}` +
-              `&PhMax=${phMaxKeuze.value}` +
-              `&Groeitijd=${groeitijdKeuze.value}`;
+              `&plantID=${idPlantKeuze.value}` +
+              `&plantSoort=${encodeURIComponent(plantSoortKeuze.value)}` +
+              `&phMin=${phMinKeuze.value}` +
+              `&phMax=${phMaxKeuze.value}` +
+              `&groeitijd=${groeitijdKeuze.value}`;
 
               console.log("verzenden naar URL ", url);
 
