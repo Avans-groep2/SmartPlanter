@@ -211,8 +211,7 @@ const verwijderDevice = async (ttnDeviceID) => {
   try {
     const res = await fetch(url);
     if (res.ok) {
-      devicesRaw.value = devicesRaw.value.filter((d) => !(d.TtnDeviceID !== ttnDeviceID));
-      alert("Device verwijderd uit database."); 
+      await laadAlleData();
     } else {
       alert("Fout bij verwijderen. Is het device nog gekoppeld aan een planter?");
     }
@@ -230,7 +229,7 @@ const verwijderKoppeling = async (userID, deviceID) => {
    try{
     const res = await fetch(url);
     if (res.ok) {
-      planterData.value = planterData.value.filter((p) => !(p.UserID === userID && p.DeviceID === deviceID));
+    await laadAlleData ();
       alert("Koppeling succesvol verwijderd");
     }
    } catch (err) {

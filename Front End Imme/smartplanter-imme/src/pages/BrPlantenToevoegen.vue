@@ -136,6 +136,7 @@ export default {
         }
     } catch (err) {
         alert("Fout bij toevoegen plant " + err.message); 
+    }
     };
 
     onMounted(() => {
@@ -147,8 +148,6 @@ export default {
     };
 }
 }
-}
-
 
 
 </script>
