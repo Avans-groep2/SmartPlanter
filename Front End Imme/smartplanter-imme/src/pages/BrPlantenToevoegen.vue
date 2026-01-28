@@ -85,6 +85,8 @@ export default {
               `&PhMax=${phMaxKeuze.value}` +
               `&Groeitijd=${groeitijdKeuze.value}`;
 
+              console.log("verzenden naar URL ", url);
+
     try {
         const res = await fetch(url);
         const data = await res.json();

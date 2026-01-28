@@ -202,17 +202,17 @@ const insertNieuwDevice = async () => {
   }
 };
 
-const verwijderDevice = async (ttnID) => {
-  if (!ttnID) return;
-  if (!confirm(`Weet je zeker dat je ${ttnID} wilt verwijderen?`)) return;
+const verwijderDevice = async (ttnDeviceID) => {
+  if (!ttnDeviceID) return;
+  if (!confirm(`Weet je zeker dat je ${ttnDeviceID} wilt verwijderen?`)) return;
 
-  const url = `https://smartplanters.dedyn.io:1880/cleardata?table=Devices&ttnDeviceID=${encodeURIComponent(ttnID)}`;
+  const url = `https://smartplanters.dedyn.io:1880/cleardata?table=Devices&ttnDeviceID=${encodeURIComponent(ttnDeviceID)}`;
   
   try {
     const res = await fetch(url);
     if (res.ok) {
-      devicesRaw.value = devicesRaw.value.filter((d) => d.TtnDeviceID !== ttnID);
-      alert("Device verwijderd uit database.");
+      devicesRaw.value = devicesRaw.value.filter((d) => !(d.TtnDeviceID !== ttnDeviceID));
+      alert("Device verwijderd uit database."); 
     } else {
       alert("Fout bij verwijderen. Is het device nog gekoppeld aan een planter?");
     }
@@ -224,7 +224,6 @@ const verwijderDevice = async (ttnID) => {
 const verwijderKoppeling = async (userID, deviceID) => {
   if (!userID || !deviceID) return;
   if (!confirm("Koppelling verwijdern?")) return;
-
 
    const url = `https://smartplanters.dedyn.io:1880/cleardata?table=Planter&userID=${encodeURIComponent(userID)}&deviceID=${encodeURIComponent(deviceID)}`;
   
@@ -265,17 +264,6 @@ const verwijderKoppeling = async (userID, deviceID) => {
 </script>
 
 <style>
-.koppelMaken {
-  display: flex;
-  flex-wrap: wrap; 
-  gap: 10px;
-  align-items: center;
-}
-
-.admin-input.klein {
-  width: 100px;
-}
-
 .admin {
   display: flex;
   flex-direction: column;
@@ -296,14 +284,14 @@ const verwijderKoppeling = async (userID, deviceID) => {
   display: flex;
   flex-direction: column;
   height: 35vh;
-  box-sizing: border-box;
   overflow: hidden;
 }
 
-.scrolTabel-container {
-  overflow-y: auto;
-  flex-grow: 1;
-  border: 1px solid #eee;
+.koppelMaken {
+  display: flex;
+  flex-wrap: wrap; 
+  gap: 10px;
+  align-items: center;
 }
 
 .adminH1{
@@ -313,10 +301,28 @@ const verwijderKoppeling = async (userID, deviceID) => {
   color: black;
 }
 
-.deviceIdAanmaken, .UserIdKoppels {
+.admin-input.klein {
+  width: 100px;
+}
+
+.scrolTabel-container {
+  overflow-y: auto;
+  flex-grow: 1;
+  border: 1px solid #eee;
+  margin-top: 10px;
+}
+
+.scrolTabel-container thead th {
+  position: sticky;
+  top: 0;
   background: white;
-  flex-direction: row;
-  flex-wrap: wrap;
+  z-index: 1;
+}
+
+.deviceIdAanmaken, .UserIdKoppels {
+  display: flex;
+  flex-direction: column;
+  background: white;
   padding: 20px;
   border-radius: 10px;
   margin-bottom: 20px;
