@@ -213,7 +213,6 @@ const verwijderDevice = async (ttnDeviceID) => {
     if (res.ok) {
       devicesRaw.value = devicesRaw.value.filter((d) => !(d.TtnDeviceID !== ttnDeviceID));
       alert("Device verwijderd uit database."); 
-      await laadAlleData();
     } else {
       alert("Fout bij verwijderen. Is het device nog gekoppeld aan een planter?");
     }
@@ -224,7 +223,7 @@ const verwijderDevice = async (ttnDeviceID) => {
 
 const verwijderKoppeling = async (userID, deviceID) => {
   if (!userID || !deviceID) return;
-  if (!confirm("Koppelling verwijdern?")) return;
+  if (!confirm("Koppelling verwijderen?")) return;
 
    const url = `https://smartplanters.dedyn.io:1880/cleardata?table=Planter&userID=${encodeURIComponent(userID)}&deviceID=${encodeURIComponent(deviceID)}`;
   
@@ -233,7 +232,6 @@ const verwijderKoppeling = async (userID, deviceID) => {
     if (res.ok) {
       planterData.value = planterData.value.filter((p) => !(p.UserID === userID && p.DeviceID === deviceID));
       alert("Koppeling succesvol verwijderd");
-      await laadAlleData();
     }
    } catch (err) {
       alert("Koppeling onsuccesvol verwijderd");

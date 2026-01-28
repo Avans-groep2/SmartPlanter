@@ -10,7 +10,8 @@
             <input type="number" v-model="phMaxKeuze" placeholder="pHmaximale" class="adminPlant-input"/> 
             <input type="number" v-model="groeitijdKeuze" placeholder="Groeitijd plant" class="adminPlant-input"/> 
 
-            <button class="plantInfoInsertKnop" @click="insertNieuwePlantInfo">Koppel</button>
+            <button class="dataBeheerKnop" @click="insertNieuwePlantInfo">Koppel</button>
+            <button class="dataBeheerKnop" @click="updateToegevoegdePlanten">Update</button>
         </div>
 
         <div class="plantToevoegTabel-container">
@@ -26,7 +27,9 @@
             </thead>
             <tbody>
                 <tr v-for="plant in plantInfo"
-                    :key="plant.PlantID">
+                    :key="plant.PlantID"
+                    @click="idPlantKeuze = plant.PlantID; plantSoortKeuze = plant.Plantsoort
+                            phMinKeuze = plant.PhMin; phMaxKeuze = plant.PhMax; groeitijdKeuze = plant.Groeitijd">
                     <td>{{ plant.PlantID }}</td>
                     <td>{{ plant.Plantsoort }}</td>
                     <td>{{ plant.PhMin }}</td>
@@ -85,11 +88,10 @@ export default {
               `&phMax=${phMaxKeuze.value}` +
               `&groeitijd=${groeitijdKeuze.value}`;
 
-              console.log("verzenden naar URL ", url);
-
     try {
         const res = await fetch(url);
         const data = await res.json();
+        
         
         if (data.error) {
             alert("Database Error: " + data.code);
@@ -107,15 +109,46 @@ export default {
     }
     };
 
+    const updateToegevoegdePlanten = async () => {
+        if (!idPlantKeuze.value) return alert("Deze waarde kan niet geupdate worden");
+
+        const url = `https://smartplanters.dedyn.io:1880/harvest?table=Planten` + 
+                    `&plantID=${idPlantKeuze.value}` +
+                    `&plantSoort=${encodeURIComponent(plantSoortKeuze.value)}` +
+                    `&phMin=${phMinKeuze.value}` +
+                    `&phMax=${phMaxKeuze.value}` +
+                    `&groeitijd=${groeitijdKeuze.value}`;
+        try{
+            const res = await fetch(url);
+            const data = await res.json();
+        
+        if (data.error) {
+            alert("Database Error: " + data.code);
+        } else {
+            alert("Plant succesvol bijgewerkt!");
+            await fetchPlantInfo();
+            idPlantKeuze.value = null;
+            plantSoortKeuze.value = "";
+            phMinKeuze.value = null;
+            phMaxKeuze.value = null;
+            groeitijdKeuze.value = null;
+            
+        }
+    } catch (err) {
+        alert("Fout bij toevoegen plant " + err.message); 
+    };
+
     onMounted(() => {
         fetchPlantInfo();
     });
 
-    return {plantInfo, loading, insertNieuwePlantInfo,
+    return {plantInfo, loading, insertNieuwePlantInfo, updateToegevoegdePlanten,
         groeitijdKeuze, phMaxKeuze, phMinKeuze, plantSoortKeuze, idPlantKeuze
     };
 }
 }
+}
+
 
 
 </script>
@@ -141,7 +174,7 @@ export default {
   width: 150px;
 }
 
-.plantInfoInsertKnop {
+.dataBeheerKnop {
   background-color: #2d6a4f;
   color: white;
   border: none;
