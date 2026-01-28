@@ -29,7 +29,7 @@
                 <tr v-for="plant in plantInfo"
                     :key="plant.PlantID"
                     @click="idPlantKeuze = plant.PlantID; plantSoortKeuze = plant.Plantsoort
-                            phMinKeuze = plant.PhMin; phMaxKeuze = plant.PhMax; groeitijdKeuze = plant.Groeitijd">
+                            phMinKeuze = plant.PhMin; phMaxKeuze = plant.PhMax; groeitijdKeuze = plant.Groeitijd;">
                     <td>{{ plant.PlantID }}</td>
                     <td>{{ plant.Plantsoort }}</td>
                     <td>{{ plant.PhMin }}</td>
@@ -105,6 +105,7 @@ export default {
             alert("Plant succesvol toegevoegd!");
         }
     } catch (err) {
+        console.dir(err);
         alert("Fout bij toevoegen plant " + err.message);
     }
     };

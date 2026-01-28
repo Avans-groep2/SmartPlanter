@@ -128,13 +128,12 @@ export default {
       loading.value = true;
       try {
         const [resDev, resPlan] = await Promise.all([
-          fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Devices'),
-          fetch('https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter')
+          fetch(`https://smartplanters.dedyn.io:1880/smartplantdata?table=Devices&nocache=${Date.now()}`),
+      fetch(`https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter&nocache=${Date.now()}`)
         ]);
 
         devicesRaw.value = await resDev.json();
-        planterData.value = await resPlan.json();
-
+        planterData.value = await resPlan.json(); 
       } catch (err) {
         console.error("Fout bij laden:", err);
       } finally {
@@ -150,6 +149,7 @@ export default {
       const users = planterData.value.map(p => p.UserID);
       return [...new Set(users)].filter(u => u);
     });
+
 
 const insertNieuwDevice = async () => {
   if (!deviceIdKeuze.value.trim()) return alert("Vul een Device ID in");
@@ -229,7 +229,10 @@ const verwijderKoppeling = async (userID, deviceID) => {
    try{
     const res = await fetch(url);
     if (res.ok) {
-    await laadAlleData ();
+    setTimeout(async () => {
+    await laadAlleData();
+    alert("Verwijderd en bijgewerkt!");
+  }, 300);
       alert("Koppeling succesvol verwijderd");
     }
    } catch (err) {
