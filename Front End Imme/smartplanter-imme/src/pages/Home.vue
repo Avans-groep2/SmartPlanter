@@ -136,6 +136,7 @@ export default {
     const openMoestuin = ref(false)
     const openDropdown = ref({buisIndex: null, slotIndex: null});
     const adminDropdownRef = ref(null)
+    const loading = ref(false);
 
     const isBeheerder = computed(() => {
       if (!footerStore.keycloak) return false;
@@ -175,7 +176,7 @@ export default {
       document.removeEventListener('click', handleClickOutside)
     })
 
-    return { moestuinStore, isBeheerder, openMoestuin, 
+    return { moestuinStore, isBeheerder, openMoestuin, loading,
       openDropdown, adminDropdownRef, laadPlantenDropdown};
   },
 
@@ -224,9 +225,9 @@ export default {
     },
 
     filteredPlants() {
-      const PlantenUitDatabase = this.moestuinStore || [];
+      const PlantenUitDatabase = this.moestuinStore.plantInfo || [];
       return PlantenUitDatabase.filter(plant =>
-        plant.Plantsoort && plant.Plntsoort.toLowerCase().includes(this.searchQuery.toLowerCase())
+        plant.Plantsoort && plant.Plantsoort.toLowerCase().includes(this.searchQuery.toLowerCase())
       )
     }
   },
@@ -252,7 +253,7 @@ export default {
     selectPlant(buisIndex, slotIndex, databasePlant) {
       const plantImg = {
         naam: databasePlant.Plantsoort,
-        img: img.plantIconen[databasePlant.Plantsoort] || '/plantenimg/default.png',
+        img: this.plantIconen[databasePlant.Plantsoort] || '/plantenimg/default.png',
         phMin: databasePlant.PhMin,
         PhMax: databasePlant.PhMax,
         groeitijd: databasePlant.Groeitijd
