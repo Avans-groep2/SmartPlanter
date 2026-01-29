@@ -57,13 +57,13 @@
 
         <div v-if="hoverInfo.buisIndex === buisIndex && hoverInfo.slotIndex === slotIndex" 
             class="hoverInfo">
-          <p v-if="slot.plant">{{slot.plant.Plantsoort}} <br>
+          <p v-if="slot.plant">{{slot.plant.Plant}} <br>
            Groeitijd:  <br>
             Kan geoogst worden op:
           </p>
           <p v-else>
             Leeg slot <br>
-            Voeg een plant toe.
+            Voeg een plant toe!
           </p>
         </div>
 

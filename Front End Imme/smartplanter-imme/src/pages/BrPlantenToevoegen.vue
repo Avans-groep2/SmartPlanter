@@ -110,7 +110,7 @@ export default {
     }
     };
 
-    const updateToegevoegdePlanten = async () => {
+    const updateToegevoegdePlanten = () => {
         if (!idPlantKeuze.value) return alert("Deze waarde kan niet geupdate worden");
 
         const url = `https://smartplanters.dedyn.io:1880/harvest?table=Planten` + 
@@ -119,26 +119,18 @@ export default {
                     `&phMin=${phMinKeuze.value}` +
                     `&phMax=${phMaxKeuze.value}` +
                     `&groeitijd=${groeitijdKeuze.value}`;
-        try{
-            const res = await fetch(url);
-            const data = await res.json();
-        
-        if (data.error) {
-            alert("Database Error: " + data.code);
-        } else {
-            alert("Plant succesvol bijgewerkt!");
-            await fetchPlantInfo();
-            idPlantKeuze.value = null;
-            plantSoortKeuze.value = "";
-            phMinKeuze.value = null;
-            phMaxKeuze.value = null;
-            groeitijdKeuze.value = null;
-            
-        }
-    } catch (err) {
-        alert("Fout bij toevoegen plant " + err.message); 
-    }
-    };
+
+    fetch(url).catch(err => console.error("Achtergrond update fout:", err));
+
+    alert("Update verzoek is verzonden!");
+ 
+
+    idPlantKeuze.value = null;
+    plantSoortKeuze.value = "";
+    phMinKeuze.value = null;
+    phMaxKeuze.value = null;
+    groeitijdKeuze.value = null;
+};
 
     onMounted(() => {
         fetchPlantInfo();
