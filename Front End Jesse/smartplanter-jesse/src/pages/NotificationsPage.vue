@@ -1,118 +1,291 @@
 <template>
   <SidebarNavbar />
-  
-  <div class="Notifications">
-    <WelcomeMessage/>
 
-    <div class="list-container">
-      <div class="list-header">Belangrijke Meldingen</div>
+  <div class="Notification">
+    <header>
+      <WelcomeMessage />
+      <PlantSelector v-model="selectedDeviceID" :includeAllOption="true" />
+    </header>
 
-      <div 
-        v-for="(belangrijkeMelding, index) in meldingen" 
-        :key="index" 
-        class="list-row"
-      >
-        <div>{{ belangrijkeMelding.datum }}</div>
-        <div>{{ belangrijkeMelding.tijd }}</div>
-        <div>{{ belangrijkeMelding.tekst }}</div>
-      </div>
+    <div class="notificationContainer">
+      <h2 class="notificationTitle">Belangrijke meldingen</h2>
 
-      <!-- Optioneel: als er nog geen data is -->
-      <div v-if="meldingen.length === 0" class="loading">
-        Meldingen worden geladen...
-      </div>
+      <table class="deviceTable">
+        <thead>
+          <tr>
+            <th>Planter</th>
+            <th>Bericht</th>
+            <th class="actionCol"></th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr v-for="(melding, index) in belangrijkeMeldingen" :key="index">
+            <td>{{ getPlanterNaam(melding.DeviceID) }}</td>
+            <td>{{ getBericht(melding.Berichtcode) }}</td>
+            <td class="actionCol">
+              <button
+                class="deleteBtn"
+                title="Verwijderen"
+                @click="softDelete(melding)"
+              >
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </td>
+          </tr>
+
+          <tr v-if="belangrijkeMeldingen.length === 0">
+            <td colspan="3" class="emptyRow">Geen belangrijke meldingen</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
-    <div class="list-container">
-      <div class="list-header">Overige Meldingen</div>
+    <div class="notificationContainer">
+      <h2 class="notificationTitle">Overige meldingen</h2>
 
-      <div 
-        v-for="(melding, index) in meldingen" 
-        :key="index" 
-        class="list-row"
-      >
-        <div>{{ melding.datum }}</div>
-        <div>{{ melding.tijd }}</div>
-        <div>{{ melding.tekst }}</div>
-      </div>
+      <table class="deviceTable">
+        <thead>
+          <tr>
+            <th>Planter</th>
+            <th>Bericht</th>
+            <th class="actionCol"></th>
+          </tr>
+        </thead>
 
-      <!-- Optioneel: als er nog geen data is -->
-      <div v-if="meldingen.length === 0" class="loading">
-        Meldingen worden geladen...
-      </div>
+        <tbody>
+          <tr v-for="(melding, index) in overigeMeldingen" :key="index">
+            <td>{{ getPlanterNaam(melding.DeviceID) }}</td>
+            <td>{{ getBericht(melding.Berichtcode) }}</td>
+            <td class="actionCol">
+              <button
+                class="deleteBtn"
+                title="Verwijderen"
+                @click="softDelete(melding)"
+              >
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </td>
+          </tr>
+
+          <tr v-if="overigeMeldingen.length === 0">
+            <td colspan="3" class="emptyRow">Geen overige meldingen</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </template>
 
 <script>
-import WelcomeMessage from '@/components/WelcomeMessage.vue';
-import SidebarNavbar from '@/components/SidebarNavbar.vue';
+import WelcomeMessage from "@/components/WelcomeMessage.vue";
+import SidebarNavbar from "@/components/SidebarNavbar.vue";
+import PlantSelector from "@/components/PlantSelector.vue";
 
 export default {
-  name: 'NotificationPage',
+  name: "NotificationsPage",
   components: {
     SidebarNavbar,
-    WelcomeMessage
+    WelcomeMessage,
+    PlantSelector,
   },
 
   data() {
     return {
-      meldingen: []
+      meldingen: [],
+      planters: [],
+      meldingBerichten: [],
+      selectedDeviceID: "",
     };
   },
 
-  async mounted() {
-    try {
-      const response = await fetch("");
-      const data = await response.json();
+  mounted() {
+    this.fetchMeldingen();
+    this.fetchPlanters();
+    this.fetchMeldingBerichten();
+  },
 
-      this.meldingen = data;
-    } catch (error) {
-      console.error("Fout bij ophalen van meldingen:", error);
-    }
+  computed: {
+    belangrijkeMeldingen() {
+      return this.meldingen.filter(
+        (m) =>
+          m.Prioriteit === "hoog" &&
+          (!this.selectedDeviceID || m.DeviceID === this.selectedDeviceID),
+      );
+    },
+
+    overigeMeldingen() {
+      return this.meldingen.filter(
+        (m) =>
+          m.Prioriteit === "normaal" &&
+          (!this.selectedDeviceID || m.DeviceID === this.selectedDeviceID),
+      );
+    },
+  },
+
+  methods: {
+    async fetchMeldingen() {
+  try {
+    const res = await fetch(
+      "https://smartplanters.dedyn.io:1880/smartplantdata?table=Meldingen",
+    );
+    const data = await res.json();
+
+    // ALLE meldingen opslaan
+    this.meldingen = data;
+  } catch (error) {
+    console.error("Fout bij ophalen meldingen:", error);
   }
+},
+
+    async fetchPlanters() {
+      try {
+        const res = await fetch(
+          "https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter",
+        );
+        this.planters = await res.json();
+      } catch (error) {
+        console.error("Fout bij ophalen planters:", error);
+      }
+    },
+
+    async fetchMeldingBerichten() {
+      try {
+        const res = await fetch(
+          "https://smartplanters.dedyn.io:1880/smartplantdata?table=MeldingBericht",
+        );
+        this.meldingBerichten = await res.json();
+      } catch (error) {
+        console.error("Fout bij ophalen meldingBerichten:", error);
+      }
+    },
+
+    getPlanterNaam(deviceId) {
+      const planter = this.planters.find((p) => p.DeviceID === deviceId);
+      return planter ? planter.DeviceNaam : "Onbekende planter";
+    },
+
+    getBericht(berichtcode) {
+      const berichtObj = this.meldingBerichten.find(
+        (b) => b.Berichtcode === berichtcode,
+      );
+      return berichtObj ? berichtObj.Bericht : "Onbekend bericht";
+    },
+
+    async softDelete(melding) {
+      const meldingID = melding.MeldingID ?? melding.meldingID;
+      if (!meldingID) {
+        this.$toast("Verwijderen mislukt. Probeer opnieuw.", "error");
+        return;
+      }
+
+      this.meldingen = this.meldingen.filter((m) => m.MeldingID !== meldingID);
+
+      const url = `https://smartplanters.dedyn.io:1880/cleardata?table=Meldingen&meldingID=${meldingID}`;
+      fetch(url);
+
+      this.$toast("Melding succesvol verwijderd", "success");
+    },
+  },
 };
 </script>
 
-<style>
-.Notifications {
-  min-height: 100vh;
-  width: auto;
+<style scoped>
+.Notification {
   margin-left: 5rem;
-  overflow-y: hidden;
-}
-
-.list-container {
-  background: var(--light);
-  border-radius: 12px;
-  padding: 12px;
-  width: 90%;
-  height: 17rem;
-  margin: 2rem 0 0 3rem;
-  font-family: sans-serif;
-}
-
-.list-header {
-  font-size: 2rem;
-  font-weight: bold;
-  margin-bottom: 10px;
   color: var(--text);
 }
 
-.list-row {
-  display: grid;
-  grid-template-columns: 100px 60px 1fr;
-  padding: 6px 0;
-  border-bottom: 1px solid #bcbcbc;
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.list-row:last-child {
-  border-bottom: none;
+.notificationContainer {
+  background: var(--light);
+  width: 90%;
+  border-radius: 15px;
+  margin: 2rem 0 0 3rem;
+  padding: 1rem;
 }
 
-.loading {
-  padding: 10px 0;
-  color: #555;
+.notificationTitle {
+  margin: 0 0 0.8rem 0;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.deviceTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.deviceTable thead {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.deviceTable thead th {
+  padding: 0.6rem;
+  text-align: left;
+  font-weight: bold;
+  border-bottom: 1px solid var(--icon);
+}
+
+.deviceTable tbody {
+  display: block;
+  min-height: 11rem;
+  max-height: 11rem;
+  overflow-y: auto;
+}
+
+.deviceTable tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+  transition: background 0.2s ease, opacity 0.3s ease;
+}
+
+.deviceTable tbody tr:hover {
+  background: var(--primary);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.deviceTable tbody td {
+  padding: 0.6rem;
+  border: brown;
+}
+
+.actionCol {
+  width: 3rem;
+  text-align: center;
+}
+
+.deleteBtn {
+  opacity: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: var(--text);
+  transition: opacity 0.2s ease;
+}
+
+.deviceTable tbody tr:hover .deleteBtn {
+  opacity: 1;
+}
+
+.softDeleted {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.emptyRow {
+  text-align: center;
+  color: var(--icon);
   font-style: italic;
 }
 </style>

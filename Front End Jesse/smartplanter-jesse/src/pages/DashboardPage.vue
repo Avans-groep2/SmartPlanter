@@ -1,143 +1,122 @@
 <template>
-  <SidebarNavbar/>
+  <SidebarNavbar />
+
   <div class="Dashboard">
     <header>
-      <WelcomeMessage/>
-      <PlantSelector/>
+      <WelcomeMessage />
+      <PlantSelector v-model="selectedDeviceId" />
     </header>
 
     <div class="plants-container">
       <PlantCard
-      name="Wortel"
-      position="01"
-      days-to-harvest="12"
-      plant-date="26-11-2025"
-      -harvest-date="13-12-2025"/>
+        v-for="plant in filteredPlants"
+        :key="plant.Plantpositie"
+        :name="plant.Plantsoort"
+        :position="plant.Plantpositie"
+        :plant-date="plant.PlantDatum"
+        :harvest-date="plant.OogstDatum"
+        @plant-harvested="removePlant"
+      />
 
-      <PlantCard
-      name="Wortel"
-      position="02"
-      days-to-harvest="12"
-      plant-date="26-11-2025"
-      -harvest-date="13-12-2025"/>
-
-      <PlantCard
-      name="Wortel"
-      position="03"
-      days-to-harvest="12"
-      plant-date="26-11-2025"
-      -harvest-date="13-12-2025"/>
-
-      <PlantCard
-      name="Wortel"
-      position="04"
-      days-to-harvest="12"
-      plant-date="26-11-2025"
-      -harvest-date="13-12-2025"/>
-
-      <PlantCard
-      name="Wortel"
-      position="05"
-      days-to-harvest="12"
-      plant-date="26-11-2025"
-      -harvest-date="13-12-2025"/>
-
-      <PlantCard
-      name="Wortel"
-      position="06"
-      days-to-harvest="12"
-      plant-date="26-11-2025"
-      -harvest-date="13-12-2025"/>
-
-      <PlantCard
-      name="Aardbei"
-      position="07"
-      days-to-harvest="12"
-      plant-date="26-11-2025"
-      -harvest-date="13-12-2025"/>
-
-      <PlantCard
-      name="Wortel"
-      position="08"
-      days-to-harvest="12"
-      plant-date="26-11-2025"
-      -harvest-date="13-12-2025"/>
-
-      <PlantCard
-      name="Wortel"
-      position="09"
-      days-to-harvest="12"
-      plant-date="26-11-2025"
-      -harvest-date="13-12-2025"/>
-
-      <PlantCard
-      name="Wortel"
-      position="10"
-      days-to-harvest="12"
-      plant-date="26-11-2025"
-      -harvest-date="13-12-2025"/>
-
-      <PlantCard
-      name="Wortel"
-      position="10"
-      days-to-harvest="11"
-      plant-date="26-11-2025"
-      -harvest-date="13-12-2025"/>
-
-      <PlantCard
-      name="Wortel"
-      position="12"
-      days-to-harvest="12"
-      plant-date="26-11-2025"
-      -harvest-date="13-12-2025"/>
-
-
-
-
-      
-    
+      <AddPlantCard
+        v-if="selectedDeviceId"
+        :deviceID="selectedDeviceId"
+        @plant-added="reloadPlantPositions"
+      />
     </div>
   </div>
-  
-  
 </template>
 
-<script>
-import WelcomeMessage from '@/components/WelcomeMessage.vue';
-import SidebarNavbar from '../components/SidebarNavbar.vue';
-import PlantCard from '@/components/PlantCard.vue';
-import PlantSelector from '@/components/PlantSelector.vue';
+<script setup>
+import { ref, computed, onMounted } from "vue";
 
+import SidebarNavbar from "@/components/SidebarNavbar.vue";
+import WelcomeMessage from "@/components/WelcomeMessage.vue";
+import PlantCard from "@/components/PlantCard.vue";
+import PlantSelector from "@/components/PlantSelector.vue";
+import AddPlantCard from "@/components/AddPlantCard.vue";
 
+const selectedDeviceId = ref(null);
+const planters = ref([]);
+const plants = ref([]);
+const plantPositions = ref([]);
 
+onMounted(async () => {
+  await fetchAllData();
+});
 
-
-export default {
-  name: 'DashboardPage',
-  components: {
-    SidebarNavbar,
-    WelcomeMessage,
-    PlantCard,
-    PlantSelector
-  }
+async function fetchAllData() {
+  await Promise.all([fetchPlanters(), fetchPlants(), fetchPlantPositions()]);
 }
+
+async function fetchPlanters() {
+  const res = await fetch(
+    "https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter",
+  );
+  planters.value = await res.json();
+}
+
+async function fetchPlants() {
+  const res = await fetch(
+    "https://smartplanters.dedyn.io:1880/smartplantdata?table=Planten",
+  );
+  plants.value = await res.json();
+}
+
+async function fetchPlantPositions() {
+  const res = await fetch(
+    "https://smartplanters.dedyn.io:1880/smartplantdata?table=PlantPositie",
+  );
+  plantPositions.value = await res.json();
+}
+
+async function reloadPlantPositions() {
+  await fetchPlantPositions();
+}
+
+function removePlant(position) {
+  plantPositions.value = plantPositions.value.filter(
+    (p) => p.Plantpositie !== position,
+  );
+}
+
+const filteredPlants = computed(() => {
+  if (!selectedDeviceId.value) return [];
+
+  const positions = plantPositions.value.filter(
+    (p) =>
+      p.DeviceID === selectedDeviceId.value &&
+      p.Plantpositie !== null &&
+      p.Plantpositie !== "",
+  );
+
+  return positions.map((p) => {
+    const plantData = plants.value.find((pl) => pl.PlantID === p.PlantID);
+    return {
+      ...p,
+      Plantsoort: plantData ? plantData.Plantsoort : "Onbekend",
+    };
+  });
+});
 </script>
 
 <style>
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-right: 1rem;
+}
 
-  header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-right: 1rem;
-  }
+.Dashboard {
+  min-height: 100vh;
+  margin-left: 5rem;
+}
 
-  .Dashboard {
-    min-height: 100vh;
-    width: auto;
-    margin-left: 5rem;
-    overflow-y: hidden;
-    overflow-x: hidden;
-  }
-
+.plants-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 325px));
+  gap: 20px;
+  padding: 20px;
+}
 </style>

@@ -6,35 +6,72 @@
 
 <script>
 export default {
-  name: 'App',
+  name: "App",
   data() {
     return {
-      username: '',
-      token: ''
-    }
+      userID: "",
+      keycloakReady: false,
+    };
   },
-  mounted() {
-    // Haal de instantie op die we in main.js hebben ingesteld
-    const keycloak = this.$keycloak;
-    
-    if (keycloak && keycloak.authenticated) {
-      // Probeer username uit diverse velden te halen
-      this.username = keycloak.tokenParsed.preferred_username || keycloak.tokenParsed.name || 'Gebruiker';
-      this.token = keycloak.token;
+  async mounted() {
+    // Wacht tot Keycloak beschikbaar is
+    await this.waitForKeycloak();
+
+    if (this.keycloakReady && this.$keycloak.authenticated) {
+      // Pak userID
+      this.userID = this.$keycloak.tokenParsed.sub;
+
+      // Stuur GET request om userID toe te voegen
+      this.addUserIfNotExists();
     }
   },
   methods: {
     logout() {
       this.$keycloak.logout();
-    }
-  }
-}
+    },
+
+    // Functie die wacht tot Keycloak geladen is
+    waitForKeycloak() {
+      return new Promise((resolve) => {
+        const check = () => {
+          if (this.$keycloak && this.$keycloak.authenticated !== undefined) {
+            this.keycloakReady = true;
+            resolve();
+          } else {
+            // Blijf controleren elke 50ms
+            setTimeout(check, 50);
+          }
+        };
+        check();
+      });
+    },
+
+    async addUserIfNotExists() {
+      if (!this.userID) return;
+
+      const url = `https://smartplanters.dedyn.io:1880/smartplantedit?table=Users&userID=${this.userID}`;
+
+      try {
+        const res = await fetch(url);
+
+        if (res.ok) {
+          console.log(`✅ UserID "${this.userID}" is toegevoegd of bestaat al`);
+        } else {
+          console.error(`❌ Fout bij toevoegen UserID: ${res.statusText}`);
+        }
+      } catch (err) {
+        console.error("Fout bij fetch:", err);
+      }
+    },
+  },
+};
 </script>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap");
 
-body {
+body,
+#app {
   font-family: "Poppins", sans-serif;
   background: var(--bg);
   margin: 0;
@@ -42,9 +79,8 @@ body {
 }
 
 * {
-  transition: background-color 0.3s ease, 
-              color 0.3s ease,
-              border-color 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease,
+    border-color 0.3s ease;
 }
 
 ::selection {

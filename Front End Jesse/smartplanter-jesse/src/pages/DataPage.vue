@@ -1,68 +1,126 @@
 <template>
-  <SidebarNavbar/>
+  <SidebarNavbar />
+
   <div class="Data">
     <header>
-    <WelcomeMessage/>
-    <PlantSelector/>
+      <WelcomeMessage />
+      <PlantSelector v-model="selectedDeviceId" />
     </header>
+
     <div class="chartContainer">
-    <TempetureChart/>
-    <FlowBeginChart/>
-    <FlowEndChart/>
-    <PhChart/>
-    <ECChart/>
-    <LuxChart/>
+      <!-- Temperatuur -->
+      <DataChart
+        :device-id="selectedDeviceId"
+        data-key="temperatuur"
+        label="Temperatuur"
+        unit="°C"
+        :min-threshold="18"
+        :threshold="26"
+        threshold-priority="normaal"
+        :min-berichtcode="1"
+        :max-berichtcode="2"
+      />
+
+      <!-- pH -->
+      <DataChart
+        :device-id="selectedDeviceId"
+        data-key="ph"
+        label="pH"
+        unit="pH"
+        :min-threshold="5.5"
+        :threshold="6.5"
+        threshold-priority="hoog"
+        :min-berichtcode="3"
+        :max-berichtcode="4"
+      />
+
+      <!-- EC -->
+      <DataChart
+        :device-id="selectedDeviceId"
+        data-key="ec"
+        label="EC"
+        unit="mS/cm"
+        :min-threshold="10"
+        :threshold="16"
+        threshold-priority="normaal"
+        :min-berichtcode="5"
+        :max-berichtcode="6"
+      />
+
+      <!-- Flow Begin -->
+      <DataChart
+        :device-id="selectedDeviceId"
+        data-key="flow_begin"
+        label="Flow Begin"
+        unit="L/min"
+        :min-threshold="0.1"
+        :threshold="999"
+        threshold-priority="hoog"
+        :min-berichtcode="7"
+        :max-berichtcode="7"
+      />
+
+      <!-- Flow Eind -->
+      <DataChart
+        :device-id="selectedDeviceId"
+        data-key="flow_eind"
+        label="Flow Eind"
+        unit="L/min"
+        :min-threshold="0.1"
+        :threshold="999"
+        threshold-priority="hoog"
+        :min-berichtcode="7"
+        :max-berichtcode="7"
+      />
+
+      <!-- Lichtweerstand -->
+      <DataChart
+        :device-id="selectedDeviceId"
+        data-key="lichtweerstand"
+        label="Lichtweerstand"
+        unit="Ω"
+        :min-threshold="600"
+        :threshold="700"
+        threshold-priority="normaal"
+        :min-berichtcode="8"
+        :max-berichtcode="9"
+      />
     </div>
   </div>
-  
-  
 </template>
 
-<script>
-import WelcomeMessage from '@/components/WelcomeMessage.vue';
-import SidebarNavbar from '../components/SidebarNavbar.vue';
-import PlantSelector from '@/components/PlantSelector.vue';
-import TempetureChart from '@/components/charts/TempetureChart.vue';
-import FlowBeginChart from '@/components/charts/FlowBeginChart.vue';
-import FlowEndChart from '@/components/charts/FlowEndChart.vue';
-import ECChart from '@/components/charts/ECChart.vue';
-import LuxChart from '@/components/charts/LuxChart.vue';
-import PhChart from '@/components/charts/PhChart.vue';
+<script setup>
+import { ref } from "vue";
 
+import SidebarNavbar from "@/components/SidebarNavbar.vue";
+import WelcomeMessage from "@/components/WelcomeMessage.vue";
+import PlantSelector from "@/components/PlantSelector.vue";
+import DataChart from "@/components/DataChart.vue";
 
-
-
-export default {
-  name: 'DataPage',
-  components: {
-    SidebarNavbar,
-    WelcomeMessage,
-    TempetureChart,
-    FlowBeginChart,
-    FlowEndChart,
-    ECChart,
-    LuxChart,
-    PhChart,
-    PlantSelector
-  }
-}
+const selectedDeviceId = ref("device-1");
 </script>
 
 <style>
-
-  .Data {
-    min-height: 100vh;
-    width: auto;
-    margin-left: 5rem;
-  }
-
-  .chartContainer {
-  max-width: 90%;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 1rem; 
+.Data {
+  min-height: 100vh;
+  width: auto;
+  margin-left: 5rem;
 }
 
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
-
+.chartContainer {
+  width: 100%;
+  max-width: 90%;
+  margin: 0 auto;
+  padding: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 1rem;
+  box-sizing: border-box;
+}
 </style>
