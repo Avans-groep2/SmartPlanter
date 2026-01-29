@@ -126,20 +126,18 @@ export default {
 
   methods: {
     async fetchMeldingen() {
-      const { appContext } = getCurrentInstance();
-      const $auth = appContext.config.globalProperties.$auth;
-      const userId = $auth.user?.id;
+  try {
+    const res = await fetch(
+      "https://smartplanters.dedyn.io:1880/smartplantdata?table=Meldingen",
+    );
+    const data = await res.json();
 
-      try {
-        const res = await fetch(
-          "https://smartplanters.dedyn.io:1880/smartplantdata?table=Meldingen",
-        );
-        const data = await res.json();
-        this.meldingen = data.filter((m) => m.UserID === userId);
-      } catch (error) {
-        console.error("Fout bij ophalen meldingen:", error);
-      }
-    },
+    // ALLE meldingen opslaan
+    this.meldingen = data;
+  } catch (error) {
+    console.error("Fout bij ophalen meldingen:", error);
+  }
+},
 
     async fetchPlanters() {
       try {
