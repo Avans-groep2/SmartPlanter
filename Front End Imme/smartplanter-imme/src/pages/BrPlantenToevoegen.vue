@@ -110,28 +110,41 @@ export default {
     }
     };
 
-    const updateToegevoegdePlanten = () => {
-        if (!idPlantKeuze.value) return alert("Deze waarde kan niet geupdate worden");
+    const updateToegevoegdePlanten = async () => {
+    if (!idPlantKeuze.value) return alert("Deze waarde kan niet geupdate worden");
 
-        const url = `https://smartplanters.dedyn.io:1880/harvest?table=Planten` + 
-                    `&plantID=${idPlantKeuze.value}` +
-                    `&plantSoort=${encodeURIComponent(plantSoortKeuze.value)}` +
-                    `&phMin=${phMinKeuze.value}` +
-                    `&phMax=${phMaxKeuze.value}` +
-                    `&groeitijd=${groeitijdKeuze.value}`;
+    const url = `https://smartplanters.dedyn.io:1880/harvest?table=Planten` + 
+                `&plantID=${idPlantKeuze.value}` +
+                `&plantSoort=${encodeURIComponent(plantSoortKeuze.value)}` +
+                `&phMin=${phMinKeuze.value}` +
+                `&phMax=${phMaxKeuze.value}` +
+                `&groeitijd=${groeitijdKeuze.value}`;
 
-    fetch(url).catch(err => console.error("Achtergrond update fout:", err));
-
-    alert("Update verzoek is verzonden!");
+    try {
+        loading.value = true;
  
+        const res = await fetch(url);
+        const data = await res.json();
 
-    idPlantKeuze.value = null;
-    plantSoortKeuze.value = "";
-    phMinKeuze.value = null;
-    phMaxKeuze.value = null;
-    groeitijdKeuze.value = null;
+        if (data.error) {
+            throw new Error(data.code || "Onbekende database fout");
+        }
+
+        alert("Update verzoek is succesvol verwerkt!");
+        await fetchPlantInfo(); 
+    } catch (err) {
+        console.error("Update fout:", err);
+        alert("Fout bij bijwerken: " + err.message);
+    } finally {
+        loading.value = false;
+        
+        idPlantKeuze.value = null;
+        plantSoortKeuze.value = "";
+        phMinKeuze.value = null;
+        phMaxKeuze.value = null;
+        groeitijdKeuze.value = null;
+    }
 };
-
     onMounted(() => {
         fetchPlantInfo();
     });
