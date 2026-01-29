@@ -78,7 +78,6 @@
 </template>
 
 <script>
-import { getCurrentInstance } from "vue";
 import WelcomeMessage from "@/components/WelcomeMessage.vue";
 import SidebarNavbar from "@/components/SidebarNavbar.vue";
 import PlantSelector from "@/components/PlantSelector.vue";
