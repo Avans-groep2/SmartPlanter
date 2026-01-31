@@ -68,7 +68,6 @@
       <table class="plantsTable">
         <thead>
           <tr>
-            <th>PlantID</th>
             <th>Plantsoort</th>
             <th>PhMin</th>
             <th>PhMax</th>
