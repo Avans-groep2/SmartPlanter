@@ -1,56 +1,182 @@
 <template>
   <div class="dropdown">
-    <button @click="open = !open" class="dropdown-btn">
-      {{ selected || 'Selecteer een optie' }}
+    <button @click="toggleDropdown" class="dropdown-btn">
+      {{ selected?.label || "Nog geen plantenbak" }}
     </button>
 
-    <!-- Smooth transition -->
     <transition name="fade-slide">
-      <ul
-        v-if="open"
-        class="dropdown-menu"
-      >
+      <ul v-if="open" class="dropdown-menu">
         <li
           v-for="option in options"
-          :key="option"
+          :key="option.deviceId"
           @click="select(option)"
         >
-          {{ option }}
+          {{ option.label }}
         </li>
       </ul>
     </transition>
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted, watch } from "vue";
+<script>
+export default {
+  name: "PlantSelector",
+  props: {
+    modelValue: {
+      type: [Number, String, null],
+      default: null,
+    },
+    includeAllOption: {
+      type: Boolean,
+      default: false,
+    },
+  },
 
-const open = ref(false);
-const selected = ref(null);
-const options = ["Smartplanter 1", "Smartplanter 2", "Smartplanter 3"];
+  data() {
+    return {
+      open: false,
+      selected: null,
+      options: [],
+    };
+  },
 
-// 🧠 Onthoud laatste keuze via localStorage
-onMounted(() => {
-  const saved = localStorage.getItem("chosenOption");
-  if (saved) selected.value = saved;
-});
+  computed: {
+    user() {
+      return this.$auth.user;
+    },
+    currentUserID() {
+      return this.user?.id;
+    },
+  },
 
-watch(selected, (value) => {
-  if (value) localStorage.setItem("chosenOption", value);
-});
+  watch: {
+    modelValue(value) {
+      if (!value || !this.options.length) return;
+      this.selected =
+        this.options.find((o) => o.deviceId === value) || this.selected;
+    },
+    user(u) {
+      if (u) this.loadPlanters();
+    },
+  },
 
-function select(option) {
-  selected.value = option;
-  open.value = false;
-}
+  mounted() {
+    if (this.user) this.loadPlanters();
+    document.addEventListener("click", this.handleClickOutside);
+  },
+
+  beforeUnmount() {
+    document.removeEventListener("click", this.handleClickOutside);
+  },
+
+  methods: {
+    toggleDropdown() {
+      this.open = !this.open;
+    },
+
+    async loadPlanters() {
+      if (!this.user) return;
+
+      try {
+        const res = await fetch(
+          "https://smartplanters.dedyn.io:1880/smartplantdata?table=Planter",
+        );
+        const data = await res.json();
+
+        const isBeheerder = this.user?.roles?.includes("beheerder");
+
+        let plantersToShow = [];
+
+        if (isBeheerder) {
+          plantersToShow = data;
+        } else {
+          plantersToShow = data.filter(
+            (p) => String(p.UserID) === String(this.currentUserID),
+          );
+        }
+
+        const uniquePlantersMap = new Map();
+        plantersToShow.forEach((p) => {
+          const key = `${p.DeviceID}-${p.DeviceNaam}`;
+          if (!uniquePlantersMap.has(key)) {
+            uniquePlantersMap.set(key, {
+              label: p.DeviceNaam,
+              deviceId: p.DeviceID,
+            });
+          }
+        });
+
+        this.options = Array.from(uniquePlantersMap.values());
+
+        if (this.includeAllOption) {
+          this.options.unshift({
+            label: "Alle planters",
+            deviceId: null,
+          });
+        }
+
+        const savedId = localStorage.getItem("chosenDeviceId");
+        if (savedId) {
+          this.selected =
+            this.options.find((o) => String(o.deviceId) === savedId) ||
+            this.options[0];
+        } else if (this.options.length) {
+          this.selected = this.options[0];
+          localStorage.setItem("chosenDeviceId", this.selected.deviceId);
+          localStorage.setItem("chosenDeviceName", this.selected.label);
+        }
+
+        if (this.selected) {
+          this.$emit("update:modelValue", this.selected.deviceId);
+          this.$emit("update:planterName", this.selected.label);
+        }
+
+        this.$emit("loaded", this.selected);
+      } catch (err) {
+        console.error("Fout bij ophalen van planters:", err);
+      }
+    },
+
+    select(option) {
+      this.selected = option;
+      this.open = false;
+
+      localStorage.setItem("chosenDeviceId", option.deviceId);
+      localStorage.setItem("chosenDeviceName", option.label);
+
+      this.$emit("update:modelValue", option.deviceId);
+      this.$emit("update:planterName", option.label);
+    },
+
+    updateOptionName(deviceId, newName) {
+      const option = this.options.find(
+        (o) => String(o.deviceId) === String(deviceId),
+      );
+      if (option) {
+        option.label = newName;
+        if (
+          this.selected &&
+          String(this.selected.deviceId) === String(deviceId)
+        ) {
+          this.selected.label = newName;
+        }
+      }
+    },
+
+    handleClickOutside(e) {
+      const dropdown = this.$el;
+      if (dropdown && !dropdown.contains(e.target)) {
+        this.open = false;
+      }
+    },
+  },
+};
 </script>
 
 <style>
 .dropdown {
   position: relative;
   width: 200px;
-  right: 0;
-  top: 0;
   z-index: 999;
 }
 
@@ -68,51 +194,41 @@ function select(option) {
 
 .dropdown-menu {
   position: absolute;
-  width: 100%;
-  margin-top: 4px;
+  top: 100%;
+  left: 0;
+  max-width: 165px;
+  width: 165px;
+  margin-top: 0.5rem;
   padding: 0;
   list-style: none;
   border: 1px solid var(--light);
   background: var(--light);
-  overflow: hidden;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .dropdown-menu li {
   padding: 8px;
   cursor: pointer;
-  background: var(--light);
   color: var(--text);
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .dropdown-menu li:hover {
   background: var(--primary);
-  color: var(--primary-dark);
+  font-weight: 600;
 }
 
-/* 💫 Transition (fade + slide) */
 .fade-slide-enter-active,
 .fade-slide-leave-active {
-  transition: all 0.2s ease;
-  transform-origin: top;
+  transition: all 0.25s ease;
 }
 
-.fade-slide-enter-from {
-  opacity: 0;
-  transform: translateY(-6px);
-}
-
-.fade-slide-enter-to {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.fade-slide-leave-from {
-  opacity: 1;
-  transform: translateY(0);
-}
-
+.fade-slide-enter-from,
 .fade-slide-leave-to {
   opacity: 0;
-  transform: translateY(-6px);
+  transform: translateY(-10px);
 }
 </style>

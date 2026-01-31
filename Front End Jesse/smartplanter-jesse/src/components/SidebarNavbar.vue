@@ -1,34 +1,65 @@
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import {
+  computed,
+  ref,
+  onMounted,
+  onBeforeUnmount,
+  getCurrentInstance,
+} from "vue";
 
-// Reactieve placeholders
-const username = ref('Gebruiker Naam')
-const email = ref('email@voorbeeld.com')
-const userFirstLetter = ref('G')
+const { appContext } = getCurrentInstance();
+const $auth = appContext.config.globalProperties.$auth;
 
-const router = useRouter()
+const isBeheerder = computed(() => $auth.user?.roles.includes("beheerder"));
 
-function logout() {
-  // Simpele frontend logout: navigeer naar login
-  router.push('/')
+const notificationCount = ref(0);
+let intervalId = null;
+
+async function fetchNotifications() {
+  try {
+    if (!$auth.user) return;
+
+    const res = await fetch(
+      "https://smartplanters.dedyn.io:1880/smartplantdata?table=Meldingen",
+    );
+
+    if (!res.ok) throw new Error("Fetch mislukt");
+
+    const data = await res.json();
+    const userId = $auth.user.id;
+
+    const userMeldingen = data.filter((m) => m.UserID === userId);
+
+    notificationCount.value = userMeldingen.length;
+  } catch (err) {
+    console.error("Kon meldingen niet ophalen:", err);
+  }
 }
+
+onMounted(() => {
+  fetchNotifications();
+  intervalId = setInterval(fetchNotifications, 2500);
+});
+
+onBeforeUnmount(() => {
+  if (intervalId) {
+    clearInterval(intervalId);
+    intervalId = null;
+  }
+});
 </script>
 
 <template>
   <div class="sidebar">
-
-    <!-- LOGO -->
     <div class="logo">
       <i class="fa-solid fa-seedling"></i>
       <h1 class="logo-text">SmartPlanter</h1>
     </div>
-    
-    <!-- NAVIGATIE -->
+
     <nav>
       <ul>
         <li>
-          <router-link to="/dashboard" class="nav-item">
+          <router-link to="/" class="nav-item">
             <i class="fa-solid fa-border-all"></i>
             <span class="label">Dashboard</span>
           </router-link>
@@ -39,7 +70,12 @@ function logout() {
             <i class="fa-solid fa-bell"></i>
             <span class="label">Meldingen</span>
           </router-link>
-          <p class="notificationCount">20</p>
+          <p
+            class="notificationCount"
+            :class="{ 'has-meldingen': notificationCount > 0 }"
+          >
+            {{ notificationCount }}
+          </p>
         </li>
 
         <li>
@@ -48,8 +84,25 @@ function logout() {
             <span class="label">Data</span>
           </router-link>
         </li>
+
+        <!-- PLANT PAGE -->
+        <li v-if="isBeheerder">
+          <router-link to="/plants" class="nav-item">
+            <i class="fa-solid fa-plant-wilt"></i>
+            <span class="label">Planten</span>
+          </router-link>
+        </li>
+
+        <!-- ADMIN PAGE -->
+        <li v-if="isBeheerder">
+          <router-link to="/admin" class="nav-item">
+            <i class="fa-solid fa-user-shield"></i>
+            <span class="label">Admin</span>
+          </router-link>
+        </li>
       </ul>
 
+      <!-- SETTING PAGE -->
       <ul>
         <li>
           <router-link to="/settings" class="nav-item">
@@ -59,7 +112,11 @@ function logout() {
         </li>
 
         <li>
-          <button class="nav-item" @click="logout">
+          <button
+            class="nav-item"
+            @click="$auth.logout()"
+            style="padding: 0; margin: 0"
+          >
             <i class="fa-solid fa-right-from-bracket"></i>
             <span class="label">Loguit</span>
           </button>
@@ -70,42 +127,41 @@ function logout() {
     <!-- PROFIEL -->
     <div class="profile">
       <div class="profilePicture">
-        <span>{{ userFirstLetter }}</span>
+        <span>{{ $auth.user?.firstLetter }}</span>
       </div>
       <div class="profileInfo">
-        <span class="username">{{ username }}</span>
-        <span class="usermail">{{ email }}</span>
+        <span class="username">{{ $auth.user?.fullName }}</span>
+        <span class="usermail">{{ $auth.user?.email }}</span>
       </div>
     </div>
-
   </div>
 </template>
 
 <style>
-/* ================= SIDEBAR BASIS ================= */
 .sidebar {
   position: fixed;
   top: 0;
   left: 0;
   min-height: 100%;
-  width: 4.5rem; /* start klein */
+  width: 4.5rem;
   display: flex;
   flex-direction: column;
   background: var(--light);
-  box-shadow: 5px 0 10px rgba(0,0,0,0.3);
+  box-shadow: 5px 0 10px rgba(0, 0, 0, 0.3);
   transition: width 0.3s ease;
   overflow: hidden;
   user-select: none;
   z-index: 1000;
+  color: var(--text);
+  padding: 0;
+  margin: 0;
 }
 
-/* ================= LOGO ================= */
 .logo {
   display: flex;
   align-items: center;
   height: 5rem;
   margin-left: 1rem;
-  color: var(--text);
 }
 
 .logo i {
@@ -120,22 +176,44 @@ function logout() {
   font-weight: bold;
   opacity: 0;
   transition: opacity 0.3s ease;
+  color: var(--text);
 }
 
-/* ================= NAVIGATIE ================= */
+nav {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex-grow: 1;
+  padding-top: 0.5rem;
+}
+
+ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  margin-left: 16px;
+}
+
+li {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
 .nav-item {
   display: flex;
   align-items: center;
   gap: 1rem;
   font-size: 30px;
   font-weight: 500;
-  color: var(--text);
   background: none;
   border: none;
   text-decoration: none;
-  margin-left: 1rem;
-  transition: all 0.3s ease;
   cursor: pointer;
+  transition: all 0.3s ease;
+  color: var(--text);
 }
 
 .nav-item i {
@@ -155,44 +233,25 @@ function logout() {
   color: var(--primary);
 }
 
-/* ================= NAV STRUCTUUR ================= */
-nav {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  flex-grow: 1;
-  padding-top: 0.5rem;
-}
-
-ul {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-}
-
-li {
-  display: flex;
-  align-items: center;
-  margin-bottom: 1rem;
-  position: relative;
-}
-
-/* ================= MELDING-BADGE ================= */
 .notificationCount {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 1.5rem;
   height: 1.5rem;
-  background: var(--danger);
   border-radius: 50%;
   font-weight: 600;
   margin-left: 0.5rem;
-  opacity: 0;
-  transition: opacity 0.3s ease;
+  background-color: var(--light);
+  color: var(--light);
+  transition: all 0.3s ease;
 }
 
-/* ================= PROFIEL ================= */
+.notificationCount.has-meldingen {
+  background-color: var(--danger);
+  color: var(--text);
+}
+
 .profile {
   display: flex;
   align-items: center;
@@ -204,6 +263,8 @@ li {
 .profile .username,
 .profile .usermail {
   color: var(--text);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .profilePicture {
@@ -214,7 +275,6 @@ li {
   border: 2px solid;
   flex-shrink: 0;
   background: var(--primary);
-
   display: flex;
   justify-content: center;
   align-items: center;
@@ -228,19 +288,22 @@ li {
   flex-direction: column;
 }
 
-.username, .usermail {
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-/* ================= HOVER EFFECT ================= */
 .sidebar:hover {
-  width: 20rem; /* volledige breedte */
+  width: 20rem;
 }
 
-.sidebar:hover .logo-text,
-.sidebar:hover .nav-item .label,
-.sidebar:hover .notificationCount,
+.sidebar:hover .logo-text {
+  opacity: 1;
+}
+
+.sidebar:hover .nav-item .label {
+  opacity: 1;
+}
+
+.sidebar:hover .notificationCount {
+  opacity: 1;
+}
+
 .sidebar:hover .username,
 .sidebar:hover .usermail {
   opacity: 1;

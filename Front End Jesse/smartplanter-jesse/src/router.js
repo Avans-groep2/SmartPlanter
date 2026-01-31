@@ -1,47 +1,84 @@
 // router.js
-import { createRouter, createWebHistory } from 'vue-router'
-import DashboardPage from './pages/DashboardPage.vue'
-import SettingsPage from './pages/SettingsPage.vue'
+import { createRouter, createWebHistory } from "vue-router";
+import { toast } from "./toast.js";
 
-let keycloakInstance = null
+import DashboardPage from "./pages/DashboardPage.vue";
+import SettingsPage from "./pages/SettingsPage.vue";
+import DataPage from "./pages/DataPage.vue";
+import NotificationsPage from "./pages/NotificationsPage.vue";
+import AdminPage from "./pages/AdminPage.vue";
+import PlantsPage from "./pages/PlantsPage.vue";
 
-// Functie om Keycloak binnen router te kunnen gebruiken
+let keycloakInstance = null;
+
 export function setKeycloak(keycloak) {
-  keycloakInstance = keycloak
+  keycloakInstance = keycloak;
 }
 
 const routes = [
-  { path: '/', component: DashboardPage },
   {
-    path: '/admin',
+    path: "/",
+    name: "dashboard",
+    component: DashboardPage,
+  },
+  {
+    path: "/notifications",
+    name: "notifications",
+    component: NotificationsPage,
+  },
+  {
+    path: "/data",
+    name: "data",
+    component: DataPage,
+  },
+  {
+    path: "/settings",
+    name: "settings",
     component: SettingsPage,
-    meta: { requiresRole: 'admin' }
-  }
-]
+  },
+  {
+    path: "/admin",
+    name: "admin",
+    component: AdminPage,
+    meta: {
+      requiresRole: "beheerder",
+    },
+  },
+  {
+    path: "/plants",
+    name: "plants",
+    component: PlantsPage,
+    meta: {
+      requiresRole: "beheerder",
+    },
+  },
+];
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
-})
+  routes,
+});
 
-// NAVIGATION GUARD
 router.beforeEach((to, from, next) => {
-  if (to.meta.requiresRole) {
-    if (!keycloakInstance) {
-      console.error("⚠️ Keycloak is not set yet in router.")
-      return next('/')
-    }
+  const requiredRole = to.meta.requiresRole;
 
-    const hasRole = keycloakInstance.hasRealmRole(to.meta.requiresRole)
-
-    if (hasRole) next()
-    else {
-      alert('⛔ Geen toegang! Je hebt geen admin rechten.')
-      next('/')
-    }
-  } else {
-    next()
+  if (!requiredRole) {
+    return next();
   }
-})
 
-export default router
+  if (!keycloakInstance) {
+    console.error("⚠️ Keycloak niet geïnitialiseerd");
+    return next("/");
+  }
+
+  const isAdmin = keycloakInstance.hasRealmRole("beheerder");
+
+  if (!isAdmin) {
+    toast("Geen toegang", "error");
+    return next("/");
+  }
+
+  next();
+});
+
+export default router;
