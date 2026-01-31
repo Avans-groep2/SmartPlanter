@@ -140,8 +140,22 @@ function buildChart(labels = [], data = []) {
         legend: { display: false },
       },
       scales: {
-        x: { ticks: { color: textColor } },
-        y: { ticks: { color: textColor } },
+        x: {
+          ticks: { color: textColor },
+        },
+        y: {
+          ticks: {
+            color: textColor,
+            stepSize: 0.5,
+            callback: (value) => {
+              // Alleen hele of halve waardes tonen
+              if (Number.isInteger(value) || Number.isInteger(value * 2)) {
+                return value;
+              }
+              return null;
+            },
+          },
+        },
       },
     },
   });
