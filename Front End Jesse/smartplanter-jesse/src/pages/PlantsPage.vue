@@ -7,36 +7,6 @@
     <div class="plantContainer">
       <div class="plantInputs">
         <input
-          v-model="newPlantsoort"
-          placeholder="Plantsoort"
-          @keyup.enter="addPlant"
-        />
-        <input
-          v-model="newPhMin"
-          placeholder="PhMin"
-          type="number"
-          step="0.1"
-          @keyup.enter="addPlant"
-        />
-        <input
-          v-model="newPhMax"
-          placeholder="PhMax"
-          type="number"
-          step="0.1"
-          @keyup.enter="addPlant"
-        />
-        <input
-          v-model="newGroeitijd"
-          placeholder="Groeitijd (dagen)"
-          type="number"
-          @keyup.enter="addPlant"
-        />
-
-        <button @click="addPlant">Toevoegen</button>
-      </div>
-
-      <div class="plantInputs">
-        <input
           v-model="selectedPlantsoort"
           placeholder="Plantsoort"
           @keyup.enter="wijzigPlant"
@@ -63,6 +33,7 @@
         />
 
         <button @click="wijzigPlant">Wijzigen</button>
+        <button @click="addPlant">Toevoegen</button>
       </div>
 
       <table class="plantsTable">
@@ -201,20 +172,20 @@ export default {
       const url =
         `https://smartplanters.dedyn.io:1880/smartplantedit?table=Planten` +
         `&plantID=${nextPlantID}` +
-        `&plantSoort=${encodeURIComponent(this.newPlantsoort)}` +
-        `&phMin=${this.newPhMin}` +
-        `&phMax=${this.newPhMax}` +
-        `&groeitijd=${this.newGroeitijd}`;
+        `&plantSoort=${encodeURIComponent(this.selectedPlantsoort)}` +
+        `&phMin=${this.selectedPhMin}` +
+        `&phMax=${this.selectedPhMax}` +
+        `&groeitijd=${this.selectedGroeitijd}`;
 
       try {
         await fetch(url);
         this.$toast("Plant succesvol toegevoegd", "success");
 
         // velden leegmaken
-        this.newPlantsoort = "";
-        this.newPhMin = "";
-        this.newPhMax = "";
-        this.newGroeitijd = "";
+        this.selectedPlantsoort = "";
+        this.selectedPhMin = "";
+        this.selectedPhMax = "";
+        this.selectedGroeitijd = "";
 
         setTimeout(() => {
           this.loadPlanten();
