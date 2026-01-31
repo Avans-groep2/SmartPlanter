@@ -37,13 +37,6 @@
 
       <div class="plantInputs">
         <input
-          v-model="selectedPlantID"
-          placeholder="PlantID"
-          type="number"
-          @keyup.enter="wijzigPlant"
-          readonly
-        />
-        <input
           v-model="selectedPlantsoort"
           placeholder="Plantsoort"
           @keyup.enter="wijzigPlant"
@@ -89,7 +82,6 @@
             @click="selectPlant(plant)"
             class="tableRow"
           >
-            <td>{{ plant.PlantID }}</td>
             <td>{{ plant.Plantsoort }}</td>
             <td>{{ plant.PhMin }}</td>
             <td>{{ plant.PhMax }}</td>
